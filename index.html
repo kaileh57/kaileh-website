@@ -290,36 +290,7 @@
         })
 
         
-        ;(async () => {
-            const { default: Badge } = await import("__framer-badge")
-            const ContainerWithStyleAppearEffect = Framer.withStyleAppearEffect(Framer.Container)
-            React.startTransition(() => {
-                ReactDOM.createRoot(document.getElementById("__framer-badge-container"))
-                    .render(React.createElement(ContainerWithStyleAppearEffect, {
-                        className: "__framer-badge",
-                        __framer__threshold: 0.5,
-                        __framer__animateOnce: true,
-                        __framer__opacity: 0,
-                        __framer__targetOpacity: 1,
-                        __framer__rotate: 0,
-                        __framer__x: 0,
-                        __framer__y: 10,
-                        __framer__scale: 1,
-                        __framer__transition: {
-                            "type": "spring",
-                            "ease": [0.44, 0, 0.56, 1],
-                            "duration": 0.3,
-                            "delay": 1,
-                            "stiffness": 350,
-                            "damping": 40,
-                            "mass": 1.5
-                        },
-                        __framer__rotateX: 0,
-                        __framer__rotateY: 0,
-                        __framer__perspective: 1200,
-                    }, React.createElement(Badge)))
-                })
-        })()
+        ;
     </script>
     
     <!-- End of bodyEnd -->
