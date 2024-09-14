@@ -1,0 +1,15 @@
+{
+  "files": {
+    "main.css": "/kaileh.dev/gsa/static/css/main.31ba4369.css",
+    "main.js": "/kaileh.dev/gsa/static/js/main.25a50ad2.js",
+    "static/js/453.5afaa01a.chunk.js": "/kaileh.dev/gsa/static/js/453.5afaa01a.chunk.js",
+    "index.html": "/kaileh.dev/gsa/index.html",
+    "main.31ba4369.css.map": "/kaileh.dev/gsa/static/css/main.31ba4369.css.map",
+    "main.25a50ad2.js.map": "/kaileh.dev/gsa/static/js/main.25a50ad2.js.map",
+    "453.5afaa01a.chunk.js.map": "/kaileh.dev/gsa/static/js/453.5afaa01a.chunk.js.map"
+  },
+  "entrypoints": [
+    "static/css/main.31ba4369.css",
+    "static/js/main.25a50ad2.js"
+  ]
+}
