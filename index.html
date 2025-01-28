@@ -1,1 +1,284 @@
-<!doctype html><html lang="en"><head><meta charset="utf-8"/><link rel="icon" href="./favicon.ico"/><meta name="viewport" content="width=device-width,initial-scale=1"/><meta name="theme-color" content="#000000"/><meta name="description" content="Web site created using create-react-app"/><link rel="apple-touch-icon" href="./logo192.png"/><link rel="manifest" href="./manifest.json"/><title>React App</title><script defer="defer" src="./static/js/main.a1d5fd79.js"></script><link href="./static/css/main.bb0a4e2a.css" rel="stylesheet"></head><body><noscript>You need to enable JavaScript to run this app.</noscript><div id="root"></div></body></html>
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Kaileh.dev - Portfolio</title>
+    <link href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.0.0-beta3/css/all.min.css" rel="stylesheet">
+    <style>
+        :root {
+            --bg-color: #0d1117;
+            --text-color: #c9d1d9;
+            --accent-color: #238636;
+            --secondary-bg: #161b22;
+            --border-color: #30363d;
+        }
+        * {
+            margin: 0;
+            padding: 0;
+            box-sizing: border-box;
+        }
+        body {
+            font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', 'Noto Sans', Helvetica, Arial, sans-serif;
+            line-height: 1.6;
+            color: var(--text-color);
+            background-color: var(--bg-color);
+        }
+        .container {
+            max-width: 1100px;
+            margin: auto;
+            padding: 0 2rem;
+        }
+        header {
+            background-color: var(--secondary-bg);
+            border-bottom: 1px solid var(--border-color);
+            padding: 1rem 0;
+            position: fixed;
+            width: 100%;
+            top: 0;
+            z-index: 1000;
+        }
+        header nav {
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+        }
+        header nav ul {
+            display: flex;
+            list-style: none;
+        }
+        header nav ul li {
+            margin-left: 1rem;
+        }
+        header nav ul li a {
+            color: var(--text-color);
+            text-decoration: none;
+            font-weight: 600;
+            transition: color 0.3s ease;
+        }
+        header nav ul li a:hover {
+            color: var(--accent-color);
+        }
+        .hero {
+            height: 100vh;
+            display: flex;
+            align-items: center;
+            text-align: center;
+            padding-top: 60px;
+        }
+        .hero-content h1 {
+            font-size: 3rem;
+            margin-bottom: 1rem;
+            animation: fadeInUp 1s ease-out;
+        }
+        .hero-content p {
+            font-size: 1.25rem;
+            margin-bottom: 2rem;
+            animation: fadeInUp 1s ease-out 0.5s both;
+        }
+        @keyframes fadeInUp {
+            from {
+                opacity: 0;
+                transform: translateY(20px);
+            }
+            to {
+                opacity: 1;
+                transform: translateY(0);
+            }
+        }
+        .btn {
+            display: inline-block;
+            background: var(--accent-color);
+            color: #fff;
+            padding: 0.75rem 1.5rem;
+            text-decoration: none;
+            border-radius: 6px;
+            transition: background-color 0.3s ease;
+            font-weight: 600;
+        }
+        .btn:hover {
+            background-color: #2ea043;
+        }
+        section {
+            padding: 4rem 0;
+        }
+        .section-title {
+            font-size: 2rem;
+            margin-bottom: 2rem;
+            text-align: center;
+        }
+        .projects {
+            display: grid;
+            grid-template-columns: repeat(auto-fit, minmax(300px, 1fr));
+            gap: 2rem;
+        }
+        .project {
+            background: var(--secondary-bg);
+            padding: 1.5rem;
+            border-radius: 6px;
+            border: 1px solid var(--border-color);
+            transition: transform 0.3s ease, box-shadow 0.3s ease;
+        }
+        .project:hover {
+            transform: translateY(-5px);
+            box-shadow: 0 4px 12px rgba(0,0,0,0.15);
+        }
+        .project h3 {
+            margin-bottom: 1rem;
+            color: #58a6ff;
+        }
+        .project-languages {
+            display: flex;
+            margin-top: 1rem;
+        }
+        .language-dot {
+            width: 12px;
+            height: 12px;
+            border-radius: 50%;
+            margin-right: 6px;
+        }
+        footer {
+            background: var(--secondary-bg);
+            color: var(--text-color);
+            text-align: center;
+            padding: 1rem 0;
+            border-top: 1px solid var(--border-color);
+        }
+        .theme-toggle {
+            position: fixed;
+            bottom: 20px;
+            right: 20px;
+            background: var(--secondary-bg);
+            border: 1px solid var(--border-color);
+            color: var(--text-color);
+            padding: 10px;
+            border-radius: 50%;
+            cursor: pointer;
+            transition: background-color 0.3s ease;
+        }
+        .theme-toggle:hover {
+            background-color: var(--accent-color);
+        }
+        @media (max-width: 768px) {
+            .hero-content h1 {
+                font-size: 2.5rem;
+            }
+            .hero-content p {
+                font-size: 1rem;
+            }
+        }
+    </style>
+</head>
+<body>
+    <header>
+        <div class="container">
+            <nav>
+                <h1>Kaileh57</h1>
+                <ul>
+                    <li><a href="#home">Home</a></li>
+                    <li><a href="#projects">Projects</a></li>
+                    <li><a href="#contact">Contact</a></li>
+                </ul>
+            </nav>
+        </div>
+    </header>
+
+    <section id="home" class="hero">
+        <div class="container">
+            <div class="hero-content">
+                <h1>Welcome to Kaileh.dev</h1>
+                <p>Passionate Developer | Open Source Enthusiast | Problem Solver</p>
+                <a href="#projects" class="btn">Explore My Repositories</a>
+            </div>
+        </div>
+    </section>
+
+    <section id="projects">
+        <div class="container">
+            <h2 class="section-title">My Projects</h2>
+            <div class="projects">
+                <div class="project">
+                    <h3>Project Alpha</h3>
+                    <p>Lorem ipsum dolor sit amet, consectetur adipiscing elit. Sed do eiusmod tempor incididunt ut labore.</p>
+                    <div class="project-languages">
+                        <span class="language-dot" style="background-color: #f1e05a;"></span>
+                        <span>JavaScript</span>
+                    </div>
+                </div>
+                <div class="project">
+                    <h3>Project Beta</h3>
+                    <p>Lorem ipsum dolor sit amet, consectetur adipiscing elit. Vestibulum ac diam sit amet quam.</p>
+                    <div class="project-languages">
+                        <span class="language-dot" style="background-color: #3572A5;"></span>
+                        <span>Python</span>
+                    </div>
+                </div>
+                <div class="project">
+                    <h3>Project Gamma</h3>
+                    <p>Lorem ipsum dolor sit amet, consectetur adipiscing elit. Nullam ac tortor vitae purus.</p>
+                    <div class="project-languages">
+                        <span class="language-dot" style="background-color: #00B4AB;"></span>
+                        <span>Dart</span>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </section>
+
+    <section id="contact">
+        <div class="container">
+            <h2 class="section-title">Get In Touch</h2>
+            <p><i class="fas fa-envelope"></i> Email: contact@kaileh.dev</p>
+            <p><i class="fab fa-github"></i> GitHub: github.com/Kaileh57</p>
+            <p><i class="fab fa-linkedin"></i> LinkedIn: linkedin.com/in/kaileh57</p>
+        </div>
+    </section>
+
+    <footer>
+        <div class="container">
+            <p>&copy; 2025 Kaileh.dev. All rights reserved.</p>
+        </div>
+    </footer>
+
+    <button class="theme-toggle" id="themeToggle">
+        <i class="fas fa-moon"></i>
+    </button>
+
+    <script>
+        // Theme toggle functionality
+        const themeToggle = document.getElementById('themeToggle');
+        const root = document.documentElement;
+        const moonIcon = '<i class="fas fa-moon"></i>';
+        const sunIcon = '<i class="fas fa-sun"></i>';
+
+        themeToggle.addEventListener('click', () => {
+            if (root.style.getPropertyValue('--bg-color') === '#0d1117') {
+                root.style.setProperty('--bg-color', '#ffffff');
+                root.style.setProperty('--text-color', '#24292e');
+                root.style.setProperty('--secondary-bg', '#f6f8fa');
+                root.style.setProperty('--border-color', '#e1e4e8');
+                themeToggle.innerHTML = moonIcon;
+            } else {
+                root.style.setProperty('--bg-color', '#0d1117');
+                root.style.setProperty('--text-color', '#c9d1d9');
+                root.style.setProperty('--secondary-bg', '#161b22');
+                root.style.setProperty('--border-color', '#30363d');
+                themeToggle.innerHTML = sunIcon;
+            }
+        });
+
+        // Add hover effect to projects
+        const projects = document.querySelectorAll('.project');
+        projects.forEach(project => {
+            project.addEventListener('mouseenter', () => {
+                project.style.transform = 'translateY(-5px)';
+                project.style.boxShadow = '0 4px 12px rgba(0,0,0,0.15)';
+            });
+            project.addEventListener('mouseleave', () => {
+                project.style.transform = 'translateY(0)';
+                project.style.boxShadow = 'none';
+            });
+        });
+    </script>
+</body>
+</html>
