@@ -3,284 +3,646 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Kaileh.dev - Portfolio</title>
-    <link href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.0.0-beta3/css/all.min.css" rel="stylesheet">
+    <title>Kaileh57 Portfolio</title>
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/particles.js/2.0.0/particles.min.js"></script>
     <style>
-        :root {
-            --bg-color: #0d1117;
-            --text-color: #c9d1d9;
-            --accent-color: #238636;
-            --secondary-bg: #161b22;
-            --border-color: #30363d;
+        :root {  
+            --purple: rgb(123, 31, 162);
+            --violet: rgb(103, 58, 183);
+            --pink: rgb(244, 143, 177);
         }
+
+        @keyframes background-pan {
+            from {
+                background-position: 0% center;
+            }
+            to {
+                background-position: -200% center;
+            }
+        }
+
+        @keyframes scale {
+            from, to {
+                transform: scale(0);
+            }
+            50% {
+                transform: scale(1);
+            }
+        }
+
+        @keyframes rotate {
+            from {
+                transform: rotate(0deg);
+            }
+            to {
+                transform: rotate(180deg);
+            }
+        }
+
+        .magic {
+            display: inline-block;
+            position: relative;
+        }
+
+        .magic-star {
+            --size: clamp(20px, 1.5vw, 30px);
+            animation: scale 700ms ease forwards;
+            display: block;
+            height: var(--size);
+            left: var(--star-left);
+            position: absolute;
+            top: var(--star-top);
+            width: var(--size);
+            opacity: 0; /* Start hidden */
+            transition: opacity 0.3s ease;
+        }
+
+        .magic:hover .magic-star {
+            opacity: 1; /* Show on hover */
+        }
+
+        .magic-star > svg {
+            animation: rotate 1000ms linear infinite;
+            display: block;
+            opacity: 0.7;
+        }
+
+        .magic-star > svg > path {
+            fill: var(--violet);
+        }
+
+        .magic-text {
+            animation: background-pan 3s linear infinite;
+            background: linear-gradient(
+                to right,
+                var(--purple),
+                var(--violet),
+                var(--pink),
+                var(--purple)
+            );
+            background-size: 200%;
+            -webkit-background-clip: text;
+            -webkit-text-fill-color: transparent;
+            white-space: nowrap;
+        }
+
         * {
             margin: 0;
             padding: 0;
             box-sizing: border-box;
+            font-family: 'Inter', sans-serif;
         }
+
         body {
-            font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', 'Noto Sans', Helvetica, Arial, sans-serif;
+            background-color: #1a1a1a;
+            color: #e0e0e0;
             line-height: 1.6;
-            color: var(--text-color);
-            background-color: var(--bg-color);
         }
-        .container {
-            max-width: 1100px;
-            margin: auto;
-            padding: 0 2rem;
-        }
-        header {
-            background-color: var(--secondary-bg);
-            border-bottom: 1px solid var(--border-color);
-            padding: 1rem 0;
+
+        #particles-js {
             position: fixed;
-            width: 100%;
             top: 0;
-            z-index: 1000;
+            left: 0;
+            width: 100%;
+            height: 100%;
+            z-index: 1;
         }
-        header nav {
+
+        .content {
+            position: relative;
+            z-index: 2;
+            padding: 2rem;
+        }
+
+        nav {
             display: flex;
             justify-content: space-between;
             align-items: center;
+            padding: 1rem 2rem;
+            background-color: rgba(26, 26, 26, 0.3); 
+            backdrop-filter: blur(8px);
+            -webkit-backdrop-filter: blur(8px);
+            position: fixed;
+            width: 100%;
+            top: 0;
+            z-index: 3;
+            border-bottom: 1px solid rgba(138, 43, 226, 0.1); 
         }
-        header nav ul {
+
+        .logo {
+            font-size: 1.5rem;
+            font-weight: bold;
+            color: #8A2BE2;
+        }
+
+        nav ul {
             display: flex;
+            gap: 2rem;
             list-style: none;
         }
-        header nav ul li {
-            margin-left: 1rem;
-        }
-        header nav ul li a {
-            color: var(--text-color);
+
+        nav a {
+            color: #e0e0e0;
             text-decoration: none;
-            font-weight: 600;
-            transition: color 0.3s ease;
+            transition: color 0.3s;
         }
-        header nav ul li a:hover {
-            color: var(--accent-color);
+
+        nav a:hover {
+            color: #8A2BE2;
         }
+
+        
+
         .hero {
             height: 100vh;
             display: flex;
             align-items: center;
+            justify-content: center;
             text-align: center;
-            padding-top: 60px;
+            padding-top: 4rem;
         }
-        .hero-content h1 {
-            font-size: 3rem;
+
+        .hero-content {
+            max-width: 800px;
+        }
+
+        h1 {
+            font-size: 3.5rem;
             margin-bottom: 1rem;
-            animation: fadeInUp 1s ease-out;
+            color: #ffffff;
         }
-        .hero-content p {
-            font-size: 1.25rem;
-            margin-bottom: 2rem;
-            animation: fadeInUp 1s ease-out 0.5s both;
+
+        .highlight {
+            color: #8A2BE2;
         }
-        @keyframes fadeInUp {
-            from {
-                opacity: 0;
-                transform: translateY(20px);
-            }
-            to {
-                opacity: 1;
-                transform: translateY(0);
-            }
+
+        .section {
+            padding: 5rem 2rem;
+            max-width: 1200px;
+            margin: 0 auto;
         }
-        .btn {
-            display: inline-block;
-            background: var(--accent-color);
-            color: #fff;
-            padding: 0.75rem 1.5rem;
-            text-decoration: none;
-            border-radius: 6px;
-            transition: background-color 0.3s ease;
-            font-weight: 600;
-        }
-        .btn:hover {
-            background-color: #2ea043;
-        }
-        section {
-            padding: 4rem 0;
-        }
-        .section-title {
-            font-size: 2rem;
-            margin-bottom: 2rem;
+
+        .section h2 {
             text-align: center;
+            margin-bottom: 2rem;
+            font-size: 2.5rem;
+            position: relative;
         }
+
+        .section h2::after {
+            content: '';
+            position: absolute;
+            bottom: -10px;
+            left: 50%;
+            transform: translateX(-50%);
+            width: 60px;
+            height: 3px;
+            background: #8A2BE2;
+            border-radius: 2px;
+        }
+
         .projects {
             display: grid;
             grid-template-columns: repeat(auto-fit, minmax(300px, 1fr));
             gap: 2rem;
+            padding: 2rem 0;
         }
-        .project {
-            background: var(--secondary-bg);
+
+        .project-card {
+            background-color: #2a2a2a;
+            border-radius: 10px;
             padding: 1.5rem;
-            border-radius: 6px;
-            border: 1px solid var(--border-color);
-            transition: transform 0.3s ease, box-shadow 0.3s ease;
+            transition: transform 0.3s;
         }
-        .project:hover {
+
+        .project-card:hover {
             transform: translateY(-5px);
-            box-shadow: 0 4px 12px rgba(0,0,0,0.15);
         }
-        .project h3 {
+
+        .project-card img {
+            width: 100%;
+            height: 200px;
+            object-fit: cover;
+            border-radius: 5px;
             margin-bottom: 1rem;
-            color: #58a6ff;
         }
-        .project-languages {
+
+        .skills {
             display: flex;
-            align-items: center;
+            gap: 1rem;
+            margin-top: 2rem;
+            overflow-x: auto;
+            padding: 1rem 0;
+            -ms-overflow-style: none; 
+            scrollbar-width: none;
+            white-space: nowrap;
+        }
+
+        /* Hide scrollbar for Chrome, Safari and Opera */
+        .skills::-webkit-scrollbar {
+            display: none;
+        }
+
+        .skills {
+            padding-right: 2rem;
+        }
+
+        .skills {
+            scroll-behavior: smooth;
+            -webkit-overflow-scrolling: touch;
+        }
+
+        .skill-tag {
+            background-color: #8A2BE2;
+            color: white;
+            padding: 0.5rem 1rem;
+            border-radius: 20px;
+            font-size: 0.9rem;
+            flex-shrink: 0; 
+            transition: transform 0.3s ease;
+        }
+
+        .skill-tag:hover {
+            transform: translateY(-2px);
+            background-color: #7B1FA2;
+        }
+
+        .contact-form {
+            max-width: 600px;
+            margin: 0 auto;
+        }
+
+        input, textarea {
+            width: 100%;
+            padding: 0.8rem;
+            margin-bottom: 1rem;
+            background-color: #2a2a2a;
+            border: 1px solid #404040;
+            border-radius: 5px;
+            color: #e0e0e0;
+        }
+
+        button {
+            background-color: #8A2BE2;
+            color: white;
+            padding: 0.8rem 2rem;
+            border: none;
+            border-radius: 5px;
+            cursor: pointer;
+            transition: background-color 0.3s;
+        }
+
+        button:hover {
+            background-color: #45a049;
+        }
+
+        footer {
+            padding: 0rem;
+            text-align: center;
+            margin-top: 4rem;
+        }
+
+        footer p {
+            color: #e0e0e0;
+            opacity: 0.8; 
+        }
+
+        .social-links {
+            display: flex;
+            justify-content: center;
+            gap: 2rem;
             margin-top: 1rem;
         }
-        .language-dot {
-            width: 12px;
-            height: 12px;
-            border-radius: 50%;
-            margin-right: 6px;
-            display: inline-block;
+
+        .social-links a {
+            color: #e0e0e0;
+            text-decoration: none;
+            font-size: 1.5rem;
+            transition: color 0.3s;
         }
-        footer {
-            background: var(--secondary-bg);
-            color: var(--text-color);
-            text-align: center;
-            padding: 1rem 0;
-            border-top: 1px solid var(--border-color);
-        }
-        .theme-toggle {
-            position: fixed;
-            bottom: 20px;
-            right: 20px;
-            background: var(--secondary-bg);
-            border: 1px solid var(--border-color);
-            color: var(--text-color);
-            padding: 10px;
-            border-radius: 50%;
-            cursor: pointer;
-            transition: background-color 0.3s ease;
-        }
-        .theme-toggle:hover {
-            background-color: var(--accent-color);
-        }
-        @media (max-width: 768px) {
-            .hero-content h1 {
-                font-size: 2.5rem;
-            }
-            .hero-content p {
-                font-size: 1rem;
-            }
+
+        .social-links a:hover {
+            color: #8A2BE2;
         }
     </style>
 </head>
 <body>
-    <header>
-        <div class="container">
-            <nav>
-                <h1>Kaileh57</h1>
-                <ul>
-                    <li><a href="#home">Home</a></li>
-                    <li><a href="#projects">Projects</a></li>
-                    <li><a href="#contact">Contact</a></li>
-                </ul>
-            </nav>
+    <div id="particles-js"></div>
+    
+    <nav>
+        <div class="logo">
+            <span class="magic">
+                <span class="magic-star">
+                    <svg viewBox="0 0 512 512">
+                    <path d="M512 255.1c0 11.34-7.406 20.86-18.44 23.64l-171.3 42.78l-42.78 171.1C276.7 504.6 267.2 512 255.9 512s-20.84-7.406-23.62-18.44l-42.66-171.2L18.47 279.6C7.406 276.8 0 267.3 0 255.1c0-11.34 7.406-20.83 18.44-23.61l171.2-42.78l42.78-171.1C235.2 7.406 244.7 0 256 0s20.84 7.406 23.62 18.44l42.78 171.2l171.2 42.78C504.6 235.2 512 244.6 512 255.1z" />
+                    </svg>
+                </span>
+                <span class="magic-star">
+                    <svg viewBox="0 0 512 512">
+                    <path d="M512 255.1c0 11.34-7.406 20.86-18.44 23.64l-171.3 42.78l-42.78 171.1C276.7 504.6 267.2 512 255.9 512s-20.84-7.406-23.62-18.44l-42.66-171.2L18.47 279.6C7.406 276.8 0 267.3 0 255.1c0-11.34 7.406-20.83 18.44-23.61l171.2-42.78l42.78-171.1C235.2 7.406 244.7 0 256 0s20.84 7.406 23.62 18.44l42.78 171.2l171.2 42.78C504.6 235.2 512 244.6 512 255.1z" />
+                    </svg>
+                </span>
+                <span class="magic-star">
+                    <svg viewBox="0 0 512 512">
+                    <path d="M512 255.1c0 11.34-7.406 20.86-18.44 23.64l-171.3 42.78l-42.78 171.1C276.7 504.6 267.2 512 255.9 512s-20.84-7.406-23.62-18.44l-42.66-171.2L18.47 279.6C7.406 276.8 0 267.3 0 255.1c0-11.34 7.406-20.83 18.44-23.61l171.2-42.78l42.78-171.1C235.2 7.406 244.7 0 256 0s20.84 7.406 23.62 18.44l42.78 171.2l171.2 42.78C504.6 235.2 512 244.6 512 255.1z" />
+                    </svg>
+                </span>
+                <span class="magic-text">K57</span>
+            </span>
         </div>
-    </header>
+        <ul>
+            <li><a href="#home">Home</a></li>
+            <li><a href="#projects">Projects</a></li>
+            <li><a href="#about">About</a></li>
+            <li><a href="#contact">Contact</a></li>
+        </ul>
+    </nav>
 
-    <section id="home" class="hero">
-        <div class="container">
+    <div class="content">
+        <section id="home" class="hero">
             <div class="hero-content">
-                <h1>Welcome to Kaileh.dev</h1>
-                <p>Passionate Developer | Open Source Enthusiast | Problem Solver</p>
-                <a href="#projects" class="btn">Explore My Repositories</a>
+                <h1>Hi, I'm 
+                    <span class="magic">
+                        <span class="magic-star">
+                            <svg viewBox="0 0 512 512">
+                            <path d="M512 255.1c0 11.34-7.406 20.86-18.44 23.64l-171.3 42.78l-42.78 171.1C276.7 504.6 267.2 512 255.9 512s-20.84-7.406-23.62-18.44l-42.66-171.2L18.47 279.6C7.406 276.8 0 267.3 0 255.1c0-11.34 7.406-20.83 18.44-23.61l171.2-42.78l42.78-171.1C235.2 7.406 244.7 0 256 0s20.84 7.406 23.62 18.44l42.78 171.2l171.2 42.78C504.6 235.2 512 244.6 512 255.1z" />
+                            </svg>
+                        </span>
+                        <span class="magic-star">
+                            <svg viewBox="0 0 512 512">
+                            <path d="M512 255.1c0 11.34-7.406 20.86-18.44 23.64l-171.3 42.78l-42.78 171.1C276.7 504.6 267.2 512 255.9 512s-20.84-7.406-23.62-18.44l-42.66-171.2L18.47 279.6C7.406 276.8 0 267.3 0 255.1c0-11.34 7.406-20.83 18.44-23.61l171.2-42.78l42.78-171.1C235.2 7.406 244.7 0 256 0s20.84 7.406 23.62 18.44l42.78 171.2l171.2 42.78C504.6 235.2 512 244.6 512 255.1z" />
+                            </svg>
+                        </span>
+                        <span class="magic-star">
+                            <svg viewBox="0 0 512 512">
+                            <path d="M512 255.1c0 11.34-7.406 20.86-18.44 23.64l-171.3 42.78l-42.78 171.1C276.7 504.6 267.2 512 255.9 512s-20.84-7.406-23.62-18.44l-42.66-171.2L18.47 279.6C7.406 276.8 0 267.3 0 255.1c0-11.34 7.406-20.83 18.44-23.61l171.2-42.78l42.78-171.1C235.2 7.406 244.7 0 256 0s20.84 7.406 23.62 18.44l42.78 171.2l171.2 42.78C504.6 235.2 512 244.6 512 255.1z" />
+                            </svg>
+                        </span>
+                        <span class="magic-text">Kaileh57</span>
+                    </span>
+                </h1>
+                <p>Game Designer & Fullstack Developer</p>
             </div>
-        </div>
-    </section>
+        </section>
 
-    <section id="projects">
-        <div class="container">
-            <h2 class="section-title">My Projects</h2>
+        <section id="projects" class="section">
+            <h2>Featured Projects</h2>
             <div class="projects">
-                <div class="project">
-                    <h3>Project Alpha</h3>
-                    <p>Lorem ipsum dolor sit amet, consectetur adipiscing elit. Sed do eiusmod tempor incididunt ut labore.</p>
-                    <div class="project-languages">
-                        <span class="language-dot" style="background-color: #f1e05a;"></span>
-                        <span>JavaScript</span>
+                <div class="project-card">
+                    <img src="/api/placeholder/400/300" alt="Project 1">
+                    <h3>Project One</h3>
+                    <p>A thing I made.</p>
+                    <div class="skills">
+                        <span class="skill-tag">Godot</span>
+                        <span class="skill-tag">OpenXR</span>
+                        <span class="skill-tag">Vulkan</span>
                     </div>
                 </div>
-                <div class="project">
-                    <h3>Project Beta</h3>
-                    <p>Lorem ipsum dolor sit amet, consectetur adipiscing elit. Vestibulum ac diam sit amet quam.</p>
-                    <div class="project-languages">
-                        <span class="language-dot" style="background-color: #3572A5;"></span>
-                        <span>Python</span>
+                <div class="project-card">
+                    <img src="/api/placeholder/400/300" alt="Project 2">
+                    <h3>Project Two</h3>
+                    <p>Another thing I made</p>
+                    <div class="skills">
+                        <span class="skill-tag">React</span>
+                        <span class="skill-tag">FluentUI</span>
+                        <span class="skill-tag">Azure</span>
                     </div>
                 </div>
-                <div class="project">
-                    <h3>Project Gamma</h3>
-                    <p>Lorem ipsum dolor sit amet, consectetur adipiscing elit. Nullam ac tortor vitae purus.</p>
-                    <div class="project-languages">
-                        <span class="language-dot" style="background-color: #00B4AB;"></span>
-                        <span>Dart</span>
+                <div class="project-card">
+                    <img src="/api/placeholder/400/300" alt="Project 3">
+                    <h3>Project Three</h3>
+                    <p>Something I helped with</p>
+                    <div class="skills">
+                        <span class="skill-tag">Python</span>
+                        <span class="skill-tag">PyTorch</span>
+                        <span class="skill-tag">Gemini & Claude API</span>
                     </div>
                 </div>
             </div>
-        </div>
-    </section>
+        </section>
 
-    <section id="contact">
-        <div class="container">
-            <h2 class="section-title">Get In Touch</h2>
-            <p><i class="fas fa-envelope"></i> Email: contact@kaileh.dev</p>
-            <p><i class="fab fa-github"></i> GitHub: github.com/Kaileh57</p>
-            <p><i class="fab fa-linkedin"></i> LinkedIn: linkedin.com/in/kaileh57</p>
-        </div>
-    </section>
+        <section id="about" class="section">
+            <h2>About Me</h2>
+            <p>Hi! From designing and developing XR games in Godot 4.3 and Unreal 5.4 in my free time, to building fullstack tools using React and FluentUI for Microsoft, and develpoing open-source AI tools in my free time, I bring a wide range of experience and knowledge to any project!</p>
+            <p>Some of my skills:</p>
+            <div class="skills">
+                <span class="skill-tag">React</span>
+                <span class="skill-tag">Godot</span>
+                <span class="skill-tag">Unreal</span>
+                <span class="skill-tag">Python</span>
+                <span class="skill-tag">PyTorch</span>
+                <span class="skill-tag">Java</span>
+                <span class="skill-tag">C#</span>
+                <span class="skill-tag">Vulkan</span>
+                <span class="skill-tag">OpenGL</span>
+                <span class="skill-tag">Direct3D</span>
+                <span class="skill-tag">OpenXR</span>
+                <span class="skill-tag">FluentUI</span>
+                <span class="skill-tag">Azure</span>
+                <span class="skill-tag">AWS</span>
+            </div>
+        </section>
 
-    <footer>
-        <div class="container">
-            <p>&copy; 2025 Kaileh.dev. All rights reserved.</p>
-        </div>
-    </footer>
+        <section id="contact" class="section">
+            <h2>Find Me On GitHub</h2>
+            <div class="github-link-container">
+                <a href="https://github.com/kaileh57" class="github-link">
+                    <span class="magic">
+                        <span class="magic-star">
+                            <svg viewBox="0 0 512 512">
+                            <path d="M512 255.1c0 11.34-7.406 20.86-18.44 23.64l-171.3 42.78l-42.78 171.1C276.7 504.6 267.2 512 255.9 512s-20.84-7.406-23.62-18.44l-42.66-171.2L18.47 279.6C7.406 276.8 0 267.3 0 255.1c0-11.34 7.406-20.83 18.44-23.61l171.2-42.78l42.78-171.1C235.2 7.406 244.7 0 256 0s20.84 7.406 23.62 18.44l42.78 171.2l171.2 42.78C504.6 235.2 512 244.6 512 255.1z" />
+                            </svg>
+                        </span>
+                        <span class="magic-star">
+                            <svg viewBox="0 0 512 512">
+                            <path d="M512 255.1c0 11.34-7.406 20.86-18.44 23.64l-171.3 42.78l-42.78 171.1C276.7 504.6 267.2 512 255.9 512s-20.84-7.406-23.62-18.44l-42.66-171.2L18.47 279.6C7.406 276.8 0 267.3 0 255.1c0-11.34 7.406-20.83 18.44-23.61l171.2-42.78l42.78-171.1C235.2 7.406 244.7 0 256 0s20.84 7.406 23.62 18.44l42.78 171.2l171.2 42.78C504.6 235.2 512 244.6 512 255.1z" />
+                            </svg>
+                        </span>
+                        <span class="magic-star">
+                            <svg viewBox="0 0 512 512">
+                            <path d="M512 255.1c0 11.34-7.406 20.86-18.44 23.64l-171.3 42.78l-42.78 171.1C276.7 504.6 267.2 512 255.9 512s-20.84-7.406-23.62-18.44l-42.66-171.2L18.47 279.6C7.406 276.8 0 267.3 0 255.1c0-11.34 7.406-20.83 18.44-23.61l171.2-42.78l42.78-171.1C235.2 7.406 244.7 0 256 0s20.84 7.406 23.62 18.44l42.78 171.2l171.2 42.78C504.6 235.2 512 244.6 512 255.1z" />
+                            </svg>
+                        </span>
+                        <span class="magic-text">Check out my code</span>
+                    </span>
+                    <svg class="github-icon" xmlns="http://www.w3.org/2000/svg" width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
+                        <path d="M9 19c-5 1.5-5-2.5-7-3m14 6v-3.87a3.37 3.37 0 0 0-.94-2.61c3.14-.35 6.44-1.54 6.44-7A5.44 5.44 0 0 0 20 4.77 5.07 5.07 0 0 0 19.91 1S18.73.65 16 2.48a13.38 13.38 0 0 0-7 0C6.27.65 5.09 1 5.09 1A5.07 5.07 0 0 0 5 4.77a5.44 5.44 0 0 0-1.5 3.78c0 5.42 3.3 6.61 6.44 7A3.37 3.37 0 0 0 9 18.13V22"></path>
+                    </svg>
+                </a>
+            </div>
+        </section>
+        
+        <style>
+        .github-link-container {
+            display: flex;
+            justify-content: center;
+            align-items: center;
+            margin-top: 2rem;
+        }
+        
+        .github-link {
+            display: flex;
+            align-items: center;
+            gap: 1rem;
+            padding: 1rem 2rem;
+            background: rgba(138, 43, 226, 0.1);
+            border: 2px solid #8A2BE2;
+            border-radius: 12px;
+            text-decoration: none;
+            color: #e0e0e0;
+            font-size: 1.2rem;
+            transition: all 0.3s ease;
+        }
+        
+        .github-link:hover {
+            background: rgba(138, 43, 226, 0.2);
+            transform: translateY(-3px);
+            box-shadow: 0 6px 20px rgba(138, 43, 226, 0.2);
+        }
+        
+        .github-icon {
+            width: 24px;
+            height: 24px;
+            stroke: #8A2BE2;
+            transition: transform 0.3s ease;
+        }
+        
+        .github-link:hover .github-icon {
+            transform: rotate(12deg) scale(1.1);
+        }
+        
+        .github-link .magic-text {
+            font-size: 1.2rem;
+        }
+        
+        .github-link:hover .magic-star {
+            opacity: 1;
+        }
+        </style>
 
-    <button class="theme-toggle" id="themeToggle">
-        <i class="fas fa-moon"></i>
-    </button>
+        <footer>
+            <p>© 2025 Kaileh57. All rights reserved.</p>
+            <div class="social-links">
+                <a href="#" aria-label="GitHub">
+                    <i class="fab fa-github"></i>
+                </a>
+                <a href="#" aria-label="Twitter">
+                    <i class="fab fa-twitter"></i>
+                </a>
+                <a href="#" aria-label="LinkedIn">
+                    <i class="fab fa-linkedin"></i>
+                </a>
+            </div>
+        </footer>
+    </div>
 
     <script>
-        // Theme toggle functionality
-        const themeToggle = document.getElementById('themeToggle');
-        const root = document.documentElement;
-        const moonIcon = '<i class="fas fa-moon"></i>';
-        const sunIcon = '<i class="fas fa-sun"></i>';
-
-        themeToggle.addEventListener('click', () => {
-            if (root.style.getPropertyValue('--bg-color') === '#0d1117') {
-                root.style.setProperty('--bg-color', '#ffffff');
-                root.style.setProperty('--text-color', '#24292e');
-                root.style.setProperty('--secondary-bg', '#f6f8fa');
-                root.style.setProperty('--border-color', '#e1e4e8');
-                themeToggle.innerHTML = moonIcon;
-            } else {
-                root.style.setProperty('--bg-color', '#0d1117');
-                root.style.setProperty('--text-color', '#c9d1d9');
-                root.style.setProperty('--secondary-bg', '#161b22');
-                root.style.setProperty('--border-color', '#30363d');
-                themeToggle.innerHTML = sunIcon;
-            }
-        });
-
-        // Add hover effect to projects
-        const projects = document.querySelectorAll('.project');
-        projects.forEach(project => {
-            project.addEventListener('mouseenter', () => {
-                project.style.transform = 'translateY(-5px)';
-                project.style.boxShadow = '0 4px 12px rgba(0,0,0,0.15)';
-            });
-            project.addEventListener('mouseleave', () => {
-                project.style.transform = 'translateY(0)';
-                project.style.boxShadow = 'none';
-            });
+        particlesJS('particles-js',
+        {
+            "particles": {
+                "number": {
+                    "value": 80,
+                    "density": {
+                        "enable": true,
+                        "value_area": 800
+                    }
+                },
+                "color": {
+                    "value": "#8A2BE2"
+                },
+                "shape": {
+                    "type": "circle"
+                },
+                "opacity": {
+                    "value": 0.5,
+                    "random": false
+                },
+                "size": {
+                    "value": 3,
+                    "random": true
+                },
+                "line_linked": {
+                    "enable": true,
+                    "distance": 150,
+                    "color": "#8A2BE2",
+                    "opacity": 0.4,
+                    "width": 1
+                },
+                "move": {
+                    "enable": true,
+                    "speed": 2,
+                    "direction": "none",
+                    "random": false,
+                    "straight": false,
+                    "out_mode": "out",
+                    "bounce": false
+                }
+            },
+            "interactivity": {
+                "detect_on": "canvas",
+                "events": {
+                    "onhover": {
+                        "enable": true,
+                        "mode": "grab"
+                    },
+                    "onclick": {
+                        "enable": true,
+                        "mode": "push"
+                    },
+                    "resize": true
+                },
+                "modes": {
+                    "grab": {
+                        "distance": 140,
+                        "line_linked": {
+                            "opacity": 1
+                        }
+                    },
+                    "push": {
+                        "particles_nb": 4
+                    }
+                }
+            },
+            "retina_detect": true
         });
     </script>
+    <script>
+        let index = 0,
+            interval = 1000;
+        
+        const rand = (min, max) => 
+            Math.floor(Math.random() * (max - min + 1)) + min;
+        
+        const animate = star => {
+            star.style.setProperty("--star-left", `${rand(-10, 100)}%`);
+            star.style.setProperty("--star-top", `${rand(-40, 80)}%`);
+        
+            star.style.animation = "none";
+            star.offsetHeight;
+            star.style.animation = "";
+        }
+        
+        // Only start the animation when hovering
+        document.querySelectorAll('.magic').forEach(magicElement => {
+            const stars = magicElement.getElementsByClassName('magic-star');
+            
+            magicElement.addEventListener('mouseenter', () => {
+                [...stars].forEach((star, i) => {
+                    setTimeout(() => {
+                        animate(star);
+                        setInterval(() => animate(star), 1000);
+                    }, i * (interval / 3));
+                });
+            });
+        
+            // Optional: Clear intervals when mouse leaves
+            magicElement.addEventListener('mouseleave', () => {
+                [...stars].forEach(star => {
+                    const intervals = star.intervals || [];
+                    intervals.forEach(clearInterval);
+                });
+            });
+        });
+        </script>
 </body>
 </html>
