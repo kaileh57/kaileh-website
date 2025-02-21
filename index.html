@@ -236,19 +236,17 @@
             border-radius: 5px;
             margin-bottom: 1rem;
         }
-
         .skills {
             display: flex;
             gap: 1rem;
-            margin-top: 2rem;
+            margin-top: 0.5rem;
             overflow-x: auto;
-            padding: 1rem 0;
-            -ms-overflow-style: none; 
-            scrollbar-width: none;
+            padding: 0.5rem 0;
             white-space: nowrap;
+            -ms-overflow-style: none;
+            scrollbar-width: none;
         }
 
-        /* Hide scrollbar for Chrome, Safari and Opera */
         .skills::-webkit-scrollbar {
             display: none;
         }
@@ -420,7 +418,7 @@
             <h2>Featured Projects</h2>
             <div class="projects">
                 <div class="project-card">
-                    <img src="/api/placeholder/400/300" alt="Project 1">
+                    <!-- <img src="/api/placeholder/400/300" alt="Project 1"> -->
                     <h3>Project One</h3>
                     <p>A thing I made.</p>
                     <div class="skills">
@@ -430,7 +428,7 @@
                     </div>
                 </div>
                 <div class="project-card">
-                    <img src="/api/placeholder/400/300" alt="Project 2">
+                    <!-- <img src="/api/placeholder/400/300" alt="Project 2"> -->
                     <h3>Project Two</h3>
                     <p>Another thing I made</p>
                     <div class="skills">
@@ -440,7 +438,7 @@
                     </div>
                 </div>
                 <div class="project-card">
-                    <img src="/api/placeholder/400/300" alt="Project 3">
+                    <!-- <img src="/api/placeholder/400/300" alt="Project 3"> -->
                     <h3>Project Three</h3>
                     <p>Something I helped with</p>
                     <div class="skills">
@@ -698,6 +696,44 @@
                     } else {
                         scrollIndicator.style.opacity = '1';
                     }
+                });
+                </script>
+                <script>
+                    document.querySelectorAll('.skills').forEach(skillsContainer => {
+                    let scrollInterval;
+                    let isReturningToStart = false;
+                    
+                    skillsContainer.addEventListener('mouseenter', () => {
+                        if (isReturningToStart) {
+                            isReturningToStart = false;
+                        }
+                        // Clear any existing interval
+                        clearInterval(scrollInterval);
+                        
+                        scrollInterval = setInterval(() => {
+                            const maxScroll = skillsContainer.scrollWidth - skillsContainer.clientWidth;
+                            
+                            // Only scroll forward while hovering
+                            if (skillsContainer.scrollLeft < maxScroll - 1) {
+                                skillsContainer.scrollLeft += 2;
+                            }
+                        }, 15);
+                    });
+
+                    skillsContainer.addEventListener('mouseleave', () => {
+                        clearInterval(scrollInterval);
+                        isReturningToStart = true;
+                        
+                        // Slowly scroll back to start
+                        scrollInterval = setInterval(() => {
+                            if (skillsContainer.scrollLeft <= 0 || !isReturningToStart) {
+                                clearInterval(scrollInterval);
+                                isReturningToStart = false;
+                            } else {
+                                skillsContainer.scrollLeft = Math.max(0, skillsContainer.scrollLeft - 2);
+                            }
+                        }, 15);
+                    });
                 });
                 </script>
 </body>
