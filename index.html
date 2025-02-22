@@ -4,7 +4,7 @@
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title>Kaileh57</title>
-    <link rel="icon" href="favicon.ico" type="image/x-icon">
+    <link rel="icon" type="image/png" id="favicon">
 
     <meta property="og:type" content="website" />
     <meta property="og:title" content="Kaileh57's Portfolio" />
@@ -631,7 +631,66 @@
             </div>
         </footer>
     </div>
-
+    <script>
+        // Favicon animation setup
+        const faviconCanvas = document.createElement('canvas');
+        faviconCanvas.width = 64;
+        faviconCanvas.height = 64;
+        const ctx = faviconCanvas.getContext('2d', { alpha: true });
+    
+        // Create favicon downscaling canvas
+        const tempCanvas = document.createElement('canvas');
+        tempCanvas.width = 32;
+        tempCanvas.height = 32;
+        const tempCtx = tempCanvas.getContext('2d', { alpha: true });
+        tempCtx.imageSmoothingEnabled = true;
+        tempCtx.imageSmoothingQuality = 'high';
+    
+        // Get favicon link element
+        const faviconLink = document.getElementById('favicon');
+        let offset = 0;
+    
+        function updateFavicon() {
+            // Clear canvas with transparency
+            ctx.clearRect(0, 0, 64, 64);
+    
+            // Create gradient
+            const gradient = ctx.createLinearGradient(0, 0, 64, 0);
+            
+            // Gradient with color stops
+            gradient.addColorStop((0 + offset) % 1, 'rgb(123, 31, 162)');
+            gradient.addColorStop((0.2 + offset) % 1, 'rgb(103, 58, 183)');
+            gradient.addColorStop((0.4 + offset) % 1, 'rgb(244, 143, 177)');
+            gradient.addColorStop((0.6 + offset) % 1, 'rgb(123, 31, 162)');
+            gradient.addColorStop((0.8 + offset) % 1, 'rgb(103, 58, 183)');
+            gradient.addColorStop((1 + offset) % 1, 'rgb(123, 31, 162)');
+    
+            // Draw text
+            ctx.textAlign = 'center';
+            ctx.textBaseline = 'middle';
+            ctx.font = 'bold 56px Inter, Arial';
+            ctx.fillStyle = gradient;
+            ctx.fillText('K', 32, 36);
+    
+            // Update offset for next frame
+            offset = (offset + 0.01) % 1;
+    
+            // Downscale to favicon size
+            tempCtx.clearRect(0, 0, 32, 32);
+            tempCtx.drawImage(faviconCanvas, 0, 0, 32, 32);
+            
+            // Update favicon
+            faviconLink.href = tempCanvas.toDataURL('image/png');
+            
+            requestAnimationFrame(updateFavicon);
+        }
+    
+        // Start animation when fonts are loaded
+        document.fonts.ready.then(() => {
+            updateFavicon();
+        });
+    </script>
+    
     <script>
         particlesJS('particles-js',
         {
