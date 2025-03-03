@@ -1,0 +1,1217 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>MMLU-Pro API Documentation</title>
+  <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/highlight.js/11.7.0/styles/atom-one-dark.min.css">
+  <script src="https://cdnjs.cloudflare.com/ajax/libs/highlight.js/11.7.0/highlight.min.js"></script>
+  <script src="https://cdnjs.cloudflare.com/ajax/libs/highlight.js/11.7.0/languages/bash.min.js"></script>
+  <script src="https://cdnjs.cloudflare.com/ajax/libs/highlight.js/11.7.0/languages/javascript.min.js"></script>
+  <script src="https://cdnjs.cloudflare.com/ajax/libs/highlight.js/11.7.0/languages/python.min.js"></script>
+  <script src="https://cdnjs.cloudflare.com/ajax/libs/particles.js/2.0.0/particles.min.js"></script>
+  <style>
+    :root {
+      --purple: rgb(123, 31, 162);
+      --violet: rgb(103, 58, 183);
+      --pink: rgb(244, 143, 177);
+      --blurple: #8A2BE2;
+    }
+
+    @keyframes background-pan {
+      from {
+        background-position: 0% center;
+      }
+      to {
+        background-position: -200% center;
+      }
+    }
+
+    @keyframes fadeIn {
+      from {
+        opacity: 0;
+      }
+      to {
+        opacity: 1;
+      }
+    }
+
+    * {
+      margin: 0;
+      padding: 0;
+      box-sizing: border-box;
+      font-family: 'Inter', -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, Oxygen, Ubuntu, Cantarell, 'Open Sans', 'Helvetica Neue', sans-serif;
+    }
+
+    body {
+      background-color: #1a1a1a;
+      color: #e0e0e0;
+      line-height: 1.6;
+      overflow-x: hidden;
+    }
+
+    body::-webkit-scrollbar {
+      width: 8px;
+    }
+
+    body::-webkit-scrollbar-track {
+      background: #1a1a1a;
+    }
+
+    body::-webkit-scrollbar-thumb {
+      background: #333333;
+      border-radius: 4px;
+    }
+
+    body::-webkit-scrollbar-thumb:hover {
+      background: #444444;
+    }
+
+    #particles-js {
+      position: fixed;
+      top: 0;
+      left: 0;
+      width: 100%;
+      height: 100%;
+      z-index: 1;
+      opacity: 0.4;
+    }
+
+    .container {
+      position: relative;
+      z-index: 2;
+      max-width: 1400px;
+      margin: 0 auto;
+      padding: 0 1rem;
+    }
+
+    .magic-text {
+      animation: background-pan 3s linear infinite;
+      background: linear-gradient(
+        to right,
+        var(--purple),
+        var(--violet),
+        var(--pink),
+        var(--purple)
+      );
+      background-size: 200%;
+      -webkit-background-clip: text;
+      -webkit-text-fill-color: transparent;
+      white-space: nowrap;
+    }
+
+    header {
+      padding: 3rem 1rem;
+      animation: fadeIn 1s ease-in-out;
+    }
+
+    h1 {
+      font-size: 2.5rem;
+      font-weight: 800;
+      margin-bottom: 0.5rem;
+    }
+
+    h2 {
+      font-size: 1.8rem;
+      font-weight: 700;
+      margin: 1.5rem 0 1rem;
+      position: relative;
+    }
+
+    h2::after {
+      content: '';
+      position: absolute;
+      bottom: -8px;
+      left: 0;
+      width: 60px;
+      height: 3px;
+      background: var(--blurple);
+      border-radius: 2px;
+    }
+
+    h3 {
+      font-size: 1.4rem;
+      font-weight: 600;
+      margin: 1.2rem 0 0.8rem;
+      color: #f0f0f0;
+    }
+
+    p {
+      margin-bottom: 1rem;
+    }
+
+    a {
+      color: var(--blurple);
+      text-decoration: none;
+      transition: color 0.3s;
+    }
+
+    a:hover {
+      color: var(--pink);
+    }
+
+    main {
+      display: flex;
+      min-height: calc(100vh - 150px);
+      animation: fadeIn 1s ease-in-out;
+      animation-delay: 0.2s;
+      opacity: 0;
+      animation-fill-mode: forwards;
+    }
+
+    .sidebar {
+      flex: 0 0 240px;
+      padding: 1.5rem;
+      border-right: 1px solid #333;
+      position: sticky;
+      top: 0;
+      height: 100vh;
+      overflow-y: auto;
+    }
+
+    .sidebar-title {
+      font-weight: 700;
+      margin-bottom: 1.5rem;
+      padding-bottom: 0.5rem;
+      border-bottom: 1px solid #333;
+      color: #f0f0f0;
+    }
+
+    .nav-list {
+      list-style: none;
+      padding: 0;
+    }
+
+    .nav-item {
+      margin-bottom: 0.6rem;
+    }
+
+    .nav-link {
+      display: block;
+      padding: 0.5rem;
+      color: #e0e0e0;
+      border-radius: 4px;
+      transition: all 0.2s;
+    }
+
+    .nav-link:hover, .nav-link.active {
+      background-color: rgba(138, 43, 226, 0.15);
+      color: var(--blurple);
+    }
+
+    .content {
+      flex: 1;
+      padding: 1.5rem 2rem;
+      max-width: 1000px;
+    }
+
+    .section {
+      margin-bottom: 3rem;
+      padding: 1.5rem;
+      background: rgba(40, 40, 40, 0.6);
+      border-radius: 8px;
+      box-shadow: 0 4px 15px rgba(0, 0, 0, 0.2);
+      border: 1px solid #333;
+      transition: transform 0.3s, box-shadow 0.3s;
+      animation: fadeIn 0.5s ease-in-out;
+      animation-fill-mode: forwards;
+      opacity: 0;
+    }
+
+    .section:hover {
+      transform: translateY(-2px);
+      box-shadow: 0 6px 20px rgba(138, 43, 226, 0.2);
+    }
+
+    .endpoint {
+      display: inline-block;
+      padding: 0.5rem 1rem;
+      background-color: #2a2a2a;
+      border-radius: 4px;
+      font-family: monospace;
+      font-size: 0.9rem;
+      margin-bottom: 1rem;
+      border-left: 3px solid var(--blurple);
+    }
+
+    table {
+      width: 100%;
+      border-collapse: collapse;
+      margin: 1.5rem 0;
+      background-color: rgba(30, 30, 30, 0.5);
+      border-radius: 8px;
+      overflow: hidden;
+    }
+
+    th {
+      background-color: #2a2a2a;
+      padding: 0.8rem;
+      text-align: left;
+      font-weight: 600;
+      color: #f0f0f0;
+    }
+
+    td {
+      padding: 0.8rem;
+      border-top: 1px solid #333;
+    }
+
+    tr:hover td {
+      background-color: rgba(138, 43, 226, 0.1);
+    }
+
+    pre {
+      margin: 1rem 0;
+      border-radius: 8px;
+      overflow: hidden;
+    }
+
+    code {
+      font-family: 'Fira Code', monospace;
+      border-radius: 4px;
+    }
+
+    .highlight {
+      color: var(--blurple);
+      font-weight: 500;
+    }
+
+    .info-box {
+      padding: 1rem;
+      background-color: rgba(103, 58, 183, 0.1);
+      border-left: 4px solid var(--violet);
+      border-radius: 4px;
+      margin: 1.5rem 0;
+    }
+
+    .warning-box {
+      padding: 1rem;
+      background-color: rgba(255, 193, 7, 0.1);
+      border-left: 4px solid #ffbf00;
+      border-radius: 4px;
+      margin: 1.5rem 0;
+      color: #e0c078;
+    }
+
+    .warning-box h4 {
+      color: #ffc107;
+      margin-bottom: 0.5rem;
+    }
+
+    .note-box {
+      padding: 1rem;
+      background-color: rgba(0, 188, 212, 0.1);
+      border-left: 4px solid #00bcd4;
+      border-radius: 4px;
+      margin: 1.5rem 0;
+      color: #a0e3eb;
+    }
+
+    .note-box h4 {
+      color: #00bcd4;
+      margin-bottom: 0.5rem;
+    }
+
+    footer {
+      text-align: center;
+      padding: 2rem 1rem;
+      margin-top: 3rem;
+      border-top: 1px solid #333;
+      color: #a0a0a0;
+      animation: fadeIn 1s ease-in-out;
+      animation-delay: 0.5s;
+      opacity: 0;
+      animation-fill-mode: forwards;
+    }
+
+    .hidden {
+      display: none;
+    }
+
+    @media (max-width: 992px) {
+      main {
+        flex-direction: column;
+      }
+
+      .sidebar {
+        flex: 0 0 auto;
+        height: auto;
+        position: relative;
+        border-right: none;
+        border-bottom: 1px solid #333;
+      }
+
+      .content {
+        max-width: 100%;
+      }
+    }
+
+    @media (max-width: 576px) {
+      h1 {
+        font-size: 2rem;
+      }
+
+      h2 {
+        font-size: 1.5rem;
+      }
+
+      .sidebar, .content {
+        padding: 1rem;
+      }
+
+      .section {
+        padding: 1rem;
+      }
+    }
+
+    /* Animation delay for sections */
+    .section:nth-child(1) { animation-delay: 0.1s; }
+    .section:nth-child(2) { animation-delay: 0.2s; }
+    .section:nth-child(3) { animation-delay: 0.3s; }
+    .section:nth-child(4) { animation-delay: 0.4s; }
+    .section:nth-child(5) { animation-delay: 0.5s; }
+    .section:nth-child(6) { animation-delay: 0.6s; }
+    .section:nth-child(7) { animation-delay: 0.7s; }
+    .section:nth-child(8) { animation-delay: 0.8s; }
+    .section:nth-child(9) { animation-delay: 0.9s; }
+    .section:nth-child(10) { animation-delay: 1s; }
+  </style>
+</head>
+<body>
+  <div id="particles-js"></div>
+  
+  <div class="container">
+    <header>
+      <h1><span class="magic-text">MMLU-Pro API</span> Documentation</h1>
+      <p>Official documentation for the mmluapi.kaileh.dev API • Updated weekly with the latest model benchmarks</p>
+    </header>
+    
+    <main>
+      <!-- Navigation Sidebar -->
+      <aside class="sidebar">
+        <div class="sidebar-title">Contents</div>
+        <ul class="nav-list">
+          <li class="nav-item"><a href="#introduction" class="nav-link">Introduction</a></li>
+          <li class="nav-item"><a href="#getting-started" class="nav-link">Getting Started</a></li>
+          <li class="nav-item"><a href="#endpoints" class="nav-link">API Endpoints</a></li>
+          <li class="nav-item"><a href="#models" class="nav-link">Models Endpoint</a></li>
+          <li class="nav-item"><a href="#filter" class="nav-link">Filter Endpoint</a></li>
+          <li class="nav-item"><a href="#compare" class="nav-link">Compare Endpoint</a></li>
+          <li class="nav-item"><a href="#detail" class="nav-link">Detail Endpoint</a></li>
+          <li class="nav-item"><a href="#subjects" class="nav-link">Subjects Endpoint</a></li>
+          <li class="nav-item"><a href="#best-by-subject" class="nav-link">Best By Subject</a></li>
+          <li class="nav-item"><a href="#benchmarks" class="nav-link">Benchmarks Info</a></li>
+          <li class="nav-item"><a href="#examples" class="nav-link">Code Examples</a></li>
+          <li class="nav-item"><a href="#errors" class="nav-link">Error Handling</a></li>
+        </ul>
+      </aside>
+      
+      <!-- Main Content -->
+      <div class="content">
+        <!-- Introduction Section -->
+        <section id="introduction" class="section">
+          <h2>Introduction to MMLU-Pro</h2>
+          <p>
+            MMLU-Pro (Massive Multitask Language Understanding Professional) is an enhanced benchmark designed to evaluate language understanding models across broader and more challenging tasks. Building on the original MMLU dataset, MMLU-Pro integrates more challenging, reasoning-focused questions and increases the answer choices per question from four to ten, significantly raising the difficulty and reducing the chance of success through random guessing.
+          </p>
+          <p>
+            The benchmark comprises over 12,000 rigorously curated questions from academic exams and textbooks, spanning 14 diverse domains including Biology, Business, Chemistry, Computer Science, Economics, Engineering, Health, History, Law, Math, Philosophy, Physics, Psychology, and Others.
+          </p>
+          <div class="info-box">
+            <h4>Key Improvements in MMLU-Pro:</h4>
+            <ul>
+              <li>Increased options from 4 to 10 per question, making evaluation more realistic and challenging</li>
+              <li>Integration of more reasoning-focused problems where Chain-of-Thought (CoT) can be 20% higher than PPL</li>
+              <li>Decreased sensitivity to prompt variations (from 4-5% in MMLU to 2% in MMLU-Pro)</li>
+            </ul>
+          </div>
+        </section>
+        
+        <!-- Getting Started Section -->
+        <section id="getting-started" class="section">
+          <h2>Getting Started</h2>
+          <p>
+            The MMLU-Pro API provides access to benchmark results for a wide range of language models. The API is updated weekly with the latest benchmark data.
+          </p>
+          
+          <h3>Base URL</h3>
+          <div class="endpoint">https://mmluapi.kaileh.dev</div>
+          
+          <h3>Authentication</h3>
+          <p>
+            No authentication is required to use the MMLU-Pro API. It's freely available for public use.
+          </p>
+          
+          <h3>Response Format</h3>
+          <p>
+            All API responses are returned in JSON format. Successful requests return a 200 OK status code.
+          </p>
+          <pre><code class="language-javascript">{
+  "data": [...],  // The requested data
+  "meta": {       // Metadata about the request (if applicable)
+    "count": 10,
+    "total": 50
+  }
+}</code></pre>
+          
+          <div class="warning-box">
+            <h4>Update Frequency</h4>
+            <p>
+              The API is updated weekly with the latest model evaluations and benchmark results.
+            </p>
+          </div>
+        </section>
+        
+        <!-- API Endpoints Section -->
+        <section id="endpoints" class="section">
+          <h2>API Endpoints</h2>
+          <p>
+            The MMLU-Pro API provides several endpoints to access and filter model performance data. All endpoints respond with JSON and support CORS for cross-origin requests.
+          </p>
+          
+          <table>
+            <thead>
+              <tr>
+                <th>Endpoint</th>
+                <th>Description</th>
+                <th>Method</th>
+              </tr>
+            </thead>
+            <tbody>
+              <tr>
+                <td><code>/api/models</code></td>
+                <td>Get top-performing models ranked by overall score</td>
+                <td>GET</td>
+              </tr>
+              <tr>
+                <td><code>/api/models/filter</code></td>
+                <td>Filter models by various criteria like size, subject, etc.</td>
+                <td>GET</td>
+              </tr>
+              <tr>
+                <td><code>/api/models/compare</code></td>
+                <td>Compare multiple specific models side by side</td>
+                <td>GET</td>
+              </tr>
+              <tr>
+                <td><code>/api/models/detail</code></td>
+                <td>Get detailed information about a specific model</td>
+                <td>GET</td>
+              </tr>
+              <tr>
+                <td><code>/api/subjects</code></td>
+                <td>Get list of all available subjects in the benchmark</td>
+                <td>GET</td>
+              </tr>
+              <tr>
+                <td><code>/api/best-by-subject</code></td>
+                <td>Find the best performing model for each subject</td>
+                <td>GET</td>
+              </tr>
+              <tr>
+                <td><code>/api/benchmarks</code></td>
+                <td>Get information about the MMLU-Pro benchmark</td>
+                <td>GET</td>
+              </tr>
+            </tbody>
+          </table>
+        </section>
+        
+        <!-- Models Endpoint Section -->
+        <section id="models" class="section">
+          <h2>Models Endpoint</h2>
+          <div class="endpoint">GET /api/models</div>
+          
+          <p>
+            Returns a list of language models ranked by their overall performance on the MMLU-Pro benchmark. By default, returns the top 10 models.
+          </p>
+          
+          <h3>Parameters</h3>
+          <table>
+            <thead>
+              <tr>
+                <th>Parameter</th>
+                <th>Type</th>
+                <th>Description</th>
+              </tr>
+            </thead>
+            <tbody>
+              <tr>
+                <td><code>limit</code></td>
+                <td>integer</td>
+                <td>Maximum number of models to return (default: 10)</td>
+              </tr>
+            </tbody>
+          </table>
+          
+          <h3>Example Request</h3>
+          <pre><code class="language-bash">curl "https://mmluapi.kaileh.dev/api/models?limit=5"</code></pre>
+          
+          <h3>Example Response</h3>
+          <pre><code class="language-javascript">[
+  {
+    "name": "DeepSeek-R1",
+    "size": 671,
+    "dataSource": "Self-Reported",
+    "overallScore": 0.84
+  },
+  {
+    "name": "GPT-o1-mini",
+    "size": "unknown",
+    "dataSource": "Self-Reported",
+    "overallScore": 0.803
+  },
+  {
+    "name": "Doubao-1.5-Pro",
+    "size": "unknown",
+    "dataSource": "Self-Reported",
+    "overallScore": 0.801
+  },
+  {
+    "name": "Grok3-Beta",
+    "size": "unknown",
+    "dataSource": "Self-Reported",
+    "overallScore": 0.799
+  },
+  {
+    "name": "Gemini-2.0-Pro",
+    "size": "unknown",
+    "dataSource": "Self-Reported",
+    "overallScore": 0.791
+  }
+]</code></pre>
+        </section>
+        
+        <!-- Filter Endpoint Section -->
+        <section id="filter" class="section">
+          <h2>Filter Endpoint</h2>
+          <div class="endpoint">GET /api/models/filter</div>
+          
+          <p>
+            Filter models by various criteria such as model size, subject performance, data source, and score ranges.
+          </p>
+          
+          <h3>Parameters</h3>
+          <table>
+            <thead>
+              <tr>
+                <th>Parameter</th>
+                <th>Type</th>
+                <th>Description</th>
+              </tr>
+            </thead>
+            <tbody>
+              <tr>
+                <td><code>minSize</code></td>
+                <td>number</td>
+                <td>Minimum model size in billions of parameters</td>
+              </tr>
+              <tr>
+                <td><code>maxSize</code></td>
+                <td>number</td>
+                <td>Maximum model size in billions of parameters</td>
+              </tr>
+              <tr>
+                <td><code>subject</code></td>
+                <td>string</td>
+                <td>Filter by specific subject (e.g., "math", "biology")</td>
+              </tr>
+              <tr>
+                <td><code>dataSource</code></td>
+                <td>string</td>
+                <td>Filter by data source (e.g., "TIGER-Lab", "Self-Reported")</td>
+              </tr>
+              <tr>
+                <td><code>minScore</code></td>
+                <td>number</td>
+                <td>Minimum score (0-1) for overall or subject-specific performance</td>
+              </tr>
+              <tr>
+                <td><code>maxScore</code></td>
+                <td>number</td>
+                <td>Maximum score (0-1) for overall or subject-specific performance</td>
+              </tr>
+            </tbody>
+          </table>
+          
+          <h3>Example Requests</h3>
+          
+          <div>
+            <p>Filter models with maximum size of 10B parameters:</p>
+            <pre><code class="language-bash">curl "https://mmluapi.kaileh.dev/api/models/filter?maxSize=10"</code></pre>
+          </div>
+          
+          <div>
+            <p>Filter models by subject with minimum score:</p>
+            <pre><code class="language-bash">curl "https://mmluapi.kaileh.dev/api/models/filter?subject=biology&minScore=0.7"</code></pre>
+          </div>
+          
+          <div>
+            <p>Filter models by data source:</p>
+            <pre><code class="language-bash">curl "https://mmluapi.kaileh.dev/api/models/filter?dataSource=TIGER-Lab"</code></pre>
+          </div>
+          
+          <h3>Example Response</h3>
+          <pre><code class="language-javascript">[
+  {
+    "name": "Claude-3.5-Sonnet (2024-10-22)",
+    "size": "unknown",
+    "dataSource": "TIGER-LAb",
+    "overallScore": 0.7764,
+    "biologyScore": 0.8856
+  },
+  {
+    "name": "Gemini-2.0-Flash-exp",
+    "size": "unknown",
+    "dataSource": "TIGER-Lab",
+    "overallScore": 0.7624,
+    "biologyScore": 0.8836
+  },
+  {
+    "name": "GPT-4o (2024-08-06)",
+    "size": "unknown",
+    "dataSource": "TIGER-Lab",
+    "overallScore": 0.7468,
+    "biologyScore": 0.8926
+  }
+]</code></pre>
+        </section>
+        
+        <!-- Compare Endpoint Section -->
+        <section id="compare" class="section">
+          <h2>Compare Endpoint</h2>
+          <div class="endpoint">GET /api/models/compare</div>
+          
+          <p>
+            Compare multiple models side by side across all benchmark metrics. You must specify at least two models to compare.
+          </p>
+          
+          <h3>Parameters</h3>
+          <table>
+            <thead>
+              <tr>
+                <th>Parameter</th>
+                <th>Type</th>
+                <th>Description</th>
+              </tr>
+            </thead>
+            <tbody>
+              <tr>
+                <td><code>model</code></td>
+                <td>string (repeatable)</td>
+                <td>Names of models to compare. Can be specified multiple times.</td>
+              </tr>
+            </tbody>
+          </table>
+          
+          <h3>Example Request</h3>
+          <pre><code class="language-bash">curl "https://mmluapi.kaileh.dev/api/models/compare?model=Phi-4&model=Llama-3.1-70B-Instruct"</code></pre>
+          
+          <h3>Example Response</h3>
+          <pre><code class="language-javascript">{
+  "models": [
+    {
+      "name": "Phi-4",
+      "size": 14,
+      "dataSource": "Self-Reported",
+      "scores": {
+        "overall": 0.704
+      }
+    },
+    {
+      "name": "Llama-3.1-70B-Instruct",
+      "size": 70,
+      "dataSource": "TIGER-Lab",
+      "scores": {
+        "overall": 0.6284,
+        "biology": 0.8117,
+        "business": 0.6641,
+        "chemistry": 0.5910,
+        "computerScience": 0.6634,
+        "economics": 0.7524,
+        "engineering": 0.4582,
+        "health": 0.6846,
+        "history": 0.6614,
+        "law": 0.4696,
+        "math": 0.6047,
+        "philosophy": 0.6172,
+        "physics": 0.5912,
+        "psychology": 0.7556,
+        "other": 0.6602
+      }
+    }
+  ]
+}</code></pre>
+        </section>
+        
+        <!-- Model Detail Endpoint Section -->
+        <section id="detail" class="section">
+          <h2>Model Detail Endpoint</h2>
+          <div class="endpoint">GET /api/models/detail</div>
+          
+          <p>
+            Get detailed performance information about a specific model across all subjects.
+          </p>
+          
+          <h3>Parameters</h3>
+          <table>
+            <thead>
+              <tr>
+                <th>Parameter</th>
+                <th>Type</th>
+                <th>Description</th>
+              </tr>
+            </thead>
+            <tbody>
+              <tr>
+                <td><code>model</code></td>
+                <td>string</td>
+                <td>Name of the model to get details for</td>
+              </tr>
+            </tbody>
+          </table>
+          
+          <h3>Example Request</h3>
+          <pre><code class="language-bash">curl "https://mmluapi.kaileh.dev/api/models/detail?model=Claude-3.5-Sonnet%20(2024-10-22)"</code></pre>
+          
+          <h3>Example Response</h3>
+          <pre><code class="language-javascript">{
+  "name": "Claude-3.5-Sonnet (2024-10-22)",
+  "size": "unknown",
+  "dataSource": "TIGER-LAb",
+  "scores": {
+    "overall": 0.7764,
+    "biology": 0.8856,
+    "business": 0.8137,
+    "chemistry": 0.7853,
+    "computerScience": 0.8244,
+    "economics": 0.859,
+    "engineering": 0.613,
+    "health": 0.7689,
+    "history": 0.7375,
+    "law": 0.6458,
+    "math": 0.8105,
+    "philosophy": 0.7675,
+    "physics": 0.7729,
+    "psychology": 0.8459,
+    "other": 0.8019
+  }
+}</code></pre>
+        </section>
+        
+        <!-- Subjects Endpoint Section -->
+        <section id="subjects" class="section">
+          <h2>Subjects Endpoint</h2>
+          <div class="endpoint">GET /api/subjects</div>
+          
+          <p>
+            Get a list of all subjects covered in the MMLU-Pro benchmark. These can be used as parameters for filtering models by subject.
+          </p>
+          
+          <h3>Example Request</h3>
+          <pre><code class="language-bash">curl "https://mmluapi.kaileh.dev/api/subjects"</code></pre>
+          
+          <h3>Example Response</h3>
+          <pre><code class="language-javascript">[
+  "overall",
+  "biology",
+  "business",
+  "chemistry",
+  "computerScience",
+  "economics",
+  "engineering",
+  "health",
+  "history",
+  "law",
+  "math",
+  "philosophy",
+  "physics",
+  "psychology",
+  "other"
+]</code></pre>
+        </section>
+        
+        <!-- Best By Subject Endpoint Section -->
+        <section id="best-by-subject" class="section">
+          <h2>Best By Subject Endpoint</h2>
+          <div class="endpoint">GET /api/best-by-subject</div>
+          
+          <p>
+            Find the best performing model for each subject in the MMLU-Pro benchmark.
+          </p>
+          
+          <h3>Example Request</h3>
+          <pre><code class="language-bash">curl "https://mmluapi.kaileh.dev/api/best-by-subject"</code></pre>
+          
+          <h3>Example Response</h3>
+          <pre><code class="language-javascript">{
+  "overall": {
+    "model": "DeepSeek-R1",
+    "score": 0.84,
+    "size": 671,
+    "dataSource": "Self-Reported"
+  },
+  "biology": {
+    "model": "GPT-4o (2024-08-06)",
+    "score": 0.8926,
+    "size": "unknown",
+    "dataSource": "TIGER-Lab"
+  },
+  "math": {
+    "model": "Gemini-2.0-Flash-exp",
+    "score": 0.8638,
+    "size": "unknown",
+    "dataSource": "TIGER-Lab"
+  },
+  "computerScience": {
+    "model": "Claude-3.5-Sonnet (2024-10-22)",
+    "score": 0.8244,
+    "size": "unknown",
+    "dataSource": "TIGER-LAb"
+  },
+  "psychology": {
+    "model": "Claude-3.5-Sonnet (2024-10-22)",
+    "score": 0.8459,
+    "size": "unknown",
+    "dataSource": "TIGER-LAb"
+  }
+  // Additional subjects...
+}</code></pre>
+        </section>
+        
+        <!-- Benchmarks Endpoint Section -->
+        <section id="benchmarks" class="section">
+          <h2>Benchmarks Endpoint</h2>
+          <div class="endpoint">GET /api/benchmarks</div>
+          
+          <p>
+            Get detailed information about the MMLU-Pro benchmark, including links to papers, repositories, and dataset information.
+          </p>
+          
+          <h3>Example Request</h3>
+          <pre><code class="language-bash">curl "https://mmluapi.kaileh.dev/api/benchmarks"</code></pre>
+          
+          <h3>Example Response</h3>
+          <pre><code class="language-javascript">{
+  "name": "MMLU-Pro",
+  "description": "Enhanced benchmark for language understanding models with 10 answer options per question",
+  "totalModels": 62,
+  "subjects": [
+    "overall",
+    "biology",
+    "business",
+    "chemistry",
+    "computerScience",
+    "economics",
+    "engineering",
+    "health",
+    "history",
+    "law",
+    "math",
+    "philosophy",
+    "physics",
+    "psychology",
+    "other"
+  ],
+  "paper": "https://arxiv.org/abs/2406.01574",
+  "repository": "https://github.com/TIGER-AI-Lab/MMLU-Pro",
+  "dataset": "https://huggingface.co/datasets/TIGER-Lab/MMLU-Pro"
+}</code></pre>
+        </section>
+        
+        <!-- Code Examples Section -->
+        <section id="examples" class="section">
+          <h2>Code Examples</h2>
+          
+          <h3>JavaScript (Fetch API)</h3>
+          <pre><code class="language-javascript">// Fetch top 5 models
+async function getTopModels() {
+  try {
+    const response = await fetch('https://mmluapi.kaileh.dev/api/models?limit=5');
+    const data = await response.json();
+    console.log('Top 5 models:', data);
+    return data;
+  } catch (error) {
+    console.error('Error fetching top models:', error);
+  }
+}
+
+// Compare two models
+async function compareModels(model1, model2) {
+  try {
+    const url = `https://mmluapi.kaileh.dev/api/models/compare?model=${encodeURIComponent(model1)}&model=${encodeURIComponent(model2)}`;
+    const response = await fetch(url);
+    const data = await response.json();
+    console.log('Model comparison:', data);
+    return data;
+  } catch (error) {
+    console.error('Error comparing models:', error);
+  }
+}
+
+// Find models good at math
+async function getMathModels() {
+  try {
+    const response = await fetch('https://mmluapi.kaileh.dev/api/models/filter?subject=math&minScore=0.7');
+    const data = await response.json();
+    console.log('Models good at math:', data);
+    return data;
+  } catch (error) {
+    console.error('Error fetching math models:', error);
+  }
+}</code></pre>
+          
+          <h3>Python (Requests Library)</h3>
+          <pre><code class="language-python">import requests
+
+# Fetch top models
+def get_top_models(limit=10):
+    try:
+        response = requests.get(f'https://mmluapi.kaileh.dev/api/models?limit={limit}')
+        response.raise_for_status()
+        return response.json()
+    except requests.exceptions.RequestException as e:
+        print(f"Error fetching top models: {e}")
+        return None
+
+# Get model details
+def get_model_details(model_name):
+    try:
+        response = requests.get(f'https://mmluapi.kaileh.dev/api/models/detail?model={model_name}')
+        response.raise_for_status()
+        return response.json()
+    except requests.exceptions.RequestException as e:
+        print(f"Error fetching model details: {e}")
+        return None
+
+# Find best model for each subject
+def get_best_by_subject():
+    try:
+        response = requests.get('https://mmluapi.kaileh.dev/api/best-by-subject')
+        response.raise_for_status()
+        return response.json()
+    except requests.exceptions.RequestException as e:
+        print(f"Error fetching best models by subject: {e}")
+        return None
+
+# Example usage
+if __name__ == "__main__":
+    # Get top 5 models
+    top_models = get_top_models(5)
+    print("Top 5 models:", top_models)
+    
+    # Get details for Claude
+    claude_details = get_model_details("Claude-3.5-Sonnet (2024-10-22)")
+    print("Claude details:", claude_details)
+    
+    # Find best models by subject
+    best_models = get_best_by_subject()
+    print("Best math model:", best_models.get("math", "Not found"))</code></pre>
+        </section>
+        
+        <!-- Error Handling Section -->
+        <section id="errors" class="section">
+          <h2>Error Handling</h2>
+          
+          <p>
+            The API returns standard HTTP status codes to indicate the success or failure of requests.
+          </p>
+          
+          <table>
+            <thead>
+              <tr>
+                <th>Status Code</th>
+                <th>Description</th>
+              </tr>
+            </thead>
+            <tbody>
+              <tr>
+                <td>200 OK</td>
+                <td>The request was successful</td>
+              </tr>
+              <tr>
+                <td>400 Bad Request</td>
+                <td>The request was invalid or missing required parameters</td>
+              </tr>
+              <tr>
+                <td>404 Not Found</td>
+                <td>The requested resource or endpoint was not found</td>
+              </tr>
+              <tr>
+                <td>500 Internal Server Error</td>
+                <td>An error occurred on the server</td>
+              </tr>
+            </tbody>
+          </table>
+          
+          <h3>Error Response Format</h3>
+          <pre><code class="language-javascript">{
+  "error": "Error message describing what went wrong",
+  "code": 400,
+  "availableEndpoints": [
+    "/api/models",
+    "/api/models/filter",
+    ...
+  ] // For 404 errors only
+}</code></pre>
+          
+          <div class="warning-box">
+            <h4>Common Error Scenarios</h4>
+            <ul>
+              <li><strong>Model not found:</strong> When requesting details for a non-existent model.</li>
+              <li><strong>Subject not found:</strong> When filtering by a subject that doesn't exist in the benchmark.</li>
+              <li><strong>Missing required parameters:</strong> When calling an endpoint without the required parameters.</li>
+            </ul>
+          </div>
+        </section>
+      </div>
+    </main>
+    
+    <footer>
+      <p>MMLU-Pro API Documentation • Hosted at <a href="https://mmluapi.kaileh.dev">mmluapi.kaileh.dev</a></p>
+      <p style="font-size: 0.9rem; margin-top: 0.5rem;">API updated weekly • Data sourced from <a href="https://github.com/TIGER-AI-Lab/MMLU-Pro">TIGER-AI-Lab</a></p>
+    </footer>
+  </div>
+  
+  <script>
+    document.addEventListener('DOMContentLoaded', () => {
+      hljs.highlightAll();
+      
+      // Handle navigation
+      const links = document.querySelectorAll('.nav-link');
+      const sections = document.querySelectorAll('.section');
+      
+      links.forEach(link => {
+        link.addEventListener('click', (e) => {
+          e.preventDefault();
+          
+          const targetId = link.getAttribute('href').substring(1);
+          
+          // Scroll to section
+          document.getElementById(targetId).scrollIntoView({
+            behavior: 'smooth'
+          });
+          
+          // Update active link
+          links.forEach(l => l.classList.remove('active'));
+          link.classList.add('active');
+          
+          // Update URL fragment safely
+          try {
+            if (window.location.href !== 'about:srcdoc') {
+              window.location.hash = targetId;
+            }
+          } catch (e) {
+            console.log('Navigation successful, but URL could not be updated');
+          }
+        });
+      });
+      
+      // Set active link based on scroll position
+      const handleScroll = () => {
+        const scrollPosition = window.scrollY;
+        
+        sections.forEach(section => {
+          const sectionTop = section.offsetTop;
+          const sectionHeight = section.offsetHeight;
+          
+          if (scrollPosition >= sectionTop - 100 && scrollPosition < sectionTop + sectionHeight - 100) {
+            const id = section.getAttribute('id');
+            links.forEach(link => {
+              link.classList.remove('active');
+              if (link.getAttribute('href') === `#${id}`) {
+                link.classList.add('active');
+              }
+            });
+          }
+        });
+      };
+      
+      window.addEventListener('scroll', handleScroll);
+      
+      // Handle initial load with hash
+      try {
+        const initialHash = window.location.hash.substring(1);
+        if (initialHash && document.getElementById(initialHash)) {
+          document.querySelector(`.nav-link[href="#${initialHash}"]`)?.click();
+        } else {
+          // Default to first link
+          links[0].click();
+        }
+      } catch (e) {
+        // If accessing hash fails, just show the first section
+        links[0].click();
+      }
+    });
+    
+    // Initialize particles.js
+    particlesJS('particles-js', {
+      "particles": {
+        "number": {
+          "value": 40,
+          "density": {
+            "enable": true,
+            "value_area": 800
+          }
+        },
+        "color": {
+          "value": "#8A2BE2"
+        },
+        "shape": {
+          "type": "circle"
+        },
+        "opacity": {
+          "value": 0.3,
+          "random": false
+        },
+        "size": {
+          "value": 3,
+          "random": true
+        },
+        "line_linked": {
+          "enable": true,
+          "distance": 150,
+          "color": "#8A2BE2",
+          "opacity": 0.2,
+          "width": 1
+        },
+        "move": {
+          "enable": true,
+          "speed": 1,
+          "direction": "none",
+          "random": false,
+          "straight": false,
+          "out_mode": "out",
+          "bounce": false
+        }
+      },
+      "interactivity": {
+        "detect_on": "canvas",
+        "events": {
+          "onhover": {
+            "enable": true,
+            "mode": "grab"
+          },
+          "onclick": {
+            "enable": true,
+            "mode": "push"
+          },
+          "resize": true
+        },
+        "modes": {
+          "grab": {
+            "distance": 140,
+            "line_linked": {
+              "opacity": 0.4
+            }
+          },
+          "push": {
+            "particles_nb": 2
+          }
+        }
+      },
+      "retina_detect": true
+    });
+  </script>
+</body>
+</html>
