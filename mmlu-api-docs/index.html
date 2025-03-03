@@ -4,6 +4,7 @@
   <meta charset="UTF-8">
   <meta name="viewport" content="width=device-width, initial-scale=1.0">
   <title>MMLU-Pro API Documentation</title>
+  <link rel="icon" type="image/png" id="favicon">
   <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/highlight.js/11.7.0/styles/atom-one-dark.min.css">
   <script src="https://cdnjs.cloudflare.com/ajax/libs/highlight.js/11.7.0/highlight.min.js"></script>
   <script src="https://cdnjs.cloudflare.com/ajax/libs/highlight.js/11.7.0/languages/bash.min.js"></script>
@@ -16,6 +17,9 @@
       --violet: rgb(103, 58, 183);
       --pink: rgb(244, 143, 177);
       --blurple: #8A2BE2;
+      --dark-bg: #1a1a1a;
+      --darker-bg: #121212;
+      --light-text: #e0e0e0;
     }
 
     @keyframes background-pan {
@@ -167,6 +171,31 @@
       top: 0;
       height: 100vh;
       overflow-y: auto;
+      overflow-x: hidden;
+    }
+    
+    /* Custom scrollbar styling to match body scrollbar */
+    .sidebar::-webkit-scrollbar {
+      width: 8px;
+    }
+    
+    .sidebar::-webkit-scrollbar-track {
+      background: #1a1a1a;
+    }
+    
+    .sidebar::-webkit-scrollbar-thumb {
+      background: #333333;
+      border-radius: 4px;
+    }
+    
+    .sidebar::-webkit-scrollbar-thumb:hover {
+      background: #444444;
+    }
+    
+    /* Firefox */
+    .sidebar {
+      scrollbar-width: thin;
+      scrollbar-color: #333333 #1a1a1a;
     }
 
     .sidebar-title {
@@ -389,21 +418,23 @@
     <main>
       <!-- Navigation Sidebar -->
       <aside class="sidebar">
-        <div class="sidebar-title">Contents</div>
-        <ul class="nav-list">
-          <li class="nav-item"><a href="#introduction" class="nav-link">Introduction</a></li>
-          <li class="nav-item"><a href="#getting-started" class="nav-link">Getting Started</a></li>
-          <li class="nav-item"><a href="#endpoints" class="nav-link">API Endpoints</a></li>
-          <li class="nav-item"><a href="#models" class="nav-link">Models Endpoint</a></li>
-          <li class="nav-item"><a href="#filter" class="nav-link">Filter Endpoint</a></li>
-          <li class="nav-item"><a href="#compare" class="nav-link">Compare Endpoint</a></li>
-          <li class="nav-item"><a href="#detail" class="nav-link">Detail Endpoint</a></li>
-          <li class="nav-item"><a href="#subjects" class="nav-link">Subjects Endpoint</a></li>
-          <li class="nav-item"><a href="#best-by-subject" class="nav-link">Best By Subject</a></li>
-          <li class="nav-item"><a href="#benchmarks" class="nav-link">Benchmarks Info</a></li>
-          <li class="nav-item"><a href="#examples" class="nav-link">Code Examples</a></li>
-          <li class="nav-item"><a href="#errors" class="nav-link">Error Handling</a></li>
-        </ul>
+        <div class="sidebar-wrapper">
+          <div class="sidebar-title">Contents</div>
+          <ul class="nav-list">
+            <li class="nav-item"><a href="#introduction" class="nav-link">Introduction</a></li>
+            <li class="nav-item"><a href="#getting-started" class="nav-link">Getting Started</a></li>
+            <li class="nav-item"><a href="#endpoints" class="nav-link">API Endpoints</a></li>
+            <li class="nav-item"><a href="#models" class="nav-link">Models Endpoint</a></li>
+            <li class="nav-item"><a href="#filter" class="nav-link">Filter Endpoint</a></li>
+            <li class="nav-item"><a href="#compare" class="nav-link">Compare Endpoint</a></li>
+            <li class="nav-item"><a href="#detail" class="nav-link">Detail Endpoint</a></li>
+            <li class="nav-item"><a href="#subjects" class="nav-link">Subjects Endpoint</a></li>
+            <li class="nav-item"><a href="#best-by-subject" class="nav-link">Best By Subject</a></li>
+            <li class="nav-item"><a href="#benchmarks" class="nav-link">Benchmarks Info</a></li>
+            <li class="nav-item"><a href="#examples" class="nav-link">Code Examples</a></li>
+            <li class="nav-item"><a href="#errors" class="nav-link">Error Handling</a></li>
+          </ul>
+        </div>
       </aside>
       
       <!-- Main Content -->
@@ -1142,6 +1173,64 @@ if __name__ == "__main__":
         // If accessing hash fails, just show the first section
         links[0].click();
       }
+      
+      // Favicon animation setup
+      const faviconCanvas = document.createElement('canvas');
+      faviconCanvas.width = 64;
+      faviconCanvas.height = 64;
+      const ctx = faviconCanvas.getContext('2d', { alpha: true });
+    
+      // Create favicon downscaling canvas
+      const tempCanvas = document.createElement('canvas');
+      tempCanvas.width = 32;
+      tempCanvas.height = 32;
+      const tempCtx = tempCanvas.getContext('2d', { alpha: true });
+      tempCtx.imageSmoothingEnabled = true;
+      tempCtx.imageSmoothingQuality = 'high';
+    
+      // Get favicon link element
+      const faviconLink = document.getElementById('favicon');
+      let offset = 0;
+    
+      function updateFavicon() {
+        // Clear canvas with transparency
+        ctx.clearRect(0, 0, 64, 64);
+    
+        // Create gradient
+        const gradient = ctx.createLinearGradient(0, 0, 64, 0);
+        
+        // Gradient with color stops
+        gradient.addColorStop((0 + offset) % 1, 'rgb(123, 31, 162)');
+        gradient.addColorStop((0.2 + offset) % 1, 'rgb(103, 58, 183)');
+        gradient.addColorStop((0.4 + offset) % 1, 'rgb(244, 143, 177)');
+        gradient.addColorStop((0.6 + offset) % 1, 'rgb(123, 31, 162)');
+        gradient.addColorStop((0.8 + offset) % 1, 'rgb(103, 58, 183)');
+        gradient.addColorStop((1 + offset) % 1, 'rgb(123, 31, 162)');
+    
+        // Draw text
+        ctx.textAlign = 'center';
+        ctx.textBaseline = 'middle';
+        ctx.font = 'bold 56px Inter, Arial';
+        ctx.fillStyle = gradient;
+        ctx.fillText('K', 32, 36);
+    
+        // Update offset for next frame
+        offset = (offset + 0.01) % 1;
+    
+        // Downscale to favicon size
+        tempCtx.clearRect(0, 0, 32, 32);
+        tempCtx.drawImage(faviconCanvas, 0, 0, 32, 32);
+        
+        // Update favicon
+        faviconLink.href = tempCanvas.toDataURL('image/png');
+        
+        requestAnimationFrame(updateFavicon);
+      }
+    
+      // Start animation when fonts are loaded
+      document.fonts.ready.then(() => {
+        updateFavicon();
+      });
     });
     
     // Initialize particles.js
