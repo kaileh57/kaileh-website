@@ -1,0 +1,827 @@
+
+    <!DOCTYPE html>
+    <html lang="en">
+    <head>
+        <meta charset="UTF-8">
+        <meta name="viewport" content="width=device-width, initial-scale=1.0">
+        <title>MMLU Evaluation Results</title>
+        <script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
+        <style>
+            body {
+                font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
+                line-height: 1.6;
+                color: #333;
+                max-width: 1200px;
+                margin: 0 auto;
+                padding: 20px;
+                background-color: #f9f9f9;
+            }
+            header {
+                background-color: #375a7f;
+                color: white;
+                padding: 20px;
+                border-radius: 8px;
+                margin-bottom: 20px;
+                box-shadow: 0 4px 6px rgba(0, 0, 0, 0.1);
+            }
+            h1, h2, h3 {
+                margin-top: 0;
+                color: #375a7f;
+            }
+            header h1 {
+                color: white;
+            }
+            .card {
+                background-color: white;
+                border-radius: 8px;
+                padding: 20px;
+                margin-bottom: 20px;
+                box-shadow: 0 4px 6px rgba(0, 0, 0, 0.1);
+            }
+            .summary-stats {
+                display: flex;
+                flex-wrap: wrap;
+                gap: 20px;
+                margin-bottom: 20px;
+            }
+            .stat-card {
+                flex: 1;
+                min-width: 200px;
+                padding: 15px;
+                background-color: #ffffff;
+                border-left: 5px solid #375a7f;
+                border-radius: 4px;
+                box-shadow: 0 2px 4px rgba(0, 0, 0, 0.05);
+            }
+            .stat-value {
+                font-size: 2rem;
+                font-weight: bold;
+                color: #375a7f;
+            }
+            .stat-label {
+                font-size: 0.9rem;
+                color: #666;
+            }
+            table {
+                width: 100%;
+                border-collapse: collapse;
+                margin-bottom: 20px;
+            }
+            th, td {
+                padding: 12px 15px;
+                text-align: left;
+                border-bottom: 1px solid #ddd;
+            }
+            th {
+                background-color: #f2f2f2;
+                font-weight: bold;
+            }
+            tr:hover {
+                background-color: #f5f5f5;
+            }
+            .chart-container {
+                position: relative;
+                height: 400px;
+                margin-bottom: 40px;
+            }
+            .score-bar {
+                height: 20px;
+                background-color: #375a7f;
+                border-radius: 4px;
+            }
+            .score-value {
+                padding-left: 10px;
+                font-weight: bold;
+            }
+            footer {
+                text-align: center;
+                margin-top: 40px;
+                padding-top: 20px;
+                border-top: 1px solid #ddd;
+                color: #666;
+                font-size: 0.9rem;
+            }
+            .grid-container {
+                display: grid;
+                grid-template-columns: repeat(auto-fill, minmax(350px, 1fr));
+                gap: 20px;
+            }
+            .category-card {
+                background-color: white;
+                border-radius: 8px;
+                padding: 20px;
+                box-shadow: 0 4px 6px rgba(0, 0, 0, 0.1);
+            }
+            .progress-container {
+                width: 100%;
+                background-color: #e9ecef;
+                border-radius: 4px;
+                margin-bottom: 5px;
+            }
+            .progress-bar {
+                height: 25px;
+                background-color: #375a7f;
+                border-radius: 4px;
+                text-align: right;
+                color: white;
+                padding-right: 10px;
+                line-height: 25px;
+                font-weight: bold;
+            }
+        </style>
+    </head>
+    <body>
+        <header>
+            <h1>MMLU Evaluation Results</h1>
+            <p>Model: ursa_minor-F16.gguf</p>
+            <p>Date: 2025-03-11 06:53:35</p>
+        </header>
+        
+        <div class="card">
+            <h2>Summary</h2>
+            <div class="summary-stats">
+                <div class="stat-card">
+                    <div class="stat-value">23.2%</div>
+                    <div class="stat-label">Overall Accuracy</div>
+                </div>
+                <div class="stat-card">
+                    <div class="stat-value">22.6%</div>
+                    <div class="stat-label">STEM Accuracy</div>
+                </div>
+                <div class="stat-card">
+                    <div class="stat-value">24.9%</div>
+                    <div class="stat-label">Humanities Accuracy</div>
+                </div>
+                <div class="stat-card">
+                    <div class="stat-value">22.5%</div>
+                    <div class="stat-label">Social Sciences Accuracy</div>
+                </div>
+                <div class="stat-card">
+                    <div class="stat-value">23.0%</div>
+                    <div class="stat-label">Other Accuracy</div>
+                </div>
+            </div>
+            
+            <div class="chart-container">
+                <canvas id="categoriesChart"></canvas>
+            </div>
+        </div>
+        
+        <div class="card">
+            <h2>Category Breakdown</h2>
+            <div class="grid-container">
+    
+                <div class="category-card">
+                    <h3>Humanities</h3>
+                    <table>
+                        <thead>
+                            <tr>
+                                <th>Subject</th>
+                                <th>Accuracy</th>
+                            </tr>
+                        </thead>
+                        <tbody>
+        
+                        </tbody>
+                    </table>
+                </div>
+        
+                <div class="category-card">
+                    <h3>Stem</h3>
+                    <table>
+                        <thead>
+                            <tr>
+                                <th>Subject</th>
+                                <th>Accuracy</th>
+                            </tr>
+                        </thead>
+                        <tbody>
+        
+                        </tbody>
+                    </table>
+                </div>
+        
+                <div class="category-card">
+                    <h3>Social Sciences</h3>
+                    <table>
+                        <thead>
+                            <tr>
+                                <th>Subject</th>
+                                <th>Accuracy</th>
+                            </tr>
+                        </thead>
+                        <tbody>
+        
+                        </tbody>
+                    </table>
+                </div>
+        
+                <div class="category-card">
+                    <h3>Other</h3>
+                    <table>
+                        <thead>
+                            <tr>
+                                <th>Subject</th>
+                                <th>Accuracy</th>
+                            </tr>
+                        </thead>
+                        <tbody>
+        
+                        </tbody>
+                    </table>
+                </div>
+        
+            </div>
+        </div>
+        
+        <div class="card">
+            <h2>All Subjects</h2>
+            <table>
+                <thead>
+                    <tr>
+                        <th>Subject</th>
+                        <th>Accuracy</th>
+                    </tr>
+                </thead>
+                <tbody>
+    
+                    <tr>
+                        <td>World Religions</td>
+                        <td>
+                            <div class="progress-container">
+                                <div class="progress-bar" style="width: 40.0%">40.0%</div>
+                            </div>
+                        </td>
+                    </tr>
+        
+                    <tr>
+                        <td>Marketing</td>
+                        <td>
+                            <div class="progress-container">
+                                <div class="progress-bar" style="width: 34.0%">34.0%</div>
+                            </div>
+                        </td>
+                    </tr>
+        
+                    <tr>
+                        <td>Conceptual Physics</td>
+                        <td>
+                            <div class="progress-container">
+                                <div class="progress-bar" style="width: 33.0%">33.0%</div>
+                            </div>
+                        </td>
+                    </tr>
+        
+                    <tr>
+                        <td>Machine Learning</td>
+                        <td>
+                            <div class="progress-container">
+                                <div class="progress-bar" style="width: 32.0%">32.0%</div>
+                            </div>
+                        </td>
+                    </tr>
+        
+                    <tr>
+                        <td>Sociology</td>
+                        <td>
+                            <div class="progress-container">
+                                <div class="progress-bar" style="width: 31.0%">31.0%</div>
+                            </div>
+                        </td>
+                    </tr>
+        
+                    <tr>
+                        <td>High School World History</td>
+                        <td>
+                            <div class="progress-container">
+                                <div class="progress-bar" style="width: 30.0%">30.0%</div>
+                            </div>
+                        </td>
+                    </tr>
+        
+                    <tr>
+                        <td>Business Ethics</td>
+                        <td>
+                            <div class="progress-container">
+                                <div class="progress-bar" style="width: 30.0%">30.0%</div>
+                            </div>
+                        </td>
+                    </tr>
+        
+                    <tr>
+                        <td>Human Aging</td>
+                        <td>
+                            <div class="progress-container">
+                                <div class="progress-bar" style="width: 30.0%">30.0%</div>
+                            </div>
+                        </td>
+                    </tr>
+        
+                    <tr>
+                        <td>Medical Genetics</td>
+                        <td>
+                            <div class="progress-container">
+                                <div class="progress-bar" style="width: 30.0%">30.0%</div>
+                            </div>
+                        </td>
+                    </tr>
+        
+                    <tr>
+                        <td>Jurisprudence</td>
+                        <td>
+                            <div class="progress-container">
+                                <div class="progress-bar" style="width: 28.000000000000004%">28.0%</div>
+                            </div>
+                        </td>
+                    </tr>
+        
+                    <tr>
+                        <td>Us Foreign Policy</td>
+                        <td>
+                            <div class="progress-container">
+                                <div class="progress-bar" style="width: 28.000000000000004%">28.0%</div>
+                            </div>
+                        </td>
+                    </tr>
+        
+                    <tr>
+                        <td>Computer Security</td>
+                        <td>
+                            <div class="progress-container">
+                                <div class="progress-bar" style="width: 28.000000000000004%">28.0%</div>
+                            </div>
+                        </td>
+                    </tr>
+        
+                    <tr>
+                        <td>Econometrics</td>
+                        <td>
+                            <div class="progress-container">
+                                <div class="progress-bar" style="width: 27.0%">27.0%</div>
+                            </div>
+                        </td>
+                    </tr>
+        
+                    <tr>
+                        <td>Professional Psychology</td>
+                        <td>
+                            <div class="progress-container">
+                                <div class="progress-bar" style="width: 27.0%">27.0%</div>
+                            </div>
+                        </td>
+                    </tr>
+        
+                    <tr>
+                        <td>Formal Logic</td>
+                        <td>
+                            <div class="progress-container">
+                                <div class="progress-bar" style="width: 26.0%">26.0%</div>
+                            </div>
+                        </td>
+                    </tr>
+        
+                    <tr>
+                        <td>High School Us History</td>
+                        <td>
+                            <div class="progress-container">
+                                <div class="progress-bar" style="width: 26.0%">26.0%</div>
+                            </div>
+                        </td>
+                    </tr>
+        
+                    <tr>
+                        <td>Virology</td>
+                        <td>
+                            <div class="progress-container">
+                                <div class="progress-bar" style="width: 26.0%">26.0%</div>
+                            </div>
+                        </td>
+                    </tr>
+        
+                    <tr>
+                        <td>College Computer Science</td>
+                        <td>
+                            <div class="progress-container">
+                                <div class="progress-bar" style="width: 26.0%">26.0%</div>
+                            </div>
+                        </td>
+                    </tr>
+        
+                    <tr>
+                        <td>Electrical Engineering</td>
+                        <td>
+                            <div class="progress-container">
+                                <div class="progress-bar" style="width: 26.0%">26.0%</div>
+                            </div>
+                        </td>
+                    </tr>
+        
+                    <tr>
+                        <td>High School European History</td>
+                        <td>
+                            <div class="progress-container">
+                                <div class="progress-bar" style="width: 25.0%">25.0%</div>
+                            </div>
+                        </td>
+                    </tr>
+        
+                    <tr>
+                        <td>International Law</td>
+                        <td>
+                            <div class="progress-container">
+                                <div class="progress-bar" style="width: 25.0%">25.0%</div>
+                            </div>
+                        </td>
+                    </tr>
+        
+                    <tr>
+                        <td>Elementary Mathematics</td>
+                        <td>
+                            <div class="progress-container">
+                                <div class="progress-bar" style="width: 25.0%">25.0%</div>
+                            </div>
+                        </td>
+                    </tr>
+        
+                    <tr>
+                        <td>High School Computer Science</td>
+                        <td>
+                            <div class="progress-container">
+                                <div class="progress-bar" style="width: 25.0%">25.0%</div>
+                            </div>
+                        </td>
+                    </tr>
+        
+                    <tr>
+                        <td>Security Studies</td>
+                        <td>
+                            <div class="progress-container">
+                                <div class="progress-bar" style="width: 24.0%">24.0%</div>
+                            </div>
+                        </td>
+                    </tr>
+        
+                    <tr>
+                        <td>College Biology</td>
+                        <td>
+                            <div class="progress-container">
+                                <div class="progress-bar" style="width: 24.0%">24.0%</div>
+                            </div>
+                        </td>
+                    </tr>
+        
+                    <tr>
+                        <td>Moral Disputes</td>
+                        <td>
+                            <div class="progress-container">
+                                <div class="progress-bar" style="width: 23.0%">23.0%</div>
+                            </div>
+                        </td>
+                    </tr>
+        
+                    <tr>
+                        <td>Prehistory</td>
+                        <td>
+                            <div class="progress-container">
+                                <div class="progress-bar" style="width: 23.0%">23.0%</div>
+                            </div>
+                        </td>
+                    </tr>
+        
+                    <tr>
+                        <td>Human Sexuality</td>
+                        <td>
+                            <div class="progress-container">
+                                <div class="progress-bar" style="width: 23.0%">23.0%</div>
+                            </div>
+                        </td>
+                    </tr>
+        
+                    <tr>
+                        <td>High School Mathematics</td>
+                        <td>
+                            <div class="progress-container">
+                                <div class="progress-bar" style="width: 23.0%">23.0%</div>
+                            </div>
+                        </td>
+                    </tr>
+        
+                    <tr>
+                        <td>Moral Scenarios</td>
+                        <td>
+                            <div class="progress-container">
+                                <div class="progress-bar" style="width: 22.0%">22.0%</div>
+                            </div>
+                        </td>
+                    </tr>
+        
+                    <tr>
+                        <td>Professional Law</td>
+                        <td>
+                            <div class="progress-container">
+                                <div class="progress-bar" style="width: 22.0%">22.0%</div>
+                            </div>
+                        </td>
+                    </tr>
+        
+                    <tr>
+                        <td>Professional Accounting</td>
+                        <td>
+                            <div class="progress-container">
+                                <div class="progress-bar" style="width: 22.0%">22.0%</div>
+                            </div>
+                        </td>
+                    </tr>
+        
+                    <tr>
+                        <td>High School Psychology</td>
+                        <td>
+                            <div class="progress-container">
+                                <div class="progress-bar" style="width: 22.0%">22.0%</div>
+                            </div>
+                        </td>
+                    </tr>
+        
+                    <tr>
+                        <td>Abstract Algebra</td>
+                        <td>
+                            <div class="progress-container">
+                                <div class="progress-bar" style="width: 22.0%">22.0%</div>
+                            </div>
+                        </td>
+                    </tr>
+        
+                    <tr>
+                        <td>High School Physics</td>
+                        <td>
+                            <div class="progress-container">
+                                <div class="progress-bar" style="width: 22.0%">22.0%</div>
+                            </div>
+                        </td>
+                    </tr>
+        
+                    <tr>
+                        <td>Nutrition</td>
+                        <td>
+                            <div class="progress-container">
+                                <div class="progress-bar" style="width: 21.0%">21.0%</div>
+                            </div>
+                        </td>
+                    </tr>
+        
+                    <tr>
+                        <td>High School Microeconomics</td>
+                        <td>
+                            <div class="progress-container">
+                                <div class="progress-bar" style="width: 21.0%">21.0%</div>
+                            </div>
+                        </td>
+                    </tr>
+        
+                    <tr>
+                        <td>Public Relations</td>
+                        <td>
+                            <div class="progress-container">
+                                <div class="progress-bar" style="width: 21.0%">21.0%</div>
+                            </div>
+                        </td>
+                    </tr>
+        
+                    <tr>
+                        <td>College Mathematics</td>
+                        <td>
+                            <div class="progress-container">
+                                <div class="progress-bar" style="width: 21.0%">21.0%</div>
+                            </div>
+                        </td>
+                    </tr>
+        
+                    <tr>
+                        <td>College Physics</td>
+                        <td>
+                            <div class="progress-container">
+                                <div class="progress-bar" style="width: 21.0%">21.0%</div>
+                            </div>
+                        </td>
+                    </tr>
+        
+                    <tr>
+                        <td>College Medicine</td>
+                        <td>
+                            <div class="progress-container">
+                                <div class="progress-bar" style="width: 20.0%">20.0%</div>
+                            </div>
+                        </td>
+                    </tr>
+        
+                    <tr>
+                        <td>Miscellaneous</td>
+                        <td>
+                            <div class="progress-container">
+                                <div class="progress-bar" style="width: 20.0%">20.0%</div>
+                            </div>
+                        </td>
+                    </tr>
+        
+                    <tr>
+                        <td>College Chemistry</td>
+                        <td>
+                            <div class="progress-container">
+                                <div class="progress-bar" style="width: 20.0%">20.0%</div>
+                            </div>
+                        </td>
+                    </tr>
+        
+                    <tr>
+                        <td>Logical Fallacies</td>
+                        <td>
+                            <div class="progress-container">
+                                <div class="progress-bar" style="width: 19.0%">19.0%</div>
+                            </div>
+                        </td>
+                    </tr>
+        
+                    <tr>
+                        <td>Global Facts</td>
+                        <td>
+                            <div class="progress-container">
+                                <div class="progress-bar" style="width: 18.0%">18.0%</div>
+                            </div>
+                        </td>
+                    </tr>
+        
+                    <tr>
+                        <td>Management</td>
+                        <td>
+                            <div class="progress-container">
+                                <div class="progress-bar" style="width: 18.0%">18.0%</div>
+                            </div>
+                        </td>
+                    </tr>
+        
+                    <tr>
+                        <td>Astronomy</td>
+                        <td>
+                            <div class="progress-container">
+                                <div class="progress-bar" style="width: 18.0%">18.0%</div>
+                            </div>
+                        </td>
+                    </tr>
+        
+                    <tr>
+                        <td>High School Chemistry</td>
+                        <td>
+                            <div class="progress-container">
+                                <div class="progress-bar" style="width: 18.0%">18.0%</div>
+                            </div>
+                        </td>
+                    </tr>
+        
+                    <tr>
+                        <td>Anatomy</td>
+                        <td>
+                            <div class="progress-container">
+                                <div class="progress-bar" style="width: 17.0%">17.0%</div>
+                            </div>
+                        </td>
+                    </tr>
+        
+                    <tr>
+                        <td>High School Geography</td>
+                        <td>
+                            <div class="progress-container">
+                                <div class="progress-bar" style="width: 16.0%">16.0%</div>
+                            </div>
+                        </td>
+                    </tr>
+        
+                    <tr>
+                        <td>High School Government And Politics</td>
+                        <td>
+                            <div class="progress-container">
+                                <div class="progress-bar" style="width: 16.0%">16.0%</div>
+                            </div>
+                        </td>
+                    </tr>
+        
+                    <tr>
+                        <td>High School Statistics</td>
+                        <td>
+                            <div class="progress-container">
+                                <div class="progress-bar" style="width: 16.0%">16.0%</div>
+                            </div>
+                        </td>
+                    </tr>
+        
+                    <tr>
+                        <td>Philosophy</td>
+                        <td>
+                            <div class="progress-container">
+                                <div class="progress-bar" style="width: 15.0%">15.0%</div>
+                            </div>
+                        </td>
+                    </tr>
+        
+                    <tr>
+                        <td>Clinical Knowledge</td>
+                        <td>
+                            <div class="progress-container">
+                                <div class="progress-bar" style="width: 15.0%">15.0%</div>
+                            </div>
+                        </td>
+                    </tr>
+        
+                    <tr>
+                        <td>Professional Medicine</td>
+                        <td>
+                            <div class="progress-container">
+                                <div class="progress-bar" style="width: 15.0%">15.0%</div>
+                            </div>
+                        </td>
+                    </tr>
+        
+                    <tr>
+                        <td>High School Macroeconomics</td>
+                        <td>
+                            <div class="progress-container">
+                                <div class="progress-bar" style="width: 14.000000000000002%">14.0%</div>
+                            </div>
+                        </td>
+                    </tr>
+        
+                    <tr>
+                        <td>High School Biology</td>
+                        <td>
+                            <div class="progress-container">
+                                <div class="progress-bar" style="width: 12.0%">12.0%</div>
+                            </div>
+                        </td>
+                    </tr>
+        
+                </tbody>
+            </table>
+        </div>
+        
+        <script>
+            // Create the categories chart
+            const categoriesCtx = document.getElementById('categoriesChart').getContext('2d');
+            const categoriesChart = new Chart(categoriesCtx, {
+                type: 'bar',
+                data: {
+                    labels: ['Overall', 'STEM', 'Humanities', 'Social Sciences', 'Other'],
+                    datasets: [{
+                        label: 'Accuracy (%)',
+                        data: [
+    23.2, 22.6, 24.9, 22.5, 23.0
+                        ],
+                        backgroundColor: [
+                            'rgba(55, 90, 127, 0.7)',
+                            'rgba(27, 133, 184, 0.7)',
+                            'rgba(86, 156, 92, 0.7)',
+                            'rgba(198, 148, 72, 0.7)',
+                            'rgba(166, 81, 102, 0.7)'
+                        ],
+                        borderColor: [
+                            'rgba(55, 90, 127, 1)',
+                            'rgba(27, 133, 184, 1)',
+                            'rgba(86, 156, 92, 1)',
+                            'rgba(198, 148, 72, 1)',
+                            'rgba(166, 81, 102, 1)'
+                        ],
+                        borderWidth: 1
+                    }]
+                },
+                options: {
+                    indexAxis: 'y',
+                    plugins: {
+                        legend: {
+                            display: false
+                        },
+                        tooltip: {
+                            callbacks: {
+                                label: function(context) {
+                                    return context.parsed.x.toFixed(1) + '%';
+                                }
+                            }
+                        }
+                    },
+                    scales: {
+                        x: {
+                            beginAtZero: true,
+                            max: 100,
+                            title: {
+                                display: true,
+                                text: 'Accuracy (%)'
+                            }
+                        }
+                    }
+                }
+            });
+        </script>
+        
+        <footer>
+            <p>Generated on {datetime.now().strftime('%Y-%m-%d %H:%M:%S')}</p>
+        </footer>
+    </body>
+    </html>
+    
