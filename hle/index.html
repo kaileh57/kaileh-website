@@ -317,6 +317,8 @@
       cursor: pointer;
       transition: var(--transition);
       background-color: var(--card-bg);
+      word-wrap: break-word;
+      overflow-wrap: break-word;
     }
 
     .choice-item:hover {
@@ -626,144 +628,45 @@
       border-color: var(--primary);
     }
 
-    /* New feature - Favorites */
-    .bookmark-btn {
-      background: none;
-      border: none;
-      font-size: 1.5rem;
-      color: var(--text-light);
-      cursor: pointer;
-      transition: var(--transition);
-      padding: 5px;
-      border-radius: 50%;
-      margin-left: 10px;
+    /* Add submit button for multiple choice */
+    #multiple-choice-submit {
+      display: block;
+      width: 100%;
+      margin-top: 20px;
     }
 
-    .bookmark-btn:hover {
-      color: var(--primary);
-      background-color: rgba(79, 70, 229, 0.1);
-    }
-
-    .bookmark-btn.active {
-      color: var(--primary);
-    }
-
-    /* Favorites section */
-    .favorites-section {
-      margin-bottom: 20px;
-    }
-
-    .favorites-toggle {
-      background: none;
-      border: none;
-      color: var(--text);
+    /* Set a reasonable min-height for choice items */
+    .choice-item {
+      min-height: 60px;
       display: flex;
       align-items: center;
-      gap: 8px;
-      font-size: 1rem;
-      font-weight: 600;
-      cursor: pointer;
-      padding: 10px 0;
     }
 
-    .favorites-toggle svg {
-      transition: transform 0.3s ease;
-    }
-
-    .favorites-toggle.active svg {
-      transform: rotate(90deg);
-    }
-
-    .favorites-list {
-      display: none;
-      margin-top: 10px;
-      max-height: 200px;
-      overflow-y: auto;
-      background-color: var(--card-bg);
-      border-radius: var(--radius);
-      box-shadow: var(--shadow);
-    }
-
-    .favorites-list.visible {
-      display: block;
-    }
-
-    .favorite-item {
-      padding: 12px 15px;
-      border-bottom: 1px solid var(--border);
-      cursor: pointer;
-      transition: var(--transition);
-    }
-
-    .favorite-item:last-child {
-      border-bottom: none;
-    }
-
-    .favorite-item:hover {
-      background-color: rgba(79, 70, 229, 0.1);
-    }
-
-    .favorite-category {
-      font-size: 0.85rem;
-      color: var(--text-light);
-      margin-bottom: 5px;
-    }
-
-    .favorite-question {
-      white-space: nowrap;
-      overflow: hidden;
-      text-overflow: ellipsis;
-      font-size: 0.95rem;
-    }
-
-    /* Category statistics */
-    .stat-dropdown {
-      position: relative;
-      cursor: pointer;
-    }
-
-    .stat-dropdown:hover .stat-details {
-      display: block;
-    }
-
-    .stat-details {
-      display: none;
-      position: absolute;
-      top: 100%;
-      left: 0;
-      right: 0;
-      z-index: 10;
-      background-color: var(--card-bg);
-      border-radius: var(--radius);
-      box-shadow: var(--shadow);
-      padding: 10px;
-      margin-top: 5px;
-      max-height: 200px;
-      overflow-y: auto;
-    }
-
-    .stat-category {
-      display: flex;
-      justify-content: space-between;
-      padding: 5px 0;
-      font-size: 0.9rem;
-      border-bottom: 1px solid var(--border);
-    }
-
-    .stat-category:last-child {
-      border-bottom: none;
-    }
-
-    .stat-category-name {
-      white-space: nowrap;
-      overflow: hidden;
-      text-overflow: ellipsis;
+    /* Format choice letter and content separately */
+    .choice-letter {
+      font-weight: bold;
+      min-width: 25px;
       margin-right: 10px;
     }
-
-    .stat-category-value {
-      font-weight: 600;
-      color: var(--primary);
+    
+    .choice-content {
+      flex: 1;
+    }
+    
+    /* Add styles for long or complex multiple choice options */
+    .choice-item.long-option {
+      flex-direction: column;
+      align-items: flex-start;
+      padding: 15px 15px 20px 15px;
+    }
+    
+    .choice-item.long-option .choice-letter {
+      margin-bottom: 10px;
+    }
+    
+    .choice-item.long-option .choice-content {
+      width: 100%;
+      line-height: 1.6;
     }
     </style>
 </head>
@@ -790,34 +693,16 @@
                     <span class="stat-label">Questions</span>
                     <span id="questions-count" class="stat-value">0</span>
                 </div>
-                <div class="stat stat-dropdown">
+                <div class="stat">
                     <span class="stat-label">Correct</span>
                     <span id="correct-count" class="stat-value">0</span>
-                    <div class="stat-details" id="category-stats">
-                        <!-- Populated by JavaScript -->
-                    </div>
                 </div>
                 <div class="stat">
                     <span class="stat-label">Accuracy</span>
                     <span id="accuracy" class="stat-value">0%</span>
                 </div>
             </div>
-
-            <!-- New favorites section -->
-            <div class="favorites-section">
-                <button class="favorites-toggle" id="favorites-toggle">
-                    <svg xmlns="http://www.w3.org/2000/svg" width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
-                        <polyline points="9 18 15 12 9 6"></polyline>
-                    </svg>
-                    <span>Favorites</span>
-                    <span id="favorites-count">(0)</span>
-                </button>
-                <div class="favorites-list" id="favorites-list">
-                    <!-- Populated by JavaScript -->
-                </div>
-            </div>
             
-            <!-- Category filter with tags -->
             <div class="category-filter">
                 <label for="category-select">Filter by category:</label>
                 <div class="category-tags" id="category-tags">
@@ -839,14 +724,7 @@
             <div id="question-card" class="question-card" style="display: none;">
                 <div class="card-header">
                     <div class="category-badge" id="category">Category</div>
-                    <div style="display: flex; align-items: center;">
-                        <div class="question-id" id="question-id">ID: 000</div>
-                        <button class="bookmark-btn" id="bookmark-btn" title="Add to favorites">
-                            <svg xmlns="http://www.w3.org/2000/svg" width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
-                                <path d="M19 21l-7-5-7 5V5a2 2 0 0 1 2-2h10a2 2 0 0 1 2 2z"></path>
-                            </svg>
-                        </button>
-                    </div>
+                    <div class="question-id" id="question-id">ID: 000</div>
                 </div>
                 
                 <div class="question-content">
@@ -857,7 +735,10 @@
                 </div>
                 
                 <div class="answer-section">
-                    <div id="multiple-choice" class="multiple-choice" style="display: none;"></div>
+                    <div id="multiple-choice" class="multiple-choice" style="display: none;">
+                        <!-- Multiple choice options will be populated here -->
+                        <button id="multiple-choice-submit" class="btn" disabled>Submit Answer</button>
+                    </div>
                     
                     <div id="text-answer" class="text-answer" style="display: none;">
                         <label for="answer-input">Your answer:</label>
@@ -901,7 +782,7 @@
     </div>
 
     <script>
-    // State management
+    // State management without localStorage
     let questions = [];
     let currentQuestion = null;
     let seenQuestionIds = new Set();
@@ -912,7 +793,6 @@
     let categoryStats = {};
     let categories = new Set();
     let selectedCategory = 'all';
-    let favorites = new Map();
     let popularCategories = [];
     
     // DOM Elements
@@ -925,6 +805,7 @@
     const imageContainerElement = document.getElementById('image-container');
     const questionImageElement = document.getElementById('question-image');
     const multipleChoiceElement = document.getElementById('multiple-choice');
+    const multipleChoiceSubmitElement = document.getElementById('multiple-choice-submit');
     const textAnswerElement = document.getElementById('text-answer');
     const answerInputElement = document.getElementById('answer-input');
     const submitButtonElement = document.getElementById('submit-btn');
@@ -943,63 +824,19 @@
     const categorySelectElement = document.getElementById('category-select');
     const categoryTagsElement = document.getElementById('category-tags');
     const themeToggleButtonElement = document.getElementById('theme-toggle-btn');
-    const bookmarkButtonElement = document.getElementById('bookmark-btn');
-    const favoritesToggleElement = document.getElementById('favorites-toggle');
-    const favoritesListElement = document.getElementById('favorites-list');
-    const favoritesCountElement = document.getElementById('favorites-count');
-    const categoryStatsElement = document.getElementById('category-stats');
-
-    // Load stats from localStorage if available
-    function loadStats() {
-        const storedStats = localStorage.getItem('hleQuizStats');
-        if (storedStats) {
-            const stats = JSON.parse(storedStats);
-            questionsAnswered = stats.questionsAnswered || 0;
-            correctAnswers = stats.correctAnswers || 0;
-            categoryStats = stats.categoryStats || {};
-            seenQuestionIds = new Set(stats.seenQuestionIds || []);
-            
-            // Update UI
-            updateStatsDisplay();
-        }
-
-        // Load favorites
-        const storedFavorites = localStorage.getItem('hleQuizFavorites');
-        if (storedFavorites) {
-            favorites = new Map(JSON.parse(storedFavorites));
-            updateFavoritesDisplay();
-        }
-    }
-
-    // Save stats to localStorage
-    function saveStats() {
-        const stats = {
-            questionsAnswered,
-            correctAnswers,
-            categoryStats,
-            seenQuestionIds: Array.from(seenQuestionIds)
-        };
-        localStorage.setItem('hleQuizStats', JSON.stringify(stats));
-
-        // Save favorites
-        localStorage.setItem('hleQuizFavorites', JSON.stringify(Array.from(favorites.entries())));
-    }
 
     // Theme Management
     function initTheme() {
-        const savedTheme = localStorage.getItem('theme');
-        if (savedTheme === 'light') {
-            document.body.classList.add('light-theme');
-        }
+        // Use a variable in memory instead of localStorage
+        window.darkTheme = true;
     }
 
     function toggleTheme() {
-        if (document.body.classList.contains('light-theme')) {
+        window.darkTheme = !window.darkTheme;
+        if (window.darkTheme) {
             document.body.classList.remove('light-theme');
-            localStorage.setItem('theme', 'dark');
         } else {
             document.body.classList.add('light-theme');
-            localStorage.setItem('theme', 'light');
         }
     }
 
@@ -1102,91 +939,6 @@
         });
     }
 
-    // Update favorites display
-    function updateFavoritesDisplay() {
-        // Update count
-        favoritesCountElement.textContent = `(${favorites.size})`;
-        
-        // Update list
-        favoritesListElement.innerHTML = '';
-        
-        if (favorites.size === 0) {
-            const emptyItem = document.createElement('div');
-            emptyItem.className = 'favorite-item';
-            emptyItem.textContent = 'No favorites yet';
-            favoritesListElement.appendChild(emptyItem);
-            return;
-        }
-        
-        // Add favorite items
-        favorites.forEach((item, id) => {
-            const favoriteItem = document.createElement('div');
-            favoriteItem.className = 'favorite-item';
-            favoriteItem.dataset.id = id;
-            
-            const categoryElement = document.createElement('div');
-            categoryElement.className = 'favorite-category';
-            categoryElement.textContent = item.category;
-            
-            const questionElement = document.createElement('div');
-            questionElement.className = 'favorite-question';
-            questionElement.textContent = item.question;
-            
-            favoriteItem.appendChild(categoryElement);
-            favoriteItem.appendChild(questionElement);
-            
-            favoriteItem.addEventListener('click', () => {
-                loadQuestionById(id);
-                favoritesListElement.classList.remove('visible');
-                favoritesToggleElement.classList.remove('active');
-            });
-            
-            favoritesListElement.appendChild(favoriteItem);
-        });
-    }
-
-    // Update bookmark button state
-    function updateBookmarkState() {
-        if (!currentQuestion) return;
-        
-        const isFavorite = favorites.has(currentQuestion.id);
-        bookmarkButtonElement.classList.toggle('active', isFavorite);
-        bookmarkButtonElement.innerHTML = isFavorite ? 
-            '<svg xmlns="http://www.w3.org/2000/svg" width="24" height="24" viewBox="0 0 24 24" fill="currentColor" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M19 21l-7-5-7 5V5a2 2 0 0 1 2-2h10a2 2 0 0 1 2 2z"></path></svg>' :
-            '<svg xmlns="http://www.w3.org/2000/svg" width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M19 21l-7-5-7 5V5a2 2 0 0 1 2-2h10a2 2 0 0 1 2 2z"></path></svg>';
-    }
-
-    // Toggle favorite status
-    function toggleFavorite() {
-        if (!currentQuestion) return;
-        
-        if (favorites.has(currentQuestion.id)) {
-            favorites.delete(currentQuestion.id);
-        } else {
-            favorites.set(currentQuestion.id, {
-                question: getQuestionShortText(currentQuestion.question),
-                category: currentQuestion.category || 'Uncategorized'
-            });
-        }
-        
-        updateBookmarkState();
-        updateFavoritesDisplay();
-        saveStats(); // Save favorites
-    }
-
-    // Get shortened question text for favorites
-    function getQuestionShortText(questionText) {
-        // Remove any "Answer Choices:" section
-        let shortText = questionText.split('Answer Choices:')[0];
-        
-        // Limit to 50 characters
-        if (shortText.length > 50) {
-            shortText = shortText.substring(0, 47) + '...';
-        }
-        
-        return shortText;
-    }
-
     // Load a random question based on selected category
     function loadRandomQuestion() {
         if (questions.length === 0) {
@@ -1221,23 +973,6 @@
         currentQuestion = unseenQuestions[randomIndex];
         seenQuestionIds.add(currentQuestion.id);
         
-        // Save updated stats
-        saveStats();
-        
-        displayQuestion();
-        resetAnswer();
-    }
-
-    // Load a specific question by ID
-    function loadQuestionById(id) {
-        const question = questions.find(q => q.id === id);
-        if (!question) {
-            console.error('Question not found:', id);
-            loadRandomQuestion();
-            return;
-        }
-        
-        currentQuestion = question;
         displayQuestion();
         resetAnswer();
     }
@@ -1253,20 +988,26 @@
         categoryElement.textContent = currentQuestion.category || 'Uncategorized';
         questionIdElement.textContent = `ID: ${currentQuestion.id}`;
         
-        // Update bookmark state
-        updateBookmarkState();
-        
         // Set question text and process any LaTeX
         questionTextElement.innerHTML = currentQuestion.question;
         
         // Handle image if present
         if (currentQuestion.image) {
+            // Try both extensions
             const imagePath = `images/${currentQuestion.image}`;
-            questionImageElement.src = imagePath;
+            const imagePathPng = imagePath.replace('.jpg', '.png');
+            
+            // Try PNG first
+            questionImageElement.src = imagePathPng;
             
             questionImageElement.onerror = () => {
-                console.log('Image failed to load:', imagePath);
-                imageContainerElement.style.display = 'none';
+                // If PNG fails, try JPG or original extension
+                questionImageElement.src = imagePath;
+                
+                questionImageElement.onerror = () => {
+                    console.log('Image failed to load:', imagePath);
+                    imageContainerElement.style.display = 'none';
+                };
             };
             
             questionImageElement.onload = () => {
@@ -1280,7 +1021,7 @@
         }
         
         // Handle answer type
-        if (currentQuestion.answer_type === 'multipleChoice' && currentQuestion.choices) {
+        if (currentQuestion.answer_type === 'multipleChoice') {
             displayMultipleChoice();
             textAnswerElement.style.display = 'none';
         } else {
@@ -1295,57 +1036,138 @@
         renderMathJax();
     }
 
+    // Process a complex multiple choice option
+    function processChoiceContent(choice) {
+      // Handle cases where the choice might not be properly formatted
+      if (!choice || typeof choice !== 'string' || choice.length < 2) {
+          return {
+              letter: '?',
+              content: choice || 'Unknown option',
+              isComplex: false
+          };
+      }
+      
+      // Extract the letter and content more reliably
+      const letterMatch = choice.match(/^([A-Z])\./i);
+      const letter = letterMatch ? letterMatch[1].toUpperCase() : choice.charAt(0);
+      
+      // Get content after the letter and period
+      let content = choice.replace(/^[A-Z]\.\s*/i, '').trim();
+      
+      // Check if it needs special formatting
+      const isComplexChoice = content.length > 100 || content.includes('/') || content.includes('.');
+      
+      return {
+          letter,
+          content,
+          isComplex: isComplexChoice
+      };
+  }
+
+
     // Display multiple choice options
     function displayMultipleChoice() {
-        multipleChoiceElement.innerHTML = '';
-        
-        if (!currentQuestion.choices || currentQuestion.choices.length === 0) {
-            const choiceLetters = ['A', 'B', 'C', 'D', 'E', 'F', 'G', 'H']; // Extended letters
-            
-            // Try to extract choices from the question text
-            if (currentQuestion.question.includes('Answer Choices:')) {
-                try {
-                    const choiceSection = currentQuestion.question.split('Answer Choices:')[1].trim();
-                    currentQuestion.choices = choiceLetters.map(letter => {
-                        const regex = new RegExp(`${letter}\\.[^A-H]*`);
-                        const match = choiceSection.match(regex);
-                        return match ? match[0].trim() : null;
-                    }).filter(Boolean);
-                } catch (err) {
-                    console.error('Error parsing choices:', err);
-                    currentQuestion.choices = choiceLetters.slice(0, 5).map(letter => `${letter}. Option ${letter}`);
-                }
-            } else {
-                currentQuestion.choices = choiceLetters.slice(0, 5).map(letter => `${letter}. Option ${letter}`);
-            }
-        }
-        
-        currentQuestion.choices.forEach((choice, index) => {
-            const choiceItem = document.createElement('div');
-            choiceItem.className = 'choice-item';
-            choiceItem.innerHTML = choice;
-            choiceItem.dataset.value = choice.charAt(0);
-            
-            choiceItem.addEventListener('click', () => {
-                if (!isAnswered) {
-                    // Clear any previously selected choices
-                    const selectedChoices = multipleChoiceElement.querySelectorAll('.selected');
-                    selectedChoices.forEach(selected => selected.classList.remove('selected'));
-                    
-                    // Select this choice
-                    choiceItem.classList.add('selected');
-                    userAnswer = choice.charAt(0);
-                    
-                    // Enable submit button
-                    submitButtonElement.disabled = false;
-                }
-            });
-            
-            multipleChoiceElement.appendChild(choiceItem);
-        });
-        
-        multipleChoiceElement.style.display = 'block';
-    }
+      // Clear previous choices but keep the submit button
+      const submitButton = multipleChoiceElement.querySelector('#multiple-choice-submit');
+      multipleChoiceElement.innerHTML = '';
+      multipleChoiceElement.appendChild(submitButton);
+      
+      if (!currentQuestion.choices || currentQuestion.choices.length === 0) {
+          // Expanded letters to include all alphabet letters, not just A-H
+          const choiceLetters = ['A', 'B', 'C', 'D', 'E', 'F', 'G', 'H', 'I', 'J', 'K', 'L', 'M', 'N', 'O', 'P', 'Q', 'R', 'S', 'T', 'U', 'V', 'W', 'X', 'Y', 'Z'];
+          
+          // Try to extract choices from the question text
+          if (currentQuestion.question.includes('Answer Choices:')) {
+              try {
+                  const choiceSection = currentQuestion.question.split('Answer Choices:')[1].trim();
+                  currentQuestion.choices = [];
+                  
+                  // First, identify all potential letter choices in the text
+                  const allChoiceMatches = choiceSection.match(/[A-Z]\./gi) || [];
+                  const foundLetters = allChoiceMatches.map(match => match.charAt(0).toUpperCase());
+                  
+                  // Use the found letters or default to A-E if none found
+                  const lettersToUse = foundLetters.length > 0 ? foundLetters : choiceLetters.slice(0, 5);
+                  
+                  // Extract content for each letter
+                  lettersToUse.forEach((letter, index) => {
+                      const isLastLetter = index === lettersToUse.length - 1;
+                      let pattern;
+                      
+                      if (isLastLetter) {
+                          // If this is the last letter, extract until the end
+                          pattern = `${letter}\\.(.*?)$`;
+                      } else {
+                          // Otherwise, extract until the next letter
+                          const nextLetter = lettersToUse[index + 1];
+                          pattern = `${letter}\\.(.*?)(?=${nextLetter}\\.|$)`;
+                      }
+                      
+                      const regex = new RegExp(pattern, 's'); // 's' flag for dotAll mode
+                      const match = choiceSection.match(regex);
+                      
+                      if (match && match[1]) {
+                          currentQuestion.choices.push(`${letter}. ${match[1].trim()}`);
+                      }
+                  });
+                  
+                  // If we couldn't extract any choices, fall back to defaults
+                  if (currentQuestion.choices.length === 0) {
+                      currentQuestion.choices = choiceLetters.slice(0, 5).map(letter => `${letter}. Option ${letter}`);
+                  }
+              } catch (err) {
+                  console.error('Error parsing choices:', err);
+                  currentQuestion.choices = choiceLetters.slice(0, 5).map(letter => `${letter}. Option ${letter}`);
+              }
+          } else {
+              currentQuestion.choices = choiceLetters.slice(0, 5).map(letter => `${letter}. Option ${letter}`);
+          }
+      }
+      
+      // Display the choices
+      currentQuestion.choices.forEach((choice, index) => {
+          const choiceInfo = processChoiceContent(choice);
+          const choiceItem = document.createElement('div');
+          
+          // Apply classes based on complexity
+          choiceItem.className = choiceInfo.isComplex ? 'choice-item long-option' : 'choice-item';
+          choiceItem.dataset.value = choiceInfo.letter;
+          
+          // Create letter and content elements
+          const letterElement = document.createElement('div');
+          letterElement.className = 'choice-letter';
+          letterElement.textContent = choiceInfo.letter + '.';
+          
+          const contentElement = document.createElement('div');
+          contentElement.className = 'choice-content';
+          contentElement.innerHTML = choiceInfo.content;
+          
+          // Add elements to the choice item
+          choiceItem.appendChild(letterElement);
+          choiceItem.appendChild(contentElement);
+          
+          // Add click event
+          choiceItem.addEventListener('click', () => {
+              if (!isAnswered) {
+                  // Clear any previously selected choices
+                  const selectedChoices = multipleChoiceElement.querySelectorAll('.selected');
+                  selectedChoices.forEach(selected => selected.classList.remove('selected'));
+                  
+                  // Select this choice
+                  choiceItem.classList.add('selected');
+                  userAnswer = choiceInfo.letter;
+                  
+                  // Enable submit button
+                  multipleChoiceSubmitElement.disabled = false;
+              }
+          });
+          
+          multipleChoiceElement.insertBefore(choiceItem, submitButton);
+      });
+      
+      multipleChoiceElement.style.display = 'block';
+  }
+
 
     // Reset answer state
     function resetAnswer() {
@@ -1356,9 +1178,10 @@
         answerInputElement.value = '';
         answerInputElement.disabled = false;
         
-        // Reset submit button
+        // Reset submit buttons
         submitButtonElement.disabled = true;
         submitButtonElement.style.display = 'block';
+        multipleChoiceSubmitElement.disabled = true;
         
         // Hide feedback
         feedbackElement.style.display = 'none';
@@ -1409,9 +1232,6 @@
         // Update stats display
         updateStatsDisplay();
         
-        // Save stats
-        saveStats();
-        
         // Display feedback
         showFeedback(correct);
     }
@@ -1422,43 +1242,13 @@
         correctCountElement.textContent = correctAnswers;
         const accuracy = questionsAnswered > 0 ? Math.round((correctAnswers / questionsAnswered) * 100) : 0;
         accuracyElement.textContent = `${accuracy}%`;
-        
-        // Update category stats
-        updateCategoryStats();
-    }
-
-    // Update category statistics
-    function updateCategoryStats() {
-        categoryStatsElement.innerHTML = '';
-        
-        // Get categories sorted by number of questions answered
-        const sortedCategories = Object.entries(categoryStats)
-            .sort((a, b) => b[1].total - a[1].total);
-        
-        sortedCategories.forEach(([category, stats]) => {
-            const categoryAccuracy = Math.round((stats.correct / stats.total) * 100);
-            
-            const categoryElement = document.createElement('div');
-            categoryElement.className = 'stat-category';
-            
-            const nameElement = document.createElement('div');
-            nameElement.className = 'stat-category-name';
-            nameElement.textContent = category;
-            
-            const valueElement = document.createElement('div');
-            valueElement.className = 'stat-category-value';
-            valueElement.textContent = `${stats.correct}/${stats.total} (${categoryAccuracy}%)`;
-            
-            categoryElement.appendChild(nameElement);
-            categoryElement.appendChild(valueElement);
-            categoryStatsElement.appendChild(categoryElement);
-        });
     }
 
     // Show feedback after answering
     function showFeedback(isCorrect) {
         // Hide submit button
         submitButtonElement.style.display = 'none';
+        multipleChoiceSubmitElement.style.display = 'none';
         
         // Disable input
         answerInputElement.disabled = true;
@@ -1553,9 +1343,6 @@
         // Initialize theme
         initTheme();
         
-        // Load saved stats
-        loadStats();
-        
         // Fetch questions when page loads
         fetchQuestions();
         
@@ -1567,6 +1354,11 @@
         
         // Submit button click
         submitButtonElement.addEventListener('click', () => {
+            checkAnswer();
+        });
+        
+        // Multiple choice submit button click
+        multipleChoiceSubmitElement.addEventListener('click', () => {
             checkAnswer();
         });
         
@@ -1616,17 +1408,6 @@
             toggleTheme();
         });
         
-        // Bookmark button
-        bookmarkButtonElement.addEventListener('click', () => {
-            toggleFavorite();
-        });
-        
-        // Favorites toggle
-        favoritesToggleElement.addEventListener('click', () => {
-            favoritesListElement.classList.toggle('visible');
-            favoritesToggleElement.classList.toggle('active');
-        });
-        
         // Add keypress shortcuts
         document.addEventListener('keydown', (event) => {
             // Press 'n' for next question when feedback is shown
@@ -1637,11 +1418,6 @@
             // Press 'e' to toggle explanation when feedback is shown
             if (event.key === 'e' && feedbackElement.style.display === 'block') {
                 showExplanationButtonElement.click();
-            }
-            
-            // Press 'f' to toggle favorite status
-            if (event.key === 'f' && currentQuestion) {
-                toggleFavorite();
             }
         });
     });
