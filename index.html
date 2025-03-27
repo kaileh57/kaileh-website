@@ -1144,9 +1144,10 @@
             
             // If we still don't have choices, create basic ones
             if (!parsedChoices || parsedChoices.length === 0) {
-                const choiceLetters = ['A', 'B', 'C', 'D', 'E'];
+                const choiceLetters = ['A', 'B', 'C', 'D', 'E', 'F', 'G', 'H', 'I', 'J', 'K', 'L', 'M', 'N', 'O', 'P', 'Q', 'R', 'S', 'T', 'U', 'V', 'W', 'X', 'Y', 'Z'];
                 parsedChoices = choiceLetters.map(letter => `${letter}. Option ${letter}`);
             }
+    
             
             currentQuestion.choices = parsedChoices;
         }
@@ -1250,41 +1251,20 @@
 
     // For extreme cases where the regex approach fails, we'll use a backup method
     function parseChoicesFallback(questionText) {
+        // Check if the question text contains "Answer Choices:"
+        if (!questionText.includes('Answer Choices:')) {
+            return null;
+        }
+        
+        // Split the text to get just the choices section
+        const parts = questionText.split('Answer Choices:');
+        if (parts.length < 2) return null;
+        
+        const choicesSection = parts[1].trim();
+        
         // Define all the letters we want to look for
         const letters = 'ABCDEFGHIJKLMNOPQRSTUVWXYZ';
         const result = [];
-        
-        // Look for patterns indicating choices
-        const choicePatterns = [
-            'Answer Choices:',
-            'Answer choices:',
-            'Choices:',
-            'Options:'
-        ];
-        
-        let choicesSection = questionText;
-        for (const pattern of choicePatterns) {
-            if (questionText.includes(pattern)) {
-                // Split the text to get just the choices section
-                const parts = questionText.split(pattern);
-                if (parts.length < 2) continue;
-                
-                choicesSection = parts[1].trim();
-                break;
-            }
-        }
-        
-        // If we couldn't find a choices section, look for A. B. C. pattern
-        if (choicesSection === questionText) {
-            // Look for newlines followed by a letter and period
-            const choiceLines = choicesSection.split('\n').filter(line => 
-                /^[A-Z]\./.test(line.trim())
-            );
-            
-            if (choiceLines.length > 0) {
-                return choiceLines.map(line => line.trim());
-            }
-        }
         
         // For each letter, look for it explicitly
         for (let i = 0; i < letters.length; i++) {
@@ -1294,7 +1274,9 @@
             const patterns = [
                 `${currentLetter}\\.`, 
                 `${currentLetter}\\)`, 
-                `${currentLetter}\\s`
+                `${currentLetter}\\s`,
+                `${currentLetter}\\:`,  // Add colon format
+                `\\(${currentLetter}\\)` // Add parentheses format (A)
             ];
             
             let found = false;
@@ -1312,41 +1294,54 @@
                 }
             }
             
-            // If we didn't find this letter, we're done
+            // If we didn't find this letter, continue to the next one
+            // THIS IS THE KEY FIX: Changed from "break" to "continue"
             if (!found) {
-                break;
+                continue; 
             }
             
             // Determine where this option ends
             let endIndex = choicesSection.length;
             
             // Look for the next letter
-            if (i < letters.length - 1) {
-                const nextLetter = letters[i + 1];
+            for (let j = i + 1; j < letters.length; j++) {
+                const nextLetter = letters[j];
                 const nextPatterns = [
                     `${nextLetter}\\.`, 
                     `${nextLetter}\\)`, 
-                    `${nextLetter}\\s`
+                    `${nextLetter}\\s`,
+                    `${nextLetter}\\:`,
+                    `\\(${nextLetter}\\)`
                 ];
                 
+                let nextLetterFound = false;
                 for (const pattern of nextPatterns) {
                     const regex = new RegExp(pattern, 'i');
                     const match = choicesSection.match(regex);
                     
                     if (match) {
                         endIndex = match.index;
+                        nextLetterFound = true;
                         break;
                     }
                 }
+                
+                if (nextLetterFound) break;
             }
             
             // Extract the content
             const content = choicesSection.substring(startIndex, endIndex).trim();
-            result.push(content);
+            if (content) {
+                result.push(content);
+            }
         }
+        
+        // Add debug log
+        console.log("Fallback parser found", result.length, "options");
         
         return result.length > 0 ? result : null;
     }
+
 
     // Reset answer state
     function resetAnswer() {
