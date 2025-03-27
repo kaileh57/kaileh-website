@@ -129,50 +129,8 @@
         },
         startup: {
           ready: () => {
-            // Fix some LaTeX environments manually
-            const fixLaTeXEnvironments = () => {
-              document.querySelectorAll('.question-text, .choice-content, .rationale').forEach(el => {
-                let content = el.innerHTML;
-                
-                // Fix "Unknown environment" errors
-                content = content.replace(/Unknown environment 'enumerate'/g, '');
-                content = content.replace(/Unknown environment 'itemize'/g, '');
-                
-                // Replace LaTeX environments with HTML
-                content = content.replace(/\\begin\{enumerate\}/g, '<ol>');
-                content = content.replace(/\\end\{enumerate\}/g, '</ol>');
-                content = content.replace(/\\begin\{itemize\}/g, '<ul>');
-                content = content.replace(/\\end\{itemize\}/g, '</ul>');
-                content = content.replace(/\\item/g, '<li>');
-                content = content.replace(/\\item\[(.*?)\]/g, '<li>$1: ');
-                
-                // Close li tags that don't have closing tags
-                const matches = content.match(/<li>.*?(?=<li>|<\/[ou]l>|$)/g);
-                if (matches) {
-                  matches.forEach(match => {
-                    if (!match.includes('</li>')) {
-                      content = content.replace(match, match + '</li>');
-                    }
-                  });
-                }
-                
-                // Fix common LaTeX expressions
-                content = content.replace(/\\degreeC/g, '°C');
-                content = content.replace(/\\degree/g, '°');
-                
-                // Fix broken inline math delimiters
-                content = content.replace(/([^$])(\$)([^$\s].*?[^$\s])(\$)([^$])/g, '$1$$$3$$$5');
-                
-                // Ensure display math has proper spacing
-                content = content.replace(/\$\$/g, '\n$$\n');
-                
-                el.innerHTML = content;
-              });
-            };
-            
             MathJax.startup.defaultReady();
-            fixLaTeXEnvironments();
-            MathJax.typesetPromise().catch(err => console.log('Typeset failed: ' + err.message));
+            console.log('MathJax initialized');
           }
         }
       };
@@ -828,6 +786,12 @@
       display: flex;
       align-items: flex-start;
     }
+
+    /* Special styling for degree Celsius */
+    .degree-celsius {
+      font-family: sans-serif;
+      white-space: nowrap;
+    }
     </style>
 </head>
 <body>
@@ -1000,26 +964,40 @@
         }
     }
 
-    // IMPROVED: Preprocess LaTeX in text
-    function preprocessLaTeX(text) {
+    // IMPROVED: Comprehensive LaTeX and text preprocessing
+    function preprocessText(text) {
         if (!text) return '';
         
         let processed = text;
         
-        // Fix common LaTeX issues
-        processed = processed.replace(/Unknown environment 'enumerate'/g, '');
-        processed = processed.replace(/Unknown environment 'itemize'/g, '');
-        processed = processed.replace(/\\degreeC/g, '°C');
+        // Fix all degree Celsius instances
+        processed = processed.replace(/\\degreeC/g, '<span class="degree-celsius">°C</span>');
+        processed = processed.replace(/\\degree C/g, '<span class="degree-celsius">°C</span>');
         processed = processed.replace(/\\degree/g, '°');
         
-        // Replace problematic LaTeX environments with proper HTML
+        // Fix colored text
+        processed = processed.replace(/\\color{red}{([^}]+)}/g, '<span style="color:red">$1</span>');
+        processed = processed.replace(/\\color{blue}{([^}]+)}/g, '<span style="color:blue">$1</span>');
+        processed = processed.replace(/\\color{green}{([^}]+)}/g, '<span style="color:green">$1</span>');
+        
+        // Remove color tags but keep content
+        processed = processed.replace(/\\red(degree)?C/g, '<span class="degree-celsius">°C</span>');
+        processed = processed.replace(/\\red/g, '');
+        processed = processed.replace(/\\blue/g, '');
+        processed = processed.replace(/\\green/g, '');
+        
+        // Remove Unknown environment messages
+        processed = processed.replace(/Unknown environment '([^']+)'/g, '');
+        
+        // Convert LaTeX environments to HTML
         processed = processed.replace(/\\begin\{enumerate\}/g, '<ol>');
         processed = processed.replace(/\\end\{enumerate\}/g, '</ol>');
         processed = processed.replace(/\\begin\{itemize\}/g, '<ul>');
         processed = processed.replace(/\\end\{itemize\}/g, '</ul>');
+        processed = processed.replace(/\\item\[(.*?)\]/g, '<li>$1: ');
         processed = processed.replace(/\\item/g, '<li>');
         
-        // Ensure list items are properly closed
+        // Close list items properly
         const liMatches = processed.match(/<li>.*?(?=<li>|<\/[ou]l>|$)/g);
         if (liMatches) {
             liMatches.forEach(match => {
@@ -1029,11 +1007,23 @@
             });
         }
         
-        // Fix badly formatted inline math expressions
-        processed = processed.replace(/([^$])(\$)([^$\s].*?[^$\s])(\$)([^$])/g, '$1$$$3$$$5');
+        // Fix special characters
+        processed = processed.replace(/&lt;/g, '<');
+        processed = processed.replace(/&gt;/g, '>');
         
-        // Style bracket notation for choices
+        // Fix scientific notation
+        processed = processed.replace(/(\d+)[\s]*\\times[\s]*10\^{(-?\d+)}/g, '$1×10<sup>$2</sup>');
+        
+        // Format bracket notation for array answers
         processed = processed.replace(/\[([0-9,\s]+)\]/g, '<span class="bracket-notation">[$1]</span>');
+        
+        // Fix fraction formatting
+        processed = processed.replace(/\\frac{([^}]+)}{([^}]+)}/g, '<span class="fraction">$1/$2</span>');
+        
+        // Fix per notation
+        processed = processed.replace(/\/hour/g, '<span class="unit">/hour</span>');
+        processed = processed.replace(/per\\degreeC/g, '<span class="unit">/°C</span>');
+        processed = processed.replace(/per hour/g, '<span class="unit">/hour</span>');
         
         return processed;
     }
@@ -1175,7 +1165,7 @@
         resetAnswer();
     }
 
-    // IMPROVED: Display the current question with better handling of LaTeX and content
+    // IMPROVED: Display the current question with much better LaTeX handling
     function displayQuestion() {
         // Hide loading and error, show question card
         hideLoading();
@@ -1186,8 +1176,8 @@
         categoryElement.textContent = currentQuestion.category || 'Uncategorized';
         questionIdElement.textContent = `ID: ${currentQuestion.id}`;
         
-        // Preprocess and set question text
-        const processedQuestion = preprocessLaTeX(currentQuestion.question);
+        // Preprocess and set question text with improved handling
+        const processedQuestion = preprocessText(currentQuestion.question);
         questionTextElement.innerHTML = processedQuestion;
         
         // Handle image if present
@@ -1234,71 +1224,132 @@
         renderMathJax();
     }
 
-    // IMPROVED: Advanced choice parser function with better handling of array notation
-    function parseChoicesFromQuestion(questionText) {
+    // COMPLETE REWRITE: Advanced and more robust choice extraction
+    function extractChoices(questionText) {
         if (!questionText) return null;
         
-        // First try: Find choices after "Answer Choices:" label
+        const choices = [];
+        const alphabet = 'ABCDEFGHIJKLMNOPQRSTUVWXYZ';
+        
+        // First try: Look for "Answer Choices:" section with standard format
         if (questionText.includes('Answer Choices:')) {
             const parts = questionText.split('Answer Choices:');
             if (parts.length >= 2) {
-                const choicesText = parts[1].trim();
+                const choicesSection = parts[1].trim();
                 
-                // First try to extract lettered options with bracket notation [1], [2,3], etc.
-                const letterBracketPattern = /([A-Z])\.\s*\[([0-9,\s]+)\]/g;
-                const letterBracketMatches = Array.from(choicesText.matchAll(letterBracketPattern));
+                // Try to extract lettered choices with regex
+                const letterPattern = /([A-Z])\.\s*((?:(?!\s+[A-Z]\.|\n[A-Z]\.).)+)/gs;
+                const matches = Array.from(choicesSection.matchAll(letterPattern));
                 
-                if (letterBracketMatches && letterBracketMatches.length > 0) {
-                    return letterBracketMatches.map(match => 
-                        `${match[1]}. [${match[2].trim()}]`
-                    );
-                }
-                
-                // Try regular lettered options (A., B., C.)
-                const letterPattern = /([A-Z])\.\s*((?:(?!\s[A-Z]\.).)+)/gs;
-                const letterMatches = Array.from(choicesText.matchAll(letterPattern));
-                
-                if (letterMatches && letterMatches.length > 0) {
-                    return letterMatches.map(match => 
-                        `${match[1]}. ${match[2].trim()}`
-                    );
-                }
-                
-                // Try Roman numeral options or combinations
-                const romanPattern = /([A-Z])\.\s*([IVX,\s]+)/gs;
-                const romanMatches = Array.from(choicesText.matchAll(romanPattern));
-                
-                if (romanMatches && romanMatches.length > 0) {
-                    return romanMatches.map(match => 
-                        `${match[1]}. ${match[2].trim()}`
-                    );
+                if (matches && matches.length > 0) {
+                    matches.forEach(match => {
+                        const letter = match[1];
+                        const content = match[2].trim();
+                        choices.push({ letter, content });
+                    });
+                    
+                    if (choices.length > 0) {
+                        return choices;
+                    }
                 }
             }
         }
         
-        // Second try: Look for options at the end of question matching bracket pattern
-        const bracketOptionsMatch = questionText.match(/([A-Z])\.[\s]*\[([0-9,\s]+)\]/g);
-        if (bracketOptionsMatch && bracketOptionsMatch.length > 0) {
-            return bracketOptionsMatch.map(option => option.trim());
+        // Second try: Look for any lettered options in the entire question
+        const letterOptionsPattern = /([A-Z])\.\s*((?:(?!\s+[A-Z]\.|\n[A-Z]\.).)+)/gs;
+        const letterMatches = Array.from(questionText.matchAll(letterOptionsPattern));
+        
+        if (letterMatches && letterMatches.length > 0) {
+            letterMatches.forEach(match => {
+                const letter = match[1];
+                const content = match[2].trim();
+                // Make sure this isn't just part of the question text
+                if (!content.endsWith('.') || content.length < 50) {
+                    choices.push({ letter, content });
+                }
+            });
+            
+            if (choices.length > 0) {
+                return choices;
+            }
         }
         
-        // Third try: Split by letter followed by period
-        const letterOptionsMatch = questionText.match(/([A-Z])\.[\s]*(.*?)(?=\s[A-Z]\.|$)/gs);
-        if (letterOptionsMatch && letterOptionsMatch.length > 0) {
-            return letterOptionsMatch.map(option => option.trim());
+        // Third try: Parse condensed multi-option formats
+        const condensedPattern = /([A-Z])\.[\s]*(\S+)(?:[\s]+([A-Z])\.[\s]*(\S+))?(?:[\s]+([A-Z])\.[\s]*(\S+))?(?:[\s]+([A-Z])\.[\s]*(\S+))?(?:[\s]+([A-Z])\.[\s]*(\S+))?/g;
+        const condensedMatches = Array.from(questionText.matchAll(condensedPattern));
+        
+        if (condensedMatches && condensedMatches.length > 0) {
+            condensedMatches.forEach(match => {
+                // Process each pair of letter and content
+                for (let i = 1; i < match.length; i += 2) {
+                    if (match[i] && alphabet.includes(match[i])) {
+                        const letter = match[i];
+                        const content = match[i+1] || '';
+                        choices.push({ letter, content });
+                    }
+                }
+            });
+            
+            if (choices.length > 0) {
+                return choices;
+            }
         }
         
-        // Final fallback: Create generic options
-        return ['A. Option A', 'B. Option B', 'C. Option C', 'D. Option D'];
+        // Last attempt: Look for lettered items at start of lines or after other options
+        const lineStartPatterns = [
+            /^([A-Z])\.\s*(.+)$/gm,  // Start of line
+            /\n([A-Z])\.\s*(.+)(?:\n|$)/g,  // After newline
+            /\s+([A-Z])\.\s*(.+)(?:\n|$)/g  // After whitespace
+        ];
+        
+        for (const pattern of lineStartPatterns) {
+            const lineMatches = Array.from(questionText.matchAll(pattern));
+            if (lineMatches && lineMatches.length > 0) {
+                lineMatches.forEach(match => {
+                    const letter = match[1];
+                    const content = match[2].trim();
+                    choices.push({ letter, content });
+                });
+            }
+        }
+        
+        // If we still have nothing, check if there are single-letter options
+        const singleLetterPattern = /\b([A-Z])\b(?!\.)(?:\s|$)/g;
+        let letterCount = new Map();
+        const letterOnlyMatches = Array.from(questionText.matchAll(singleLetterPattern));
+        
+        if (letterOnlyMatches && letterOnlyMatches.length > 0) {
+            letterOnlyMatches.forEach(match => {
+                const letter = match[1];
+                letterCount.set(letter, (letterCount.get(letter) || 0) + 1);
+            });
+            
+            // Filter to letters that appear exactly once
+            for (const [letter, count] of letterCount.entries()) {
+                if (count === 1) {
+                    choices.push({ letter, content: letter });
+                }
+            }
+        }
+        
+        // If we found choices, return them
+        if (choices.length > 0) {
+            // Sort by letter
+            choices.sort((a, b) => a.letter.localeCompare(b.letter));
+            return choices;
+        }
+        
+        // Final fallback: Create generic options based on answer content
+        const defaultChoices = [];
+        for (let i = 0; i < 4; i++) {
+            const letter = alphabet[i];
+            defaultChoices.push({ letter, content: `Option ${letter}` });
+        }
+        
+        return defaultChoices;
     }
 
-    // IMPROVED: Enhanced brackets formatting
-    function formatBracketNotation(text) {
-        if (!text) return '';
-        return text.replace(/\[([0-9,\s]+)\]/g, '<span class="bracket-notation">[$1]</span>');
-    }
-
-    // IMPROVED: Display multiple choice options with better formatting for arrays and complex options
+    // IMPROVED: Display multiple choice options with better handling of complex cases
     function displayMultipleChoice() {
         // Clear the container but keep or recreate the submit button
         multipleChoiceElement.innerHTML = '';
@@ -1309,65 +1360,67 @@
         submitButton.textContent = 'Submit Answer';
         submitButton.addEventListener('click', checkAnswer);
         
-        // Parse choices from question if not present
-        if (!Array.isArray(currentQuestion.choices) || currentQuestion.choices.length === 0) {
-            const parsedChoices = parseChoicesFromQuestion(currentQuestion.question);
-            if (parsedChoices && parsedChoices.length > 0) {
-                currentQuestion.choices = parsedChoices;
-            } else {
-                // Create basic choice set if parsing failed
-                currentQuestion.choices = ['A. Option A', 'B. Option B', 'C. Option C', 'D. Option D'];
-            }
+        // Get the options - either from question or by parsing
+        let options = [];
+        if (Array.isArray(currentQuestion.choices) && currentQuestion.choices.length > 0) {
+            // Process existing choices
+            options = currentQuestion.choices.map(choice => {
+                const letterMatch = choice.match(/^([A-Z])\.\s*(.*)/i);
+                if (letterMatch && letterMatch.length > 2) {
+                    return {
+                        letter: letterMatch[1].toUpperCase(),
+                        content: letterMatch[2].trim()
+                    };
+                } else {
+                    // No clear letter format
+                    return { letter: '', content: choice.trim() };
+                }
+            });
+        } else {
+            // Parse choices from question text
+            options = extractChoices(currentQuestion.question) || [];
         }
         
-        // Process each choice option
+        // Assign letters to options that don't have them
         const alphabet = 'ABCDEFGHIJKLMNOPQRSTUVWXYZ';
-        currentQuestion.choices.forEach((choice, index) => {
-            if (!choice || typeof choice !== 'string') return;
-            
+        options = options.map((option, index) => {
+            if (!option.letter || option.letter === '') {
+                option.letter = alphabet[index % alphabet.length];
+            }
+            return option;
+        });
+        
+        // Create DOM elements for each option
+        options.forEach(option => {
             const choiceItem = document.createElement('div');
             choiceItem.className = 'choice-item';
             
-            // Extract letter and content
-            let letter, content;
-            
-            // Try to match patterns like "A. [1, 2]" or "A. Some text"
-            const letterMatch = choice.match(/^([A-Z])\.\s*(.*)/i);
-            if (letterMatch && letterMatch.length > 2) {
-                letter = letterMatch[1].toUpperCase();
-                content = letterMatch[2].trim();
-            } else {
-                // Fallback: Use index to determine letter
-                letter = alphabet[index];
-                content = choice.trim();
-            }
-            
-            // Check if this is a complex or long choice
-            const isComplex = content.length > 100 || 
-                               content.includes('\n') || 
-                               content.includes('$') || 
-                               content.includes('[');
+            // Check if content is complex/long
+            const isComplex = 
+                !option.content || 
+                option.content.length > 100 || 
+                option.content.includes('\n') || 
+                option.content.includes('$') ||
+                option.content.includes('[');
             
             if (isComplex) {
                 choiceItem.classList.add('long-option');
             }
             
             // Save letter for answer checking
-            choiceItem.dataset.value = letter;
+            choiceItem.dataset.value = option.letter;
             
             // Create letter element
             const letterElement = document.createElement('div');
             letterElement.className = 'choice-letter';
-            letterElement.textContent = letter + '.';
+            letterElement.textContent = option.letter + '.';
             
-            // Create and format content element
+            // Process content
             const contentElement = document.createElement('div');
             contentElement.className = 'choice-content';
+            contentElement.innerHTML = preprocessText(option.content || '');
             
-            // Format bracket notation for array answers like [1, 2, 3]
-            contentElement.innerHTML = formatBracketNotation(preprocessLaTeX(content));
-            
-            // Add elements to the choice item
+            // Add elements to choice item
             choiceItem.appendChild(letterElement);
             choiceItem.appendChild(contentElement);
             
@@ -1378,9 +1431,9 @@
                     const selectedChoices = multipleChoiceElement.querySelectorAll('.selected');
                     selectedChoices.forEach(selected => selected.classList.remove('selected'));
                     
-                    // Select this choice
+                    // Select this option
                     choiceItem.classList.add('selected');
-                    userAnswer = letter;
+                    userAnswer = option.letter;
                     
                     // Enable submit button
                     submitButton.disabled = false;
@@ -1391,25 +1444,31 @@
             multipleChoiceElement.appendChild(choiceItem);
         });
         
-        // Add submit button
+        // Add submit button at the end
         multipleChoiceElement.appendChild(submitButton);
         multipleChoiceElement.style.display = 'block';
     }
 
-    // IMPROVED: Process complex answer formats including array notation
+    // IMPROVED: Better answer processing with support for various formats
     function processAnswer(answerText) {
         if (!answerText) return '';
         
-        // Handle array notation [1, 2, 3] in answers
+        // Handle bracket notation [1, 2, 3]
         const bracketMatch = answerText.match(/^\[([0-9,\s]+)\]$/);
         if (bracketMatch) {
             return bracketMatch[0]; // Return the full bracket notation
         }
         
-        // Handle answers that start with a letter (A., B., etc.)
-        const letterMatch = answerText.match(/^([A-Z])\.\s*.*$/);
+        // Handle single letter answers
+        const letterMatch = answerText.match(/^([A-Z])(?:\.|$)/i);
         if (letterMatch) {
-            return letterMatch[1]; // Return just the letter
+            return letterMatch[1].toUpperCase(); // Return just the letter
+        }
+        
+        // Handle longer answers with letters
+        const letterInContentMatch = answerText.match(/^(?:[A-Z]\.)?\s*([A-Z])\b/i);
+        if (letterInContentMatch) {
+            return letterInContentMatch[1].toUpperCase();
         }
         
         return answerText;
@@ -1446,34 +1505,51 @@
         }
     }
 
-    // Check the user's answer
+    // IMPROVED: Answer checking with better handling of formats
     function checkAnswer() {
         if (!currentQuestion) return;
         
         let correct = false;
         
         if (currentQuestion.answer_type === 'multipleChoice') {
-            // For multiple choice, normalize answer format
+            // Process both answers for consistent comparison
             const processedUserAnswer = processAnswer(userAnswer).trim().toUpperCase();
             const processedCorrectAnswer = processAnswer(currentQuestion.answer).trim().toUpperCase();
             
-            // Special handling for array notation
+            // Compare answers
             if (processedUserAnswer === processedCorrectAnswer) {
                 correct = true;
             } else if (processedUserAnswer.startsWith('[') && processedCorrectAnswer.startsWith('[')) {
-                // Extract numbers from bracket notation and compare
+                // Special handling for array notation - compare contents ignoring order
                 const userNums = processedUserAnswer.replace(/[\[\]\s]/g, '').split(',').sort().join(',');
                 const correctNums = processedCorrectAnswer.replace(/[\[\]\s]/g, '').split(',').sort().join(',');
                 correct = userNums === correctNums;
             }
         } else {
+            // Text answer comparison
             const normalizedUserAnswer = userAnswer.trim().toLowerCase();
             const normalizedCorrectAnswer = currentQuestion.answer.toLowerCase();
-            correct = normalizedUserAnswer === normalizedCorrectAnswer;
+            
+            // Try direct match first
+            if (normalizedUserAnswer === normalizedCorrectAnswer) {
+                correct = true;
+            } else {
+                // Try other formats - numeric answers with tolerance
+                const userNumber = parseFloat(normalizedUserAnswer);
+                const correctNumber = parseFloat(normalizedCorrectAnswer);
+                
+                if (!isNaN(userNumber) && !isNaN(correctNumber)) {
+                    // Allow small difference for floating point answers
+                    const tolerance = Math.max(0.0001, Math.abs(correctNumber) * 0.001);
+                    correct = Math.abs(userNumber - correctNumber) <= tolerance;
+                }
+            }
         }
         
         isAnswered = true;
         questionsAnswered++;
+        
+        // Update stats
         if (correct) {
             correctAnswers++;
             
@@ -1504,7 +1580,7 @@
         accuracyElement.textContent = `${accuracy}%`;
     }
 
-    // Show feedback after answering
+    // IMPROVED: Show feedback after answering
     function showFeedback(isCorrect) {
         // Hide submit buttons
         submitButtonElement.style.display = 'none';
@@ -1521,13 +1597,12 @@
         resultMessageElement.textContent = isCorrect ? 'Correct!' : 'Incorrect!';
         resultMessageElement.className = isCorrect ? 'result-message correct' : 'result-message incorrect';
         
-        // Format and set correct answer with special handling for bracket notation
-        let formattedAnswer = preprocessLaTeX(currentQuestion.answer);
-        formattedAnswer = formatBracketNotation(formattedAnswer);
+        // Process and display correct answer
+        let formattedAnswer = preprocessText(currentQuestion.answer);
         correctAnswerElement.innerHTML = `<strong>Correct answer:</strong> ${formattedAnswer}`;
         
-        // Set rationale with preprocessing
-        rationaleElement.innerHTML = preprocessLaTeX(currentQuestion.rationale) || 'No explanation provided.';
+        // Process and display rationale
+        rationaleElement.innerHTML = preprocessText(currentQuestion.rationale) || 'No explanation provided.';
         
         // Set author if available
         if (currentQuestion.author_name) {
@@ -1543,7 +1618,9 @@
             const correctAnswer = processAnswer(currentQuestion.answer).toUpperCase();
             
             choices.forEach(choice => {
-                if (choice.dataset.value.toUpperCase() === correctAnswer.toUpperCase()) {
+                const choiceValue = choice.dataset.value.toUpperCase();
+                
+                if (choiceValue === correctAnswer) {
                     choice.classList.add('correct');
                 } else if (choice.classList.contains('selected')) {
                     choice.classList.add('incorrect');
