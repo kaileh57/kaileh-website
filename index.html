@@ -1484,7 +1484,7 @@
                         .catch((err) => {
                             console.error('MathJax typesetting failed:', err);
                         });
-                } else {
+                } catch {
                     console.warn('MathJax not loaded yet');
                     // Try again after a longer delay
                     setTimeout(renderMathJax, 500);
