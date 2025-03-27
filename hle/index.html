@@ -1072,75 +1072,48 @@
       multipleChoiceElement.innerHTML = '';
       multipleChoiceElement.appendChild(submitButton);
       
+      // For text-based multiple choice questions, we'll first try to parse from the question text
       if (!currentQuestion.choices || currentQuestion.choices.length === 0) {
-          // Expanded letters to include all alphabet letters, not just A-H
-          const choiceLetters = ['A', 'B', 'C', 'D', 'E', 'F', 'G', 'H', 'I', 'J', 'K', 'L', 'M', 'N', 'O', 'P', 'Q', 'R', 'S', 'T', 'U', 'V', 'W', 'X', 'Y', 'Z'];
-          
-          // Try to extract choices from the question text
-          if (currentQuestion.question.includes('Answer Choices:')) {
-              try {
-                  const choiceSection = currentQuestion.question.split('Answer Choices:')[1].trim();
-                  currentQuestion.choices = [];
-                  
-                  // First, identify all potential letter choices in the text
-                  const allChoiceMatches = choiceSection.match(/[A-Z]\./gi) || [];
-                  const foundLetters = allChoiceMatches.map(match => match.charAt(0).toUpperCase());
-                  
-                  // Use the found letters or default to A-E if none found
-                  const lettersToUse = foundLetters.length > 0 ? foundLetters : choiceLetters.slice(0, 5);
-                  
-                  // Extract content for each letter
-                  lettersToUse.forEach((letter, index) => {
-                      const isLastLetter = index === lettersToUse.length - 1;
-                      let pattern;
-                      
-                      if (isLastLetter) {
-                          // If this is the last letter, extract until the end
-                          pattern = `${letter}\\.(.*?)$`;
-                      } else {
-                          // Otherwise, extract until the next letter
-                          const nextLetter = lettersToUse[index + 1];
-                          pattern = `${letter}\\.(.*?)(?=${nextLetter}\\.|$)`;
-                      }
-                      
-                      const regex = new RegExp(pattern, 's'); // 's' flag for dotAll mode
-                      const match = choiceSection.match(regex);
-                      
-                      if (match && match[1]) {
-                          currentQuestion.choices.push(`${letter}. ${match[1].trim()}`);
-                      }
-                  });
-                  
-                  // If we couldn't extract any choices, fall back to defaults
-                  if (currentQuestion.choices.length === 0) {
-                      currentQuestion.choices = choiceLetters.slice(0, 5).map(letter => `${letter}. Option ${letter}`);
-                  }
-              } catch (err) {
-                  console.error('Error parsing choices:', err);
-                  currentQuestion.choices = choiceLetters.slice(0, 5).map(letter => `${letter}. Option ${letter}`);
-              }
+          // Try to automatically parse the choices if they exist in the question text
+          const parsedChoices = parseChoicesFromQuestion(currentQuestion.question);
+          if (parsedChoices && parsedChoices.length > 0) {
+              currentQuestion.choices = parsedChoices;
           } else {
-              currentQuestion.choices = choiceLetters.slice(0, 5).map(letter => `${letter}. Option ${letter}`);
+              // If we couldn't parse choices, create basic A-E options
+              const choiceLetters = ['A', 'B', 'C', 'D', 'E'];
+              currentQuestion.choices = choiceLetters.map(letter => `${letter}. Option ${letter}`);
           }
       }
       
-      // Display the choices
-      currentQuestion.choices.forEach((choice, index) => {
-          const choiceInfo = processChoiceContent(choice);
+      // Now create the choice elements
+      currentQuestion.choices.forEach(choice => {
           const choiceItem = document.createElement('div');
+          choiceItem.className = 'choice-item';
           
-          // Apply classes based on complexity
-          choiceItem.className = choiceInfo.isComplex ? 'choice-item long-option' : 'choice-item';
-          choiceItem.dataset.value = choiceInfo.letter;
+          // Extract the option letter - it should be at the start of the choice string
+          const letterMatch = choice.match(/^([A-Z])\./i);
+          if (!letterMatch) return; // Skip if no letter found
+          
+          const letter = letterMatch[1].toUpperCase();
+          choiceItem.dataset.value = letter;
+          
+          // Get content after the letter and period
+          let content = choice.substring(choice.indexOf('.') + 1).trim();
+          
+          // Check if it's a complex/long option
+          const isComplex = content.length > 100 || content.includes('\n');
+          if (isComplex) {
+              choiceItem.classList.add('long-option');
+          }
           
           // Create letter and content elements
           const letterElement = document.createElement('div');
           letterElement.className = 'choice-letter';
-          letterElement.textContent = choiceInfo.letter + '.';
+          letterElement.textContent = letter + '.';
           
           const contentElement = document.createElement('div');
           contentElement.className = 'choice-content';
-          contentElement.innerHTML = choiceInfo.content;
+          contentElement.innerHTML = content;
           
           // Add elements to the choice item
           choiceItem.appendChild(letterElement);
@@ -1155,7 +1128,7 @@
                   
                   // Select this choice
                   choiceItem.classList.add('selected');
-                  userAnswer = choiceInfo.letter;
+                  userAnswer = letter;
                   
                   // Enable submit button
                   multipleChoiceSubmitElement.disabled = false;
@@ -1166,6 +1139,61 @@
       });
       
       multipleChoiceElement.style.display = 'block';
+  }
+
+  // This function handles parsing choices from the question text
+  function parseChoicesFromQuestion(questionText) {
+      // First check if the question text contains "Answer Choices:"
+      if (!questionText.includes('Answer Choices:')) {
+          return null;
+      }
+      
+      // Split the text to get just the choices section
+      const parts = questionText.split('Answer Choices:');
+      if (parts.length < 2) return null;
+      
+      const choicesSection = parts[1].trim();
+      
+      // Find all the option letters in the expected order (A, B, C, etc.)
+      const optionLetters = 'ABCDEFGHIJKLMNOPQRSTUVWXYZ'.split('');
+      const result = [];
+      
+      // For each potential letter option, find its content
+      for (let i = 0; i < optionLetters.length; i++) {
+          const currentLetter = optionLetters[i];
+          const nextLetter = i < optionLetters.length - 1 ? optionLetters[i+1] : null;
+          
+          // Look for this option in the text - be specific about format to avoid false matches
+          // Match at word boundary or beginning of line to avoid matching partial words
+          const letterPattern = new RegExp(`(^|\\n|\\s)${currentLetter}\\.\\s`, 'm');
+          const letterMatch = choicesSection.match(letterPattern);
+          
+          if (!letterMatch) {
+              // If we don't find this letter, we've likely reached the end of the options
+              break;
+          }
+          
+          // Find where this option starts
+          const startIndex = letterMatch.index + letterMatch[0].indexOf(currentLetter);
+          
+          // Find where this option ends (either at the next option or end of text)
+          let endIndex = choicesSection.length;
+          if (nextLetter) {
+              const nextLetterPattern = new RegExp(`(^|\\n|\\s)${nextLetter}\\.\\s`, 'm');
+              const nextLetterMatch = choicesSection.match(nextLetterPattern);
+              if (nextLetterMatch) {
+                  endIndex = nextLetterMatch.index + nextLetterMatch[0].indexOf(nextLetter);
+              }
+          }
+          
+          // Extract the option's text
+          if (startIndex < endIndex) {
+              const optionText = choicesSection.substring(startIndex, endIndex).trim();
+              result.push(optionText);
+          }
+      }
+      
+      return result;
   }
 
 
