@@ -9,7 +9,7 @@
     <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
     <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700&display=swap" rel="stylesheet">
     
-    <!-- IMPROVED: MathJax Configuration and Loading -->
+    <!-- COMPREHENSIVE MATHJAX CONFIGURATION -->
     <script>
       window.MathJax = {
         tex: {
@@ -17,31 +17,162 @@
           displayMath: [['$$', '$$'], ['\\[', '\\]']],
           processEnvironments: true,
           processRefs: true,
-          packages: ['base', 'ams', 'noerrors', 'noundefined', 'autoload', 'colorv2', 'physics'],
+          processEscapes: true,
+          packages: {
+            '[+]': ['base', 'ams', 'noerrors', 'noundefined', 'autoload', 'require', 'color', 
+                   'colorv2', 'physics', 'mhchem', 'cancel', 'enclose', 'mathtools', 'boldsymbol']
+          },
+          tags: 'ams',
+          useLabelIds: true,
           macros: {
+            // Common macros for math notation
             'degreeC': '\\degree\\text{C}',
-            'degree': '^{\\circ}'
+            'degree': '^{\\circ}',
+            'R': '\\mathbb{R}',
+            'N': '\\mathbb{N}',
+            'Z': '\\mathbb{Z}',
+            'C': '\\mathbb{C}',
+            'Q': '\\mathbb{Q}',
+            'inf': '\\inf',
+            'sup': '\\sup',
+            'where': '\\text{ where }',
+            'such': '\\text{ such }',
+            'that': '\\text{ that }',
+            'and': '\\text{ and }',
+            'for': '\\text{ for }',
+            'with': '\\text{ with }',
+            'we': '\\text{ we }',
+            'have': '\\text{ have }',
+            'if': '\\text{ if }',
+            'then': '\\text{ then }',
+            'otherwise': '\\text{ otherwise }',
+            'iff': '\\text{ if and only if }',
+            'mathcal': '\\mathcal',
+            'hat': '\\hat',
+            'bar': '\\bar',
+            'tilde': '\\tilde',
+            'vec': '\\vec',
+            'bold': '\\bold',
+            'overline': '\\overline',
+            'underline': '\\underline',
+            'implies': '\\implies',
+            'iff': '\\iff',
+            'forall': '\\forall',
+            'exists': '\\exists',
+            'epsilon': '\\epsilon',
+            'theta': '\\theta',
+            'gamma': '\\gamma',
+            'lambda': '\\lambda',
+            'delta': '\\delta',
+            'alpha': '\\alpha',
+            'beta': '\\beta',
+            'sum': '\\sum',
+            'prod': '\\prod',
+            'lim': '\\lim',
+            'int': '\\int',
+            'oint': '\\oint',
+            'times': '\\times',
+            'cdot': '\\cdot',
+            'pm': '\\pm',
+            'mp': '\\mp',
+            'le': '\\le',
+            'ge': '\\ge',
+            'neq': '\\neq',
+            'approx': '\\approx',
+            'equiv': '\\equiv',
+            'subset': '\\subset',
+            'supset': '\\supset',
+            'in': '\\in',
+            'notin': '\\notin',
+            'cup': '\\cup',
+            'cap': '\\cap',
+            'emptyset': '\\emptyset',
+            'partial': '\\partial',
+            'nabla': '\\nabla',
+            'infty': '\\infty',
+            'therefore': '\\therefore',
+            'because': '\\because'
+          },
+          environment: {
+            enumerate: ['\\begin{enumerate}', '\\end{enumerate}'],
+            itemize: ['\\begin{itemize}', '\\end{itemize}'],
+            align: ['\\begin{align}', '\\end{align}'],
+            matrix: ['\\begin{matrix}', '\\end{matrix}'],
+            pmatrix: ['\\begin{pmatrix}', '\\end{pmatrix}'],
+            bmatrix: ['\\begin{bmatrix}', '\\end{bmatrix}'],
+            cases: ['\\begin{cases}', '\\end{cases}']
           }
         },
-        // Enable additional packages and environments
-        packages: {
-          '[+]': ['enclose', 'mhchem', 'bbox', 'enumitem']
-        },
+        // Enable additional packages
         loader: {
-          load: ['[tex]/enclose', '[tex]/mhchem', '[tex]/bbox', '[tex]/enumitem']
+          load: [
+            '[tex]/base',
+            '[tex]/ams',
+            '[tex]/autoload',
+            '[tex]/color', 
+            '[tex]/colorv2',
+            '[tex]/physics', 
+            '[tex]/mhchem', 
+            '[tex]/cancel', 
+            '[tex]/enclose', 
+            '[tex]/mathtools',
+            '[tex]/boldsymbol',
+            '[tex]/require'
+          ]
         },
         options: {
-          enableMenu: false,
+          enableMenu: true,
           renderActions: {
             addMenu: [], // remove the menu
             checkLoading: [] // remove the loading message
           }
         },
         startup: {
-          pageReady: () => {
-            return MathJax.startup.defaultPageReady().then(() => {
-              console.log('MathJax initial typesetting complete');
-            });
+          ready: () => {
+            // Fix some LaTeX environments manually
+            const fixLaTeXEnvironments = () => {
+              document.querySelectorAll('.question-text, .choice-content, .rationale').forEach(el => {
+                let content = el.innerHTML;
+                
+                // Fix "Unknown environment" errors
+                content = content.replace(/Unknown environment 'enumerate'/g, '');
+                content = content.replace(/Unknown environment 'itemize'/g, '');
+                
+                // Replace LaTeX environments with HTML
+                content = content.replace(/\\begin\{enumerate\}/g, '<ol>');
+                content = content.replace(/\\end\{enumerate\}/g, '</ol>');
+                content = content.replace(/\\begin\{itemize\}/g, '<ul>');
+                content = content.replace(/\\end\{itemize\}/g, '</ul>');
+                content = content.replace(/\\item/g, '<li>');
+                content = content.replace(/\\item\[(.*?)\]/g, '<li>$1: ');
+                
+                // Close li tags that don't have closing tags
+                const matches = content.match(/<li>.*?(?=<li>|<\/[ou]l>|$)/g);
+                if (matches) {
+                  matches.forEach(match => {
+                    if (!match.includes('</li>')) {
+                      content = content.replace(match, match + '</li>');
+                    }
+                  });
+                }
+                
+                // Fix common LaTeX expressions
+                content = content.replace(/\\degreeC/g, '°C');
+                content = content.replace(/\\degree/g, '°');
+                
+                // Fix broken inline math delimiters
+                content = content.replace(/([^$])(\$)([^$\s].*?[^$\s])(\$)([^$])/g, '$1$$$3$$$5');
+                
+                // Ensure display math has proper spacing
+                content = content.replace(/\$\$/g, '\n$$\n');
+                
+                el.innerHTML = content;
+              });
+            };
+            
+            MathJax.startup.defaultReady();
+            fixLaTeXEnvironments();
+            MathJax.typesetPromise().catch(err => console.log('Typeset failed: ' + err.message));
           }
         }
       };
@@ -300,6 +431,40 @@
       line-height: 1.8;
     }
 
+    /* IMPROVED: Additional styling for LaTeX and lists */
+    .question-text ol, .question-text ul, 
+    .choice-content ol, .choice-content ul,
+    .rationale ol, .rationale ul {
+      margin-left: 2.5rem;
+      margin-bottom: 1rem;
+    }
+
+    .question-text li, .choice-content li, .rationale li {
+      margin-bottom: 0.5rem;
+    }
+
+    .question-text ol ol, .question-text ul ul,
+    .choice-content ol ol, .choice-content ul ul,
+    .rationale ol ol, .rationale ul ul {
+      margin-top: 0.5rem;
+      margin-bottom: 0.5rem;
+    }
+
+    /* Special styles for LaTeX math expressions */
+    .mjx-math {
+      padding: 0.1rem 0;
+    }
+
+    /* Bracket notation styling */
+    .bracket-notation {
+      font-weight: 600;
+      display: inline-block;
+      background-color: rgba(79, 70, 229, 0.1);
+      padding: 0 0.3rem;
+      border-radius: 3px;
+      margin: 0 0.1rem;
+    }
+
     .image-container {
       display: flex;
       justify-content: center;
@@ -322,6 +487,7 @@
       margin-bottom: 20px;
     }
 
+    /* IMPROVED: Better choice item layout */
     .choice-item {
       padding: 15px;
       margin-bottom: 12px;
@@ -359,8 +525,9 @@
     /* IMPROVED: Choice letter and content styling */
     .choice-letter {
       font-weight: bold;
-      min-width: 25px;
+      min-width: 30px;
       margin-right: 10px;
+      font-size: 1.1rem;
     }
     
     .choice-content {
@@ -603,28 +770,6 @@
       }
     }
 
-    /* Math rendering styles */
-    .mjx-chtml {
-      margin: 0 !important;
-      padding: 0 !important;
-      display: inline-block !important;
-      line-height: 0 !important;
-      text-indent: 0 !important;
-      text-align: left !important;
-      text-transform: none !important;
-      letter-spacing: normal !important;
-      word-spacing: normal !important;
-      overflow-wrap: normal !important;
-      white-space: nowrap !important;
-      float: none !important;
-      direction: ltr !important;
-      max-width: none !important;
-      max-height: none !important;
-      min-width: 0 !important;
-      min-height: 0 !important;
-      border: 0 !important;
-    }
-
     /* Animation for transitions */
     @keyframes fadeIn {
       from {
@@ -681,7 +826,7 @@
     .choice-item {
       min-height: 60px;
       display: flex;
-      align-items: center;
+      align-items: flex-start;
     }
     </style>
 </head>
@@ -855,6 +1000,44 @@
         }
     }
 
+    // IMPROVED: Preprocess LaTeX in text
+    function preprocessLaTeX(text) {
+        if (!text) return '';
+        
+        let processed = text;
+        
+        // Fix common LaTeX issues
+        processed = processed.replace(/Unknown environment 'enumerate'/g, '');
+        processed = processed.replace(/Unknown environment 'itemize'/g, '');
+        processed = processed.replace(/\\degreeC/g, '°C');
+        processed = processed.replace(/\\degree/g, '°');
+        
+        // Replace problematic LaTeX environments with proper HTML
+        processed = processed.replace(/\\begin\{enumerate\}/g, '<ol>');
+        processed = processed.replace(/\\end\{enumerate\}/g, '</ol>');
+        processed = processed.replace(/\\begin\{itemize\}/g, '<ul>');
+        processed = processed.replace(/\\end\{itemize\}/g, '</ul>');
+        processed = processed.replace(/\\item/g, '<li>');
+        
+        // Ensure list items are properly closed
+        const liMatches = processed.match(/<li>.*?(?=<li>|<\/[ou]l>|$)/g);
+        if (liMatches) {
+            liMatches.forEach(match => {
+                if (!match.includes('</li>')) {
+                    processed = processed.replace(match, match + '</li>');
+                }
+            });
+        }
+        
+        // Fix badly formatted inline math expressions
+        processed = processed.replace(/([^$])(\$)([^$\s].*?[^$\s])(\$)([^$])/g, '$1$$$3$$$5');
+        
+        // Style bracket notation for choices
+        processed = processed.replace(/\[([0-9,\s]+)\]/g, '<span class="bracket-notation">[$1]</span>');
+        
+        return processed;
+    }
+
     // Fetch questions from local JSON file
     async function fetchQuestions() {
         try {
@@ -1003,31 +1186,14 @@
         categoryElement.textContent = currentQuestion.category || 'Uncategorized';
         questionIdElement.textContent = `ID: ${currentQuestion.id}`;
         
-        // Clean up and process the question text
-        let processedQuestion = currentQuestion.question;
-        
-        // Fix common LaTeX issues
-        processedQuestion = processedQuestion
-            .replace(/Unknown environment 'enumerate'/g, '')
-            .replace(/Unknown environment 'itemize'/g, '')
-            .replace(/\\degreeC/g, '\\degree\\text{C}');
-        
-        // Replace problematic LaTeX environments with proper ones
-        processedQuestion = processedQuestion
-            .replace(/\\begin\{enumerate\}/g, '<ol>')
-            .replace(/\\end\{enumerate\}/g, '</ol>')
-            .replace(/\\begin\{itemize\}/g, '<ul>')
-            .replace(/\\end\{itemize\}/g, '</ul>')
-            .replace(/\\item/g, '<li>')
-            .replace(/(?<=<\/li>)(?!\s*<li>|\s*<\/[uo]l>)/g, '</li>');
-        
-        // Set the processed question text
+        // Preprocess and set question text
+        const processedQuestion = preprocessLaTeX(currentQuestion.question);
         questionTextElement.innerHTML = processedQuestion;
         
         // Handle image if present
         if (currentQuestion.image) {
             const imagePath = `images/${currentQuestion.image}`;
-            const imagePathPng = imagePath.replace('.jpg', '.png');
+            const imagePathPng = imagePath.replace(/\.(jpg|jpeg)$/, '.png');
             
             // Try PNG first
             questionImageElement.src = imagePathPng;
@@ -1068,306 +1234,185 @@
         renderMathJax();
     }
 
-    // IMPROVED: Add advanced choice parser function
+    // IMPROVED: Advanced choice parser function with better handling of array notation
     function parseChoicesFromQuestion(questionText) {
-        // First attempt: Look for explicit answer choices section
+        if (!questionText) return null;
+        
+        // First try: Find choices after "Answer Choices:" label
         if (questionText.includes('Answer Choices:')) {
             const parts = questionText.split('Answer Choices:');
             if (parts.length >= 2) {
-                // Extract the choices text
                 const choicesText = parts[1].trim();
                 
-                // Try to find lettered options (A., B., C.)
-                const letterPattern = /([A-Z])\.\s*((?:(?!\s[A-Z]\.).)*)/gs;
+                // First try to extract lettered options with bracket notation [1], [2,3], etc.
+                const letterBracketPattern = /([A-Z])\.\s*\[([0-9,\s]+)\]/g;
+                const letterBracketMatches = Array.from(choicesText.matchAll(letterBracketPattern));
+                
+                if (letterBracketMatches && letterBracketMatches.length > 0) {
+                    return letterBracketMatches.map(match => 
+                        `${match[1]}. [${match[2].trim()}]`
+                    );
+                }
+                
+                // Try regular lettered options (A., B., C.)
+                const letterPattern = /([A-Z])\.\s*((?:(?!\s[A-Z]\.).)+)/gs;
                 const letterMatches = Array.from(choicesText.matchAll(letterPattern));
                 
                 if (letterMatches && letterMatches.length > 0) {
-                    return letterMatches.map(match => `${match[1]}. ${match[2].trim()}`);
+                    return letterMatches.map(match => 
+                        `${match[1]}. ${match[2].trim()}`
+                    );
                 }
                 
-                // If no lettered options, try roman numeral options or combinations
+                // Try Roman numeral options or combinations
                 const romanPattern = /([A-Z])\.\s*([IVX,\s]+)/gs;
                 const romanMatches = Array.from(choicesText.matchAll(romanPattern));
                 
                 if (romanMatches && romanMatches.length > 0) {
-                    return romanMatches.map(match => `${match[1]}. ${match[2].trim()}`);
+                    return romanMatches.map(match => 
+                        `${match[1]}. ${match[2].trim()}`
+                    );
                 }
             }
         }
         
-        // Second attempt: Look for a list of options at the end of the question
-        const optionsMatch = questionText.match(/(?:Options|Choices):\s*([A-Z]\..*?)(?:\s*$|\n)/s);
-        if (optionsMatch && optionsMatch[1]) {
-            const optionsText = optionsMatch[1].trim();
-            // Split by letter followed by period and space
-            return optionsText.split(/(?=[A-Z]\.\s)/).filter(option => option.trim().length > 0);
+        // Second try: Look for options at the end of question matching bracket pattern
+        const bracketOptionsMatch = questionText.match(/([A-Z])\.[\s]*\[([0-9,\s]+)\]/g);
+        if (bracketOptionsMatch && bracketOptionsMatch.length > 0) {
+            return bracketOptionsMatch.map(option => option.trim());
         }
         
-        // Third attempt: Try to extract combination answers like "A. I, II" or "S. I, II, IV, V"
-        if (questionText.includes('I.') && questionText.includes('II.')) {
-            const combinationPattern = /([A-Z])\.\s*((?:I|II|III|IV|V|VI|VII|VIII|IX|X)(?:,\s*(?:I|II|III|IV|V|VI|VII|VIII|IX|X))*)/g;
-            const combinationMatches = Array.from(questionText.matchAll(combinationPattern));
-            
-            if (combinationMatches && combinationMatches.length > 0) {
-                return combinationMatches.map(match => `${match[1]}. ${match[2].trim()}`);
-            }
-        }
-        
-        // If all else fails, check if there's a clear list of options at the end
-        const lastParagraph = questionText.split('\n').filter(para => para.trim().length > 0).pop();
-        if (lastParagraph && lastParagraph.includes('A.') && lastParagraph.includes('B.')) {
-            // This might be a list of options squished together
-            const optionsList = lastParagraph.split(/(?=[A-Z]\.)/).filter(option => option.trim().length > 0);
-            if (optionsList.length >= 2) {
-                return optionsList;
-            }
+        // Third try: Split by letter followed by period
+        const letterOptionsMatch = questionText.match(/([A-Z])\.[\s]*(.*?)(?=\s[A-Z]\.|$)/gs);
+        if (letterOptionsMatch && letterOptionsMatch.length > 0) {
+            return letterOptionsMatch.map(option => option.trim());
         }
         
         // Final fallback: Create generic options
         return ['A. Option A', 'B. Option B', 'C. Option C', 'D. Option D'];
     }
 
-    // IMPROVED: Better handling for parsing choices from question text
-    function parseChoicesFallback(questionText) {
-      // Check if the question text contains "Answer Choices:"
-      if (!questionText.includes('Answer Choices:')) {
-          return null;
-      }
-      
-      // Split the text to get just the choices section
-      const parts = questionText.split('Answer Choices:');
-      if (parts.length < 2) return null;
-      
-      const choicesSection = parts[1].trim();
-      
-      // Define all the letters we want to look for
-      const letters = 'ABCDEFGHIJKLMNOPQRSTUVWXYZ';
-      const result = [];
-      
-      // For each letter, look for it explicitly
-      for (let i = 0; i < letters.length; i++) {
-          const currentLetter = letters[i];
-          
-          // Look for patterns like "A.", "A)", "A ", etc.
-          const patterns = [
-              `${currentLetter}\\.`, 
-              `${currentLetter}\\)`, 
-              `${currentLetter}\\s`
-          ];
-          
-          let found = false;
-          let startIndex = -1;
-          
-          // Try each pattern until we find one
-          for (const pattern of patterns) {
-              const regex = new RegExp(pattern, 'i');
-              const match = choicesSection.match(regex);
-              
-              if (match) {
-                  startIndex = match.index;
-                  found = true;
-                  break;
-              }
-          }
-          
-          // If we didn't find this letter, we're done
-          if (!found) {
-              break;
-          }
-          
-          // Determine where this option ends
-          let endIndex = choicesSection.length;
-          
-          // Look for the next letter
-          if (i < letters.length - 1) {
-              const nextLetter = letters[i + 1];
-              const nextPatterns = [
-                  `${nextLetter}\\.`, 
-                  `${nextLetter}\\)`, 
-                  `${nextLetter}\\s`
-              ];
-              
-              for (const pattern of nextPatterns) {
-                  const regex = new RegExp(pattern, 'i');
-                  const match = choicesSection.match(regex);
-                  
-                  if (match) {
-                      endIndex = match.index;
-                      break;
-                  }
-              }
-          }
-          
-          // Extract the content
-          const content = choicesSection.substring(startIndex, endIndex).trim();
-          result.push(content);
-      }
-      
-      return result;
-  }
-
-    // IMPROVED: Process and format a choice item
-    function processChoiceContent(choice) {
-      // Handle cases where the choice might not be properly formatted
-      if (!choice || typeof choice !== 'string' || choice.length < 2) {
-          return {
-              letter: '?',
-              content: choice || 'Unknown option',
-              isComplex: false
-          };
-      }
-      
-      // Extract the letter and content more reliably
-      const letterMatch = choice.match(/^([A-Z])\./i);
-      const letter = letterMatch ? letterMatch[1].toUpperCase() : choice.charAt(0);
-      
-      // Get content after the letter and period
-      let content = choice.replace(/^[A-Z]\.\s*/i, '').trim();
-      
-      // Check if it needs special formatting
-      const isComplexChoice = content.length > 100 || content.includes('/') || content.includes('.');
-      
-      return {
-          letter,
-          content,
-          isComplex: isComplexChoice
-      };
+    // IMPROVED: Enhanced brackets formatting
+    function formatBracketNotation(text) {
+        if (!text) return '';
+        return text.replace(/\[([0-9,\s]+)\]/g, '<span class="bracket-notation">[$1]</span>');
     }
 
-    // IMPROVED: Display multiple choice options with better formatting
+    // IMPROVED: Display multiple choice options with better formatting for arrays and complex options
     function displayMultipleChoice() {
-      // Clear previous choices but keep the submit button
-      const submitButton = multipleChoiceElement.querySelector('#multiple-choice-submit');
-      multipleChoiceElement.innerHTML = '';
-      if (!submitButton) {
-        const newSubmitButton = document.createElement('button');
-        newSubmitButton.id = 'multiple-choice-submit';
-        newSubmitButton.className = 'btn';
-        newSubmitButton.disabled = true;
-        newSubmitButton.textContent = 'Submit Answer';
-        newSubmitButton.addEventListener('click', checkAnswer);
-        multipleChoiceElement.appendChild(newSubmitButton);
-      } else {
+        // Clear the container but keep or recreate the submit button
+        multipleChoiceElement.innerHTML = '';
+        const submitButton = document.createElement('button');
+        submitButton.id = 'multiple-choice-submit';
+        submitButton.className = 'btn';
+        submitButton.disabled = true;
+        submitButton.textContent = 'Submit Answer';
+        submitButton.addEventListener('click', checkAnswer);
+        
+        // Parse choices from question if not present
+        if (!Array.isArray(currentQuestion.choices) || currentQuestion.choices.length === 0) {
+            const parsedChoices = parseChoicesFromQuestion(currentQuestion.question);
+            if (parsedChoices && parsedChoices.length > 0) {
+                currentQuestion.choices = parsedChoices;
+            } else {
+                // Create basic choice set if parsing failed
+                currentQuestion.choices = ['A. Option A', 'B. Option B', 'C. Option C', 'D. Option D'];
+            }
+        }
+        
+        // Process each choice option
+        const alphabet = 'ABCDEFGHIJKLMNOPQRSTUVWXYZ';
+        currentQuestion.choices.forEach((choice, index) => {
+            if (!choice || typeof choice !== 'string') return;
+            
+            const choiceItem = document.createElement('div');
+            choiceItem.className = 'choice-item';
+            
+            // Extract letter and content
+            let letter, content;
+            
+            // Try to match patterns like "A. [1, 2]" or "A. Some text"
+            const letterMatch = choice.match(/^([A-Z])\.\s*(.*)/i);
+            if (letterMatch && letterMatch.length > 2) {
+                letter = letterMatch[1].toUpperCase();
+                content = letterMatch[2].trim();
+            } else {
+                // Fallback: Use index to determine letter
+                letter = alphabet[index];
+                content = choice.trim();
+            }
+            
+            // Check if this is a complex or long choice
+            const isComplex = content.length > 100 || 
+                               content.includes('\n') || 
+                               content.includes('$') || 
+                               content.includes('[');
+            
+            if (isComplex) {
+                choiceItem.classList.add('long-option');
+            }
+            
+            // Save letter for answer checking
+            choiceItem.dataset.value = letter;
+            
+            // Create letter element
+            const letterElement = document.createElement('div');
+            letterElement.className = 'choice-letter';
+            letterElement.textContent = letter + '.';
+            
+            // Create and format content element
+            const contentElement = document.createElement('div');
+            contentElement.className = 'choice-content';
+            
+            // Format bracket notation for array answers like [1, 2, 3]
+            contentElement.innerHTML = formatBracketNotation(preprocessLaTeX(content));
+            
+            // Add elements to the choice item
+            choiceItem.appendChild(letterElement);
+            choiceItem.appendChild(contentElement);
+            
+            // Add click event for selection
+            choiceItem.addEventListener('click', () => {
+                if (!isAnswered) {
+                    // Clear previous selections
+                    const selectedChoices = multipleChoiceElement.querySelectorAll('.selected');
+                    selectedChoices.forEach(selected => selected.classList.remove('selected'));
+                    
+                    // Select this choice
+                    choiceItem.classList.add('selected');
+                    userAnswer = letter;
+                    
+                    // Enable submit button
+                    submitButton.disabled = false;
+                }
+            });
+            
+            // Add to container
+            multipleChoiceElement.appendChild(choiceItem);
+        });
+        
+        // Add submit button
         multipleChoiceElement.appendChild(submitButton);
-      }
-      
-      // If we don't already have choices, try to parse them
-      if (!currentQuestion.choices || currentQuestion.choices.length === 0) {
-          // First try the advanced parser
-          let parsedChoices = parseChoicesFromQuestion(currentQuestion.question);
-          
-          // If that fails, try the fallback method
-          if (!parsedChoices || parsedChoices.length === 0) {
-              parsedChoices = parseChoicesFallback(currentQuestion.question);
-          }
-          
-          // If we still don't have choices, create basic ones
-          if (!parsedChoices || parsedChoices.length === 0) {
-              const choiceLetters = ['A', 'B', 'C', 'D', 'E'];
-              parsedChoices = choiceLetters.map(letter => `${letter}. Option ${letter}`);
-          }
-          
-          currentQuestion.choices = parsedChoices;
-      }
-      
-      // Check if this is a combination format (using Roman numerals)
-      const isCombinationFormat = currentQuestion.choices.some(choice => {
-          if (typeof choice !== 'string') return false;
-          return /^[A-Z]\.\s*[IVX]+,\s*[IVX]+/.test(choice) || /^[IVX]+,\s*[IVX]+/.test(choice);
-      });
-      
-      // Now create choice elements from our parsed choices
-      currentQuestion.choices.forEach((choice, index) => {
-          // Basic validation
-          if (!choice || typeof choice !== 'string') return;
-          
-          const choiceItem = document.createElement('div');
-          choiceItem.className = 'choice-item';
-          
-          // Extract letter and content using the helper function
-          const processedChoice = processChoiceContent(choice);
-          let letter = processedChoice.letter;
-          let content = processedChoice.content;
-          
-          // If no clear letter is found, use index-based lettering
-          if (letter === '?' || !/^[A-Z]$/i.test(letter)) {
-              letter = String.fromCharCode(65 + index);
-          }
-          
-          // Save the letter value for answer checking
-          choiceItem.dataset.value = letter;
-          
-          // Check if it's a complex choice
-          if (processedChoice.isComplex) {
-              choiceItem.classList.add('long-option');
-          }
-          
-          // Create letter and content elements
-          const letterElement = document.createElement('div');
-          letterElement.className = 'choice-letter';
-          letterElement.textContent = letter + '.';
-          
-          const contentElement = document.createElement('div');
-          contentElement.className = 'choice-content';
-          contentElement.innerHTML = content;
-          
-          // Add elements to the choice item
-          choiceItem.appendChild(letterElement);
-          choiceItem.appendChild(contentElement);
-          
-          // Add click event
-          choiceItem.addEventListener('click', () => {
-              if (!isAnswered) {
-                  // Clear any previously selected choices
-                  const selectedChoices = multipleChoiceElement.querySelectorAll('.selected');
-                  selectedChoices.forEach(selected => selected.classList.remove('selected'));
-                  
-                  // Select this choice
-                  choiceItem.classList.add('selected');
-                  userAnswer = letter;
-                  
-                  // Enable submit button
-                  const submitBtn = document.getElementById('multiple-choice-submit');
-                  if (submitBtn) submitBtn.disabled = false;
-              }
-          });
-          
-          // Add the choice item before the submit button
-          const submitBtn = document.getElementById('multiple-choice-submit');
-          multipleChoiceElement.insertBefore(choiceItem, submitBtn);
-      });
-      
-      multipleChoiceElement.style.display = 'block';
+        multipleChoiceElement.style.display = 'block';
     }
 
-    // IMPROVED: Process complex answer formats
-    function processAnswerCombinations(answerText) {
-      // If the answer is already a simple letter, return it
-      if (/^[A-Z]$/.test(answerText.trim())) {
-          return answerText.trim();
-      }
-      
-      // Look for formats like "A. I, II, III" or "C. III"
-      const combinationMatch = answerText.match(/^([A-Z])\.\s*.*$/);
-      if (combinationMatch) {
-          return combinationMatch[1]; // Return just the letter
-      }
-      
-      // Look for formats like "I, II, III" or "III"
-      // Map these to the corresponding choice item
-      const romanNumerals = answerText.split(',').map(part => part.trim());
-      
-      // Find the choice that matches these roman numerals
-      const choices = document.querySelectorAll('.choice-item');
-      for (const choice of choices) {
-          const content = choice.querySelector('.choice-content').textContent;
-          if (content === answerText) {
-              return choice.dataset.value;
-          }
-      }
-      
-      // If nothing matches, return the original answer
-      return answerText;
+    // IMPROVED: Process complex answer formats including array notation
+    function processAnswer(answerText) {
+        if (!answerText) return '';
+        
+        // Handle array notation [1, 2, 3] in answers
+        const bracketMatch = answerText.match(/^\[([0-9,\s]+)\]$/);
+        if (bracketMatch) {
+            return bracketMatch[0]; // Return the full bracket notation
+        }
+        
+        // Handle answers that start with a letter (A., B., etc.)
+        const letterMatch = answerText.match(/^([A-Z])\.\s*.*$/);
+        if (letterMatch) {
+            return letterMatch[1]; // Return just the letter
+        }
+        
+        return answerText;
     }
 
     // Reset answer state
@@ -1408,10 +1453,19 @@
         let correct = false;
         
         if (currentQuestion.answer_type === 'multipleChoice') {
-            // Process user answer to handle combination answers
-            const processedUserAnswer = processAnswerCombinations(userAnswer);
-            const correctAnswer = processAnswerCombinations(currentQuestion.answer);
-            correct = processedUserAnswer.toUpperCase() === correctAnswer.toUpperCase();
+            // For multiple choice, normalize answer format
+            const processedUserAnswer = processAnswer(userAnswer).trim().toUpperCase();
+            const processedCorrectAnswer = processAnswer(currentQuestion.answer).trim().toUpperCase();
+            
+            // Special handling for array notation
+            if (processedUserAnswer === processedCorrectAnswer) {
+                correct = true;
+            } else if (processedUserAnswer.startsWith('[') && processedCorrectAnswer.startsWith('[')) {
+                // Extract numbers from bracket notation and compare
+                const userNums = processedUserAnswer.replace(/[\[\]\s]/g, '').split(',').sort().join(',');
+                const correctNums = processedCorrectAnswer.replace(/[\[\]\s]/g, '').split(',').sort().join(',');
+                correct = userNums === correctNums;
+            }
         } else {
             const normalizedUserAnswer = userAnswer.trim().toLowerCase();
             const normalizedCorrectAnswer = currentQuestion.answer.toLowerCase();
@@ -1452,7 +1506,7 @@
 
     // Show feedback after answering
     function showFeedback(isCorrect) {
-        // Hide submit button
+        // Hide submit buttons
         submitButtonElement.style.display = 'none';
         const multipleChoiceSubmitBtn = document.getElementById('multiple-choice-submit');
         if (multipleChoiceSubmitBtn) multipleChoiceSubmitBtn.style.display = 'none';
@@ -1467,11 +1521,13 @@
         resultMessageElement.textContent = isCorrect ? 'Correct!' : 'Incorrect!';
         resultMessageElement.className = isCorrect ? 'result-message correct' : 'result-message incorrect';
         
-        // Set correct answer
-        correctAnswerElement.innerHTML = `<strong>Correct answer:</strong> ${currentQuestion.answer}`;
+        // Format and set correct answer with special handling for bracket notation
+        let formattedAnswer = preprocessLaTeX(currentQuestion.answer);
+        formattedAnswer = formatBracketNotation(formattedAnswer);
+        correctAnswerElement.innerHTML = `<strong>Correct answer:</strong> ${formattedAnswer}`;
         
-        // Set rationale
-        rationaleElement.innerHTML = currentQuestion.rationale || 'No explanation provided.';
+        // Set rationale with preprocessing
+        rationaleElement.innerHTML = preprocessLaTeX(currentQuestion.rationale) || 'No explanation provided.';
         
         // Set author if available
         if (currentQuestion.author_name) {
@@ -1484,10 +1540,10 @@
         // Highlight correct answer for multiple choice
         if (currentQuestion.answer_type === 'multipleChoice') {
             const choices = multipleChoiceElement.querySelectorAll('.choice-item');
-            const processedCorrectAnswer = processAnswerCombinations(currentQuestion.answer);
+            const correctAnswer = processAnswer(currentQuestion.answer).toUpperCase();
             
             choices.forEach(choice => {
-                if (choice.dataset.value.toUpperCase() === processedCorrectAnswer.toUpperCase()) {
+                if (choice.dataset.value.toUpperCase() === correctAnswer.toUpperCase()) {
                     choice.classList.add('correct');
                 } else if (choice.classList.contains('selected')) {
                     choice.classList.add('incorrect');
@@ -1501,25 +1557,24 @@
 
     // Enhanced MathJax rendering function
     function renderMathJax() {
-        // Wait for content to be in the DOM
-        setTimeout(() => {
-            if (window.MathJax) {
-                try {
-                    // Tell MathJax to typeset the entire document
-                    window.MathJax.typesetPromise()
-                        .then(() => {
-                            console.log('MathJax typesetting complete');
-                        })
-                        .catch((err) => {
-                            console.error('MathJax typesetting failed:', err);
-                        });
-                } catch (error) {
-                    console.error('Error rendering MathJax:', error);
-                }
-            } else {
-                console.warn('MathJax not loaded yet');
+        if (window.MathJax) {
+            try {
+                // Tell MathJax to typeset the entire document
+                window.MathJax.typesetPromise()
+                    .then(() => {
+                        console.log('MathJax typesetting complete');
+                    })
+                    .catch((err) => {
+                        console.error('MathJax typesetting failed:', err);
+                    });
+            } catch (error) {
+                console.error('Error rendering MathJax:', error);
             }
-        }, 100);
+        } else {
+            console.warn('MathJax not loaded yet');
+            // Try again in a moment
+            setTimeout(renderMathJax, 500);
+        }
     }
 
     // Show/hide UI elements
