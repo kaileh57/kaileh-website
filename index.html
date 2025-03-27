@@ -3,745 +3,1628 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Kaileh57 - Under Construction</title>
-    <link rel="icon" type="image/png" id="favicon">
-
-    <meta property="og:type" content="website" />
-    <meta property="og:title" content="Kaileh57's Portfolio - Coming Soon" />
-    <meta property="og:description" content="Game Designer & Fullstack Developer - Site Under Construction" />
-
-    <script src="https://cdnjs.cloudflare.com/ajax/libs/particles.js/2.0.0/particles.min.js"></script>
+    <title>Humanity's Last Exam Quiz</title>
+    <!-- Add Google Fonts -->
+    <link rel="preconnect" href="https://fonts.googleapis.com">
+    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+    <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700&display=swap" rel="stylesheet">
+    
+    <!-- IMPROVED: MathJax Configuration and Loading -->
+    <script>
+      window.MathJax = {
+        tex: {
+          inlineMath: [['$', '$'], ['\\(', '\\)']],
+          displayMath: [['$$', '$$'], ['\\[', '\\]']],
+          processEnvironments: true,
+          processRefs: true,
+          packages: ['base', 'ams', 'noerrors', 'noundefined', 'autoload', 'colorv2', 'physics'],
+          macros: {
+            'degreeC': '\\degree\\text{C}',
+            'degree': '^{\\circ}'
+          }
+        },
+        // Enable additional packages and environments
+        packages: {
+          '[+]': ['enclose', 'mhchem', 'bbox', 'enumitem']
+        },
+        loader: {
+          load: ['[tex]/enclose', '[tex]/mhchem', '[tex]/bbox', '[tex]/enumitem']
+        },
+        options: {
+          enableMenu: false,
+          renderActions: {
+            addMenu: [], // remove the menu
+            checkLoading: [] // remove the loading message
+          }
+        },
+        startup: {
+          pageReady: () => {
+            return MathJax.startup.defaultPageReady().then(() => {
+              console.log('MathJax initial typesetting complete');
+            });
+          }
+        }
+      };
+    </script>
+    <script id="MathJax-script" async src="https://cdn.jsdelivr.net/npm/mathjax@3.2.2/es5/tex-mml-chtml.js"></script>
+    
     <style>
-        :root {  
-            --purple: rgb(123, 31, 162);
-            --violet: rgb(103, 58, 183);
-            --pink: rgb(244, 143, 177);
-        }
+    /* CSS Styles */
+    :root {
+      --primary: #4f46e5;
+      --primary-light: #818cf8;
+      --primary-dark: #3730a3;
+      --secondary: #f97316;
+      --background: #0f172a;
+      --card-bg: #1e293b;
+      --text: #f1f5f9;
+      --text-light: #94a3b8;
+      --border: #334155;
+      --correct: #34d399;
+      --correct-bg: #064e3b;
+      --incorrect: #f87171;
+      --incorrect-bg: #7f1d1d;
+      --shadow: 0 4px 6px -1px rgba(0, 0, 0, 0.3), 0 2px 4px -1px rgba(0, 0, 0, 0.2);
+      --transition: all 0.3s ease;
+      --radius: 8px;
+    }
 
-        @keyframes background-pan {
-            from {
-                background-position: 0% center;
-            }
-            to {
-                background-position: -200% center;
-            }
-        }
+    /* Light theme variables */
+    .light-theme {
+      --primary: #4f46e5;
+      --primary-light: #818cf8;
+      --primary-dark: #3730a3;
+      --secondary: #f97316;
+      --background: #f8fafc;
+      --card-bg: #ffffff;
+      --text: #1e293b;
+      --text-light: #64748b;
+      --border: #e2e8f0;
+      --correct: #10b981;
+      --correct-bg: #d1fae5;
+      --incorrect: #ef4444;
+      --incorrect-bg: #fee2e2;
+      --shadow: 0 4px 6px -1px rgba(0, 0, 0, 0.1), 0 2px 4px -1px rgba(0, 0, 0, 0.06);
+    }
 
-        @keyframes scale {
-            from, to {
-                transform: scale(0);
-            }
-            50% {
-                transform: scale(1);
-            }
-        }
+    * {
+      box-sizing: border-box;
+      margin: 0;
+      padding: 0;
+    }
 
-        @keyframes rotate {
-            from {
-                transform: rotate(0deg);
-            }
-            to {
-                transform: rotate(360deg);
-            }
-        }
+    body {
+      font-family: 'Inter', -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, Oxygen, Ubuntu, Cantarell, 'Open Sans', 'Helvetica Neue', sans-serif;
+      line-height: 1.6;
+      color: var(--text);
+      background-color: var(--background);
+      transition: var(--transition);
+    }
 
-        @keyframes blink {
-            0%, 100% { opacity: 1; }
-            50% { opacity: 0.3; }
-        }
+    .app {
+      max-width: 800px;
+      margin: 0 auto;
+      padding: 20px;
+    }
 
-        .magic {
-            display: inline-block;
-            position: relative;
-        }
+    /* Header Styles */
+    header {
+      margin-bottom: 30px;
+    }
 
-        .magic-star {
-            --size: clamp(20px, 1.5vw, 30px);
-            animation: scale 700ms ease forwards;
-            display: block;
-            height: var(--size);
-            left: var(--star-left);
-            position: absolute;
-            top: var(--star-top);
-            width: var(--size);
-            opacity: 0; /* Start hidden */
-            transition: opacity 0.3s ease;
-        }
+    .header-content {
+      display: flex;
+      align-items: center;
+      justify-content: space-between;
+      margin-bottom: 5px;
+    }
 
-        .magic:hover .magic-star {
-            opacity: 1; /* Show on hover */
-        }
+    header h1 {
+      font-size: 2.5rem;
+      font-weight: 700;
+      color: var(--primary);
+      margin: 0;
+    }
 
-        .magic-star > svg {
-            animation: rotate 1000ms linear infinite;
-            display: block;
-            opacity: 0.7;
-        }
+    .tagline {
+      font-size: 1.1rem;
+      color: var(--text-light);
+      margin-bottom: 20px;
+    }
 
-        .magic-star > svg > path {
-            fill: var(--violet);
-        }
+    .theme-toggle {
+      display: flex;
+      align-items: center;
+    }
 
-        .magic-text {
-            animation: background-pan 3s linear infinite;
-            background: linear-gradient(
-                to right,
-                var(--purple),
-                var(--violet),
-                var(--pink),
-                var(--purple)
-            );
-            background-size: 200%;
-            -webkit-background-clip: text;
-            -webkit-text-fill-color: transparent;
-            white-space: nowrap;
-        }
+    #theme-toggle-btn {
+      background: none;
+      border: none;
+      color: var(--text);
+      cursor: pointer;
+      width: 40px;
+      height: 40px;
+      border-radius: 50%;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      transition: var(--transition);
+    }
 
-        * {
-            margin: 0;
-            padding: 0;
-            box-sizing: border-box;
-            font-family: 'Inter', sans-serif;
-        }
+    #theme-toggle-btn:hover {
+      background-color: var(--border);
+    }
 
-        body {
-            background-color: #1a1a1a;
-            color: #e0e0e0;
-            line-height: 1.6;
-        }
+    .sun-icon, .moon-icon {
+      width: 24px;
+      height: 24px;
+    }
 
-        body::-webkit-scrollbar {
-            width: 8px; 
-        }
+    .sun-icon {
+      display: none;
+    }
 
-        body::-webkit-scrollbar-track {
-            background: #1a1a1a; 
-        }
+    .moon-icon {
+      display: block;
+    }
 
-        body::-webkit-scrollbar-thumb {
-            background: #333333;
-            border-radius: 4px;
-        }
+    .light-theme .sun-icon {
+      display: block;
+    }
 
-        body::-webkit-scrollbar-thumb:hover {
-            background: #444444;
-        }
+    .light-theme .moon-icon {
+      display: none;
+    }
 
-        #particles-js {
-            position: fixed;
-            top: 0;
-            left: 0;
-            width: 100%;
-            height: 100%;
-            z-index: 1;
-        }
+    /* Stats Container */
+    .stats-container {
+      display: flex;
+      flex-wrap: wrap;
+      gap: 15px;
+      margin-bottom: 20px;
+    }
 
-        .content {
-            position: relative;
-            z-index: 2;
-            padding: 2rem;
-        }
+    .stat {
+      background-color: var(--card-bg);
+      border-radius: var(--radius);
+      padding: 12px 20px;
+      box-shadow: var(--shadow);
+      flex: 1;
+      min-width: 100px;
+      text-align: center;
+      transition: var(--transition);
+    }
 
-        .logo {
-            font-size: 1.5rem;
-            font-weight: bold;
-            color: #8A2BE2;
-        }        
+    .stat-label {
+      display: block;
+      font-size: 0.9rem;
+      color: var(--text-light);
+      margin-bottom: 5px;
+    }
 
-        .logo-container {
-            position: fixed;
-            top: 1rem;      
-            left: 1rem;      
-            z-index: 3;
-            opacity: 0;      
-            transform: translateY(-10px);
-            transition: all 0.3s ease;
-        }
+    .stat-value {
+      display: block;
+      font-size: 1.5rem;
+      font-weight: 600;
+      color: var(--primary);
+    }
 
-        .logo-container.visible {
-            opacity: 1;
-            transform: translateY(0);
-        }
+    /* Category Filter */
+    .category-filter {
+      margin-bottom: 20px;
+    }
 
-        .logo {
-            font-size: 1.5rem;
-            font-weight: bold;
-            color: #8A2BE2;
-        }
+    .category-filter label {
+      display: block;
+      margin-bottom: 5px;
+      color: var(--text-light);
+      font-size: 0.9rem;
+    }
 
-        .hero {
-            min-height: 100vh;
-            display: flex;
-            flex-direction: column;
-            align-items: center;
-            justify-content: center;
-            text-align: center;
-            margin: 0;
-            padding: 0;
-        }
+    #category-select {
+      width: 100%;
+      padding: 10px 15px;
+      border: 1px solid var(--border);
+      border-radius: var(--radius);
+      background-color: var(--card-bg);
+      color: var(--text);
+      font-size: 1rem;
+      transition: var(--transition);
+    }
 
-        .hero-content {
-            max-width: 800px;
-            transform: translateY(0);
-            margin: 0 auto;
-            text-align: center;
-        }
+    /* Loading */
+    .loading-container {
+      display: flex;
+      flex-direction: column;
+      align-items: center;
+      justify-content: center;
+      padding: 40px;
+    }
 
-        h1 {
-            font-size: 3.5rem;
-            margin-bottom: 1rem;
-            color: #ffffff;
-        }
+    .loading-spinner {
+      width: 40px;
+      height: 40px;
+      border: 4px solid rgba(255, 255, 255, 0.1);
+      border-radius: 50%;
+      border-top-color: var(--primary);
+      animation: spin 1s ease-in-out infinite;
+      margin-bottom: 20px;
+    }
 
-        .highlight {
-            color: #8A2BE2;
-        }
+    @keyframes spin {
+      to {
+        transform: rotate(360deg);
+      }
+    }
 
-        .section {
-            padding: 5rem 2rem;
-            max-width: 1200px;
-            margin: 0 auto;
-        }
+    /* Card Styles */
+    .question-card {
+      background-color: var(--card-bg);
+      border-radius: var(--radius);
+      box-shadow: var(--shadow);
+      overflow: hidden;
+      margin-bottom: 30px;
+      transition: var(--transition);
+    }
 
-        .section h2 {
-            text-align: center;
-            margin-bottom: 2rem;
-            font-size: 2.5rem;
-            position: relative;
-        }
+    .card-header {
+      display: flex;
+      justify-content: space-between;
+      align-items: center;
+      padding: 15px 20px;
+      background-color: var(--primary);
+      color: white;
+    }
 
-        .section h2::after {
-            content: '';
-            position: absolute;
-            bottom: -10px;
-            left: 50%;
-            transform: translateX(-50%);
-            width: 60px;
-            height: 3px;
-            background: #8A2BE2;
-            border-radius: 2px;
-        }
+    .category-badge {
+      font-weight: 600;
+      font-size: 1rem;
+      padding: 5px 10px;
+      background-color: rgba(255, 255, 255, 0.2);
+      border-radius: 20px;
+    }
 
-        .construction-banner {
-            background: linear-gradient(135deg, #8A2BE2, #7B1FA2);
-            color: white;
-            text-align: center;
-            padding: 1rem;
-            border-radius: 10px;
-            margin: 2rem auto;
-            max-width: 800px;
-            box-shadow: 0 4px 15px rgba(138, 43, 226, 0.3);
-            position: relative;
-            overflow: hidden;
-        }
+    .question-id {
+      font-size: 0.9rem;
+      opacity: 0.8;
+    }
 
-        .construction-banner::before {
-            content: '';
-            position: absolute;
-            top: 0;
-            left: 0;
-            width: 100%;
-            height: 100%;
-            background: repeating-linear-gradient(
-                45deg,
-                rgba(0, 0, 0, 0.1),
-                rgba(0, 0, 0, 0.1) 10px,
-                rgba(0, 0, 0, 0.2) 10px,
-                rgba(0, 0, 0, 0.2) 20px
-            );
-        }
+    .question-content {
+      padding: 30px 20px;
+      font-size: 1.1rem;
+      border-bottom: 1px solid var(--border);
+    }
 
-        .construction-icon {
-            margin-right: 10px;
-            animation: rotate 3s linear infinite;
-            display: inline-block;
-            font-size: 1.5rem;
-        }
+    .question-text {
+      margin-bottom: 20px;
+      line-height: 1.8;
+    }
 
-        .coming-soon {
-            font-size: 2rem;
-            margin: 1.5rem 0;
-            animation: blink 2s ease-in-out infinite;
-        }
+    .image-container {
+      display: flex;
+      justify-content: center;
+      margin-top: 20px;
+    }
 
-        .placeholder-box {
-            background: rgba(138, 43, 226, 0.1);
-            border: 2px dashed #8A2BE2;
-            border-radius: 10px;
-            padding: 2rem;
-            margin: 1rem 0;
-            text-align: center;
-        }
+    #question-image {
+      max-width: 100%;
+      max-height: 400px;
+      border-radius: var(--radius);
+      box-shadow: var(--shadow);
+    }
 
-        footer {
-            padding: 0rem;
-            text-align: center;
-            margin-top: 4rem;
-        }
+    /* Answer Section Styles */
+    .answer-section {
+      padding: 20px;
+    }
 
-        footer p {
-            color: #e0e0e0;
-            opacity: 0.8; 
-        }
+    .multiple-choice {
+      margin-bottom: 20px;
+    }
 
-        .social-links {
-            display: flex;
-            justify-content: center;
-            gap: 2rem;
-            margin-top: 1rem;
-        }
+    .choice-item {
+      padding: 15px;
+      margin-bottom: 12px;
+      border: 1px solid var(--border);
+      border-radius: var(--radius);
+      cursor: pointer;
+      transition: var(--transition);
+      background-color: var(--card-bg);
+      word-wrap: break-word;
+      overflow-wrap: break-word;
+      display: flex;
+      align-items: flex-start;
+    }
 
-        .social-links a {
-            color: #e0e0e0;
-            text-decoration: none;
-            font-size: 1.5rem;
-            transition: color 0.3s;
-        }
+    .choice-item:hover {
+      transform: translateY(-2px);
+      box-shadow: var(--shadow);
+    }
 
-        .social-links a:hover {
-            color: #8A2BE2;
-        }
+    .choice-item.selected {
+      border-color: var(--primary);
+      background-color: rgba(79, 70, 229, 0.1);
+    }
 
-        .progress-bar {
-            height: 20px;
-            background-color: #2a2a2a;
-            border-radius: 10px;
-            margin: 20px auto;
-            max-width: 500px;
-            overflow: hidden;
-            position: relative;
-        }
+    .choice-item.correct {
+      border-color: var(--correct);
+      background-color: var(--correct-bg);
+    }
 
-        .progress-fill {
-            height: 100%;
-            width: 35%;
-            background: linear-gradient(90deg, #8A2BE2, #7B1FA2);
-            border-radius: 10px;
-            animation: progress-animation 3s ease-in-out infinite alternate;
-        }
+    .choice-item.incorrect {
+      border-color: var(--incorrect);
+      background-color: var(--incorrect-bg);
+    }
 
-        .hard-work-message {
-            font-style: italic;
-            margin-top: 10px;
-            font-size: 1.1rem;
-            opacity: 0.9;
-        }
+    /* IMPROVED: Choice letter and content styling */
+    .choice-letter {
+      font-weight: bold;
+      min-width: 25px;
+      margin-right: 10px;
+    }
+    
+    .choice-content {
+      flex: 1;
+    }
+    
+    /* Add styles for long or complex multiple choice options */
+    .choice-item.long-option {
+      flex-direction: column;
+      align-items: flex-start;
+      padding: 15px 15px 20px 15px;
+    }
+    
+    .choice-item.long-option .choice-letter {
+      margin-bottom: 10px;
+    }
+    
+    .choice-item.long-option .choice-content {
+      width: 100%;
+      line-height: 1.6;
+    }
 
-        @keyframes progress-animation {
-            0% { width: 30%; }
-            100% { width: 60%; }
-        }
+    .text-answer {
+      margin-bottom: 20px;
+    }
+
+    .text-answer label {
+      display: block;
+      margin-bottom: 10px;
+      font-weight: 500;
+      color: var(--text);
+    }
+
+    .input-group {
+      display: flex;
+      gap: 10px;
+    }
+
+    #answer-input {
+      flex: 1;
+      padding: 12px 15px;
+      border: 1px solid var(--border);
+      border-radius: var(--radius);
+      font-size: 1rem;
+      background-color: var(--card-bg);
+      color: var(--text);
+      transition: var(--transition);
+    }
+
+    #answer-input:focus {
+      outline: none;
+      border-color: var(--primary);
+      box-shadow: 0 0 0 2px rgba(79, 70, 229, 0.2);
+    }
+
+    .btn {
+      display: inline-block;
+      padding: 12px 20px;
+      background-color: var(--primary);
+      color: white;
+      border: none;
+      border-radius: var(--radius);
+      font-size: 1rem;
+      font-weight: 500;
+      cursor: pointer;
+      transition: var(--transition);
+      text-align: center;
+    }
+
+    .btn:hover {
+      background-color: var(--primary-dark);
+      transform: translateY(-2px);
+    }
+
+    .btn:disabled {
+      background-color: var(--text-light);
+      cursor: not-allowed;
+      transform: none;
+    }
+
+    .btn.secondary {
+      background-color: transparent;
+      border: 1px solid var(--primary);
+      color: var(--primary);
+    }
+
+    .btn.secondary:hover {
+      background-color: rgba(79, 70, 229, 0.1);
+    }
+
+    .btn.primary {
+      background-color: var(--primary);
+      color: white;
+      width: 100%;
+      margin-top: 15px;
+    }
+
+    /* Feedback Styles */
+    .feedback {
+      margin-top: 20px;
+    }
+
+    .result-message {
+      font-size: 1.3rem;
+      font-weight: 600;
+      text-align: center;
+      margin-bottom: 20px;
+      padding: 15px;
+      border-radius: var(--radius);
+    }
+
+    .result-message.correct {
+      background-color: var(--correct-bg);
+      color: var(--correct);
+    }
+
+    .result-message.incorrect {
+      background-color: var(--incorrect-bg);
+      color: var(--incorrect);
+    }
+
+    .correct-answer {
+      margin-bottom: 20px;
+      padding: 15px;
+      background-color: var(--card-bg);
+      border: 1px solid var(--border);
+      border-radius: var(--radius);
+      font-size: 1.1rem;
+    }
+
+    .explanation-container {
+      margin: 20px 0;
+    }
+
+    #show-explanation {
+      width: 100%;
+    }
+
+    .explanation {
+      margin: 15px 0;
+      padding: 20px;
+      background-color: var(--card-bg);
+      border: 1px solid var(--border);
+      border-radius: var(--radius);
+    }
+
+    .explanation h3 {
+      margin-bottom: 15px;
+      color: var(--primary);
+      font-weight: 600;
+    }
+
+    .rationale {
+      line-height: 1.8;
+      margin-bottom: 15px;
+    }
+
+    .author {
+      margin-top: 15px;
+      font-style: italic;
+      font-size: 0.9rem;
+      color: var(--text-light);
+    }
+
+    /* Error State */
+    .error-message {
+      display: flex;
+      flex-direction: column;
+      align-items: center;
+      text-align: center;
+      padding: 40px;
+      background-color: var(--card-bg);
+      border-radius: var(--radius);
+      box-shadow: var(--shadow);
+    }
+
+    .error-message svg {
+      width: 50px;
+      height: 50px;
+      color: var(--incorrect);
+      margin-bottom: 20px;
+    }
+
+    .error-message p {
+      margin-bottom: 20px;
+      font-size: 1.1rem;
+      color: var(--text);
+    }
+
+    #retry-btn {
+      background-color: var(--primary);
+    }
+
+    /* Footer Styles */
+    footer {
+      text-align: center;
+      margin-top: 30px;
+      padding-top: 20px;
+      border-top: 1px solid var(--border);
+      color: var(--text-light);
+      font-size: 0.9rem;
+    }
+
+    footer a {
+      color: var(--primary);
+      text-decoration: none;
+      transition: var(--transition);
+    }
+
+    footer a:hover {
+      text-decoration: underline;
+      color: var(--primary-dark);
+    }
+
+    /* Responsive Styles */
+    @media (max-width: 600px) {
+      .app {
+        padding: 15px;
+      }
+      
+      header h1 {
+        font-size: 2rem;
+      }
+      
+      .stats-container {
+        flex-direction: column;
+        gap: 10px;
+      }
+      
+      .stat {
+        width: 100%;
+      }
+      
+      .input-group {
+        flex-direction: column;
+      }
+      
+      .btn {
+        width: 100%;
+      }
+    }
+
+    /* Math rendering styles */
+    .mjx-chtml {
+      margin: 0 !important;
+      padding: 0 !important;
+      display: inline-block !important;
+      line-height: 0 !important;
+      text-indent: 0 !important;
+      text-align: left !important;
+      text-transform: none !important;
+      letter-spacing: normal !important;
+      word-spacing: normal !important;
+      overflow-wrap: normal !important;
+      white-space: nowrap !important;
+      float: none !important;
+      direction: ltr !important;
+      max-width: none !important;
+      max-height: none !important;
+      min-width: 0 !important;
+      min-height: 0 !important;
+      border: 0 !important;
+    }
+
+    /* Animation for transitions */
+    @keyframes fadeIn {
+      from {
+        opacity: 0;
+        transform: translateY(10px);
+      }
+      to {
+        opacity: 1;
+        transform: translateY(0);
+      }
+    }
+
+    .question-card {
+      animation: fadeIn 0.3s ease-out;
+    }
+
+    /* New feature - Category tag list */
+    .category-tags {
+      display: flex;
+      flex-wrap: wrap;
+      gap: 8px;
+      margin-bottom: 15px;
+    }
+
+    .category-tag {
+      background-color: var(--card-bg);
+      border: 1px solid var(--border);
+      border-radius: 20px;
+      padding: 5px 12px;
+      font-size: 0.85rem;
+      cursor: pointer;
+      transition: var(--transition);
+    }
+
+    .category-tag:hover {
+      border-color: var(--primary);
+      background-color: rgba(79, 70, 229, 0.1);
+    }
+
+    .category-tag.active {
+      background-color: var(--primary);
+      color: white;
+      border-color: var(--primary);
+    }
+
+    /* Add submit button for multiple choice */
+    #multiple-choice-submit {
+      display: block;
+      width: 100%;
+      margin-top: 20px;
+    }
+
+    /* Set a reasonable min-height for choice items */
+    .choice-item {
+      min-height: 60px;
+      display: flex;
+      align-items: center;
+    }
     </style>
 </head>
 <body>
-    <div id="particles-js"></div>
-    <div class="logo-container">
-        <div class="logo">
-            <span class="magic">
-                <span class="magic-star">
-                    <svg viewBox="0 0 512 512">
-                    <path d="M512 255.1c0 11.34-7.406 20.86-18.44 23.64l-171.3 42.78l-42.78 171.1C276.7 504.6 267.2 512 255.9 512s-20.84-7.406-23.62-18.44l-42.66-171.2L18.47 279.6C7.406 276.8 0 267.3 0 255.1c0-11.34 7.406-20.83 18.44-23.61l171.2-42.78l42.78-171.1C235.2 7.406 244.7 0 256 0s20.84 7.406 23.62 18.44l42.78 171.2l171.2 42.78C504.6 235.2 512 244.6 512 255.1z" />
-                    </svg>
-                </span>
-                <span class="magic-star">
-                    <svg viewBox="0 0 512 512">
-                    <path d="M512 255.1c0 11.34-7.406 20.86-18.44 23.64l-171.3 42.78l-42.78 171.1C276.7 504.6 267.2 512 255.9 512s-20.84-7.406-23.62-18.44l-42.66-171.2L18.47 279.6C7.406 276.8 0 267.3 0 255.1c0-11.34 7.406-20.83 18.44-23.61l171.2-42.78l42.78-171.1C235.2 7.406 244.7 0 256 0s20.84 7.406 23.62 18.44l42.78 171.2l171.2 42.78C504.6 235.2 512 244.6 512 255.1z" />
-                    </svg>
-                </span>
-                <span class="magic-star">
-                    <svg viewBox="0 0 512 512">
-                    <path d="M512 255.1c0 11.34-7.406 20.86-18.44 23.64l-171.3 42.78l-42.78 171.1C276.7 504.6 267.2 512 255.9 512s-20.84-7.406-23.62-18.44l-42.66-171.2L18.47 279.6C7.406 276.8 0 267.3 0 255.1c0-11.34 7.406-20.83 18.44-23.61l171.2-42.78l42.78-171.1C235.2 7.406 244.7 0 256 0s20.84 7.406 23.62 18.44l42.78 171.2l171.2 42.78C504.6 235.2 512 244.6 512 255.1z" />
-                    </svg>
-                </span>
-                <span class="magic-text">K57</span>
-            </span>
-        </div>
-    </div>
-
-    <div class="content">
-        <section id="home" class="hero">
-            <div class="hero-content">
-                <h1 class="fade-in-first">Hi, I'm 
-                    <span class="magic">
-                        <span class="magic-star">
-                            <svg viewBox="0 0 512 512">
-                                <path d="M512 255.1c0 11.34-7.406 20.86-18.44 23.64l-171.3 42.78l-42.78 171.1C276.7 504.6 267.2 512 255.9 512s-20.84-7.406-23.62-18.44l-42.66-171.2L18.47 279.6C7.406 276.8 0 267.3 0 255.1c0-11.34 7.406-20.83 18.44-23.61l171.2-42.78l42.78-171.1C235.2 7.406 244.7 0 256 0s20.84 7.406 23.62 18.44l42.78 171.2l171.2 42.78C504.6 235.2 512 244.6 512 255.1z" />
-                            </svg>
-                        </span>
-                        <span class="magic-star">
-                            <svg viewBox="0 0 512 512">
-                                <path d="M512 255.1c0 11.34-7.406 20.86-18.44 23.64l-171.3 42.78l-42.78 171.1C276.7 504.6 267.2 512 255.9 512s-20.84-7.406-23.62-18.44l-42.66-171.2L18.47 279.6C7.406 276.8 0 267.3 0 255.1c0-11.34 7.406-20.83 18.44-23.61l171.2-42.78l42.78-171.1C235.2 7.406 244.7 0 256 0s20.84 7.406 23.62 18.44l42.78 171.2l171.2 42.78C504.6 235.2 512 244.6 512 255.1z" />
-                            </svg>
-                        </span>
-                        <span class="magic-star">
-                            <svg viewBox="0 0 512 512">
-                                <path d="M512 255.1c0 11.34-7.406 20.86-18.44 23.64l-171.3 42.78l-42.78 171.1C276.7 504.6 267.2 512 255.9 512s-20.84-7.406-23.62-18.44l-42.66-171.2L18.47 279.6C7.406 276.8 0 267.3 0 255.1c0-11.34 7.406-20.83 18.44-23.61l171.2-42.78l42.78-171.1C235.2 7.406 244.7 0 256 0s20.84 7.406 23.62 18.44l42.78 171.2l171.2 42.78C504.6 235.2 512 244.6 512 255.1z" />
-                            </svg>
-                        </span>
-                        <span class="magic-text">Kaileh57</span>
-                    </span>
-                </h1>
-                <h2 class="fade-in-second" style="font-size: 1.5rem; margin-top: -2rem; margin-bottom: 1rem;">(Aka 
-                    <span class="magic">
-                        <span class="magic-star">
-                            <svg viewBox="0 0 512 512">
-                                <path d="M512 255.1c0 11.34-7.406 20.86-18.44 23.64l-171.3 42.78l-42.78 171.1C276.7 504.6 267.2 512 255.9 512s-20.84-7.406-23.62-18.44l-42.66-171.2L18.47 279.6C7.406 276.8 0 267.3 0 255.1c0-11.34 7.406-20.83 18.44-23.61l171.2-42.78l42.78-171.1C235.2 7.406 244.7 0 256 0s20.84 7.406 23.62 18.44l42.78 171.2l171.2 42.78C504.6 235.2 512 244.6 512 255.1z" />
-                            </svg>
-                        </span>
-                        <span class="magic-star">
-                            <svg viewBox="0 0 512 512">
-                                <path d="M512 255.1c0 11.34-7.406 20.86-18.44 23.64l-171.3 42.78l-42.78 171.1C276.7 504.6 267.2 512 255.9 512s-20.84-7.406-23.62-18.44l-42.66-171.2L18.47 279.6C7.406 276.8 0 267.3 0 255.1c0-11.34 7.406-20.83 18.44-23.61l171.2-42.78l42.78-171.1C235.2 7.406 244.7 0 256 0s20.84 7.406 23.62 18.44l42.78 171.2l171.2 42.78C504.6 235.2 512 244.6 512 255.1z" />
-                            </svg>
-                        </span>
-                        <span class="magic-star">
-                            <svg viewBox="0 0 512 512">
-                                <path d="M512 255.1c0 11.34-7.406 20.86-18.44 23.64l-171.3 42.78l-42.78 171.1C276.7 504.6 267.2 512 255.9 512s-20.84-7.406-23.62-18.44l-42.66-171.2L18.47 279.6C7.406 276.8 0 267.3 0 255.1c0-11.34 7.406-20.83 18.44-23.61l171.2-42.78l42.78-171.1C235.2 7.406 244.7 0 256 0s20.84 7.406 23.62 18.44l42.78 171.2l171.2 42.78C504.6 235.2 512 244.6 512 255.1z" />
-                            </svg>
-                        </span>
-                        <span class="magic-text">Kellen Heraty</span>
-                    </span>)
-                </h2>
-                <p class="fade-in-third">Game Designer & Fullstack Developer</p>
-
+    <div class="app">
+        <header>
+            <div class="header-content">
+                <h1>Humanity's Last Exam</h1>
+                <div class="theme-toggle">
+                    <button id="theme-toggle-btn" aria-label="Toggle light mode">
+                        <svg class="sun-icon" xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24" width="24" height="24">
+                            <path fill="none" stroke="currentColor" stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M12 3v1m0 16v1m-9-9H2m17 0h1M5.6 5.6l.7.7m12.1-.7l-.7.7m-12.1 11.4l.7-.7m12.1.7l-.7-.7M16 12a4 4 0 1 1-8 0 4 4 0 0 1 8 0z"/>
+                        </svg>
+                        <svg class="moon-icon" xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24" width="24" height="24">
+                            <path fill="none" stroke="currentColor" stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M21 12.79A9 9 0 1 1 11.21 3 7 7 0 0 0 21 12.79z"/>
+                        </svg>
+                    </button>
+                </div>
             </div>
-        </section>
-
-        <section id="about" class="section">
-            <h2>About Me</h2>
-            <div class="placeholder-box">
-                <p>Hi! From designing and developing XR games in Godot 4.3 and Unreal 5.4 in my free time, to building fullstack tools using React and FluentUI for Microsoft, and developing open-source AI tools in my free time, I have a wide range of experience and knowledge to bring to any project!</p>
-                <p style="margin-top: 1rem;"><em>Full bio and details coming soon...</em></p>
+            <p class="tagline">Test your knowledge with extremely challenging questions</p>
+            
+            <div class="stats-container">
+                <div class="stat">
+                    <span class="stat-label">Questions</span>
+                    <span id="questions-count" class="stat-value">0</span>
+                </div>
+                <div class="stat">
+                    <span class="stat-label">Correct</span>
+                    <span id="correct-count" class="stat-value">0</span>
+                </div>
+                <div class="stat">
+                    <span class="stat-label">Accuracy</span>
+                    <span id="accuracy" class="stat-value">0%</span>
+                </div>
             </div>
-        </section>
-
-        <section id="games" class="section">
-            <h2>Some Games I've Made</h2>
-            <div class="placeholder-box">
-                <p>My portfolio of game development projects will be showcased here.</p>
-                <p>Stay tuned for screenshots, descriptions, and playable demos!</p>
+            
+            <div class="category-filter">
+                <label for="category-select">Filter by category:</label>
+                <div class="category-tags" id="category-tags">
+                    <!-- Popular categories will be shown as tags -->
+                </div>
+                <select id="category-select">
+                    <option value="all">All Categories</option>
+                    <!-- Categories will be populated by JavaScript -->
+                </select>
             </div>
-        </section>
-        
-        <section id="other-projects" class="section">
-            <h2>Some Other Stuff</h2>
-            <div class="placeholder-box">
-                <p>Additional projects, tools, and experiments will appear in this section.</p>
-                <p>Currently preparing content for this gallery...</p>
+        </header>
+
+        <main id="quiz-container">
+            <div id="loading" class="loading-container">
+                <div class="loading-spinner"></div>
+                <p>Loading questions...</p>
             </div>
-        </section>
-
-        <section id="contact" class="section">
-            <h2>Find Me On GitHub</h2>
-            <div class="github-link-container">
-                <a href="https://github.com/kaileh57" class="github-link">
-                    <span class="magic">
-                        <span class="magic-star">
-                            <svg viewBox="0 0 512 512">
-                            <path d="M512 255.1c0 11.34-7.406 20.86-18.44 23.64l-171.3 42.78l-42.78 171.1C276.7 504.6 267.2 512 255.9 512s-20.84-7.406-23.62-18.44l-42.66-171.2L18.47 279.6C7.406 276.8 0 267.3 0 255.1c0-11.34 7.406-20.83 18.44-23.61l171.2-42.78l42.78-171.1C235.2 7.406 244.7 0 256 0s20.84 7.406 23.62 18.44l42.78 171.2l171.2 42.78C504.6 235.2 512 244.6 512 255.1z" />
-                            </svg>
-                        </span>
-                        <span class="magic-star">
-                            <svg viewBox="0 0 512 512">
-                            <path d="M512 255.1c0 11.34-7.406 20.86-18.44 23.64l-171.3 42.78l-42.78 171.1C276.7 504.6 267.2 512 255.9 512s-20.84-7.406-23.62-18.44l-42.66-171.2L18.47 279.6C7.406 276.8 0 267.3 0 255.1c0-11.34 7.406-20.83 18.44-23.61l171.2-42.78l42.78-171.1C235.2 7.406 244.7 0 256 0s20.84 7.406 23.62 18.44l42.78 171.2l171.2 42.78C504.6 235.2 512 244.6 512 255.1z" />
-                            </svg>
-                        </span>
-                        <span class="magic-star">
-                            <svg viewBox="0 0 512 512">
-                            <path d="M512 255.1c0 11.34-7.406 20.86-18.44 23.64l-171.3 42.78l-42.78 171.1C276.7 504.6 267.2 512 255.9 512s-20.84-7.406-23.62-18.44l-42.66-171.2L18.47 279.6C7.406 276.8 0 267.3 0 255.1c0-11.34 7.406-20.83 18.44-23.61l171.2-42.78l42.78-171.1C235.2 7.406 244.7 0 256 0s20.84 7.406 23.62 18.44l42.78 171.2l171.2 42.78C504.6 235.2 512 244.6 512 255.1z" />
-                            </svg>
-                        </span>
-                        <span class="magic-text">Check out my code</span>
-                    </span>
-                    <svg class="github-icon" xmlns="http://www.w3.org/2000/svg" width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
-                        <path d="M9 19c-5 1.5-5-2.5-7-3m14 6v-3.87a3.37 3.37 0 0 0-.94-2.61c3.14-.35 6.44-1.54 6.44-7A5.44 5.44 0 0 0 20 4.77 5.07 5.07 0 0 0 19.91 1S18.73.65 16 2.48a13.38 13.38 0 0 0-7 0C6.27.65 5.09 1 5.09 1A5.07 5.07 0 0 0 5 4.77a5.44 5.44 0 0 0-1.5 3.78c0 5.42 3.3 6.61 6.44 7A3.37 3.37 0 0 0 9 18.13V22"></path>
-                    </svg>
-                </a>
+            
+            <div id="question-card" class="question-card" style="display: none;">
+                <div class="card-header">
+                    <div class="category-badge" id="category">Category</div>
+                    <div class="question-id" id="question-id">ID: 000</div>
+                </div>
+                
+                <div class="question-content">
+                    <div id="question-text" class="question-text">Question text will appear here</div>
+                    <div id="image-container" class="image-container" style="display: none;">
+                        <img id="question-image" alt="Question visual">
+                    </div>
+                </div>
+                
+                <div class="answer-section">
+                    <div id="multiple-choice" class="multiple-choice" style="display: none;">
+                        <!-- Multiple choice options will be populated here -->
+                        <button id="multiple-choice-submit" class="btn" disabled>Submit Answer</button>
+                    </div>
+                    
+                    <div id="text-answer" class="text-answer" style="display: none;">
+                        <label for="answer-input">Your answer:</label>
+                        <div class="input-group">
+                            <input type="text" id="answer-input" placeholder="Type your answer here...">
+                            <button id="submit-btn" class="btn" disabled>Submit</button>
+                        </div>
+                    </div>
+                    
+                    <div id="feedback" class="feedback" style="display: none;">
+                        <div id="result-message" class="result-message"></div>
+                        <div id="correct-answer" class="correct-answer"></div>
+                        
+                        <div class="explanation-container">
+                            <button id="show-explanation" class="btn secondary">Show Explanation</button>
+                            
+                            <div id="explanation" class="explanation" style="display: none;">
+                                <h3>Explanation:</h3>
+                                <div id="rationale" class="rationale"></div>
+                                <div id="author" class="author"></div>
+                            </div>
+                        </div>
+                        
+                        <button id="next-btn" class="btn primary">Next Question</button>
+                    </div>
+                </div>
             </div>
-        </section>
-        
-        <style>
-        @keyframes fadeSlideIn {
-            0% {
-                opacity: 0;
-                transform: translateY(20px);
-            }
-            100% {
-                opacity: 1;
-                transform: translateY(0);
-            }
-        }
-
-        .fade-in-first {
-            opacity: 0;
-            animation: fadeSlideIn 1s ease forwards;
-        }
-
-        .fade-in-second {
-            opacity: 0;
-            animation: fadeSlideIn 1s ease forwards;
-            animation-delay: 1s;
-        }
-
-        .fade-in-third {
-            opacity: 0;
-            animation: fadeSlideIn 1s ease forwards;
-            animation-delay: 1.5s;
-        }
-
-        .github-link-container {
-            display: flex;
-            justify-content: center;
-            align-items: center;
-            margin-top: 2rem;
-        }
-        
-        .github-link {
-            display: flex;
-            align-items: center;
-            gap: 1rem;
-            padding: 1rem 2rem;
-            background: rgba(138, 43, 226, 0.1);
-            border: 2px solid #8A2BE2;
-            border-radius: 12px;
-            text-decoration: none;
-            color: #e0e0e0;
-            font-size: 1.2rem;
-            transition: all 0.3s ease;
-        }
-        
-        .github-link:hover {
-            background: rgba(138, 43, 226, 0.2);
-            transform: translateY(-3px);
-            box-shadow: 0 6px 20px rgba(138, 43, 226, 0.2);
-        }
-        
-        .github-icon {
-            width: 24px;
-            height: 24px;
-            stroke: #8A2BE2;
-            transition: transform 0.3s ease;
-        }
-        
-        .github-link:hover .github-icon {
-            transform: rotate(12deg) scale(1.1);
-        }
-        
-        .github-link .magic-text {
-            font-size: 1.2rem;
-        }
-        
-        .github-link:hover .magic-star {
-            opacity: 1;
-        }
-        </style>
+            
+            <div id="error" class="error-message" style="display: none;">
+                <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24" width="24" height="24">
+                    <path fill="none" stroke="currentColor" stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M12 9v2m0 4h.01m-6.938 4h13.856c1.54 0 2.502-1.667 1.732-3L13.732 4c-.77-1.333-2.694-1.333-3.464 0L3.34 16c-.77 1.333.192 3 1.732 3z"/>
+                </svg>
+                <p>Failed to load questions. Make sure questions.json exists in the same directory.</p>
+                <button id="retry-btn" class="btn">Retry</button>
+            </div>
+        </main>
 
         <footer>
-            <p>© 2025 Kellen Heraty. All rights reserved.</p>
-            <div class="social-links">
-                <a href="#" aria-label="GitHub">
-                    <i class="fab fa-github"></i>
-                </a>
-                <a href="#" aria-label="Twitter">
-                    <i class="fab fa-twitter"></i>
-                </a>
-                <a href="#" aria-label="LinkedIn">
-                    <i class="fab fa-linkedin"></i>
-                </a>
-            </div>
+            <p>Questions from <a href="https://huggingface.co/datasets/cais/hle" target="_blank">Humanity's Last Exam dataset</a> | <a href="https://github.com/centerforaisafety/HLE" target="_blank">GitHub</a></p>
         </footer>
     </div>
+
     <script>
-        // Favicon animation setup
-        const faviconCanvas = document.createElement('canvas');
-        faviconCanvas.width = 64;
-        faviconCanvas.height = 64;
-        const ctx = faviconCanvas.getContext('2d', { alpha: true });
+    // State management without localStorage
+    let questions = [];
+    let currentQuestion = null;
+    let seenQuestionIds = new Set();
+    let userAnswer = '';
+    let isAnswered = false;
+    let questionsAnswered = 0;
+    let correctAnswers = 0;
+    let categoryStats = {};
+    let categories = new Set();
+    let selectedCategory = 'all';
+    let popularCategories = [];
     
-        // Create favicon downscaling canvas
-        const tempCanvas = document.createElement('canvas');
-        tempCanvas.width = 32;
-        tempCanvas.height = 32;
-        const tempCtx = tempCanvas.getContext('2d', { alpha: true });
-        tempCtx.imageSmoothingEnabled = true;
-        tempCtx.imageSmoothingQuality = 'high';
-    
-        // Get favicon link element
-        const faviconLink = document.getElementById('favicon');
-        let offset = 0;
-    
-        function updateFavicon() {
-            // Clear canvas with transparency
-            ctx.clearRect(0, 0, 64, 64);
-    
-            // Create gradient
-            const gradient = ctx.createLinearGradient(0, 0, 64, 0);
-            
-            // Gradient with color stops
-            gradient.addColorStop((0 + offset) % 1, 'rgb(123, 31, 162)');
-            gradient.addColorStop((0.2 + offset) % 1, 'rgb(103, 58, 183)');
-            gradient.addColorStop((0.4 + offset) % 1, 'rgb(244, 143, 177)');
-            gradient.addColorStop((0.6 + offset) % 1, 'rgb(123, 31, 162)');
-            gradient.addColorStop((0.8 + offset) % 1, 'rgb(103, 58, 183)');
-            gradient.addColorStop((1 + offset) % 1, 'rgb(123, 31, 162)');
-    
-            // Draw text
-            ctx.textAlign = 'center';
-            ctx.textBaseline = 'middle';
-            ctx.font = 'bold 56px Inter, Arial';
-            ctx.fillStyle = gradient;
-            ctx.fillText('K', 32, 36);
-    
-            // Update offset for next frame
-            offset = (offset + 0.01) % 1;
-    
-            // Downscale to favicon size
-            tempCtx.clearRect(0, 0, 32, 32);
-            tempCtx.drawImage(faviconCanvas, 0, 0, 32, 32);
-            
-            // Update favicon
-            faviconLink.href = tempCanvas.toDataURL('image/png');
-            
-            requestAnimationFrame(updateFavicon);
+    // DOM Elements
+    const loadingElement = document.getElementById('loading');
+    const errorElement = document.getElementById('error');
+    const questionCardElement = document.getElementById('question-card');
+    const categoryElement = document.getElementById('category');
+    const questionIdElement = document.getElementById('question-id');
+    const questionTextElement = document.getElementById('question-text');
+    const imageContainerElement = document.getElementById('image-container');
+    const questionImageElement = document.getElementById('question-image');
+    const multipleChoiceElement = document.getElementById('multiple-choice');
+    const multipleChoiceSubmitElement = document.getElementById('multiple-choice-submit');
+    const textAnswerElement = document.getElementById('text-answer');
+    const answerInputElement = document.getElementById('answer-input');
+    const submitButtonElement = document.getElementById('submit-btn');
+    const feedbackElement = document.getElementById('feedback');
+    const resultMessageElement = document.getElementById('result-message');
+    const correctAnswerElement = document.getElementById('correct-answer');
+    const showExplanationButtonElement = document.getElementById('show-explanation');
+    const explanationElement = document.getElementById('explanation');
+    const rationaleElement = document.getElementById('rationale');
+    const authorElement = document.getElementById('author');
+    const nextButtonElement = document.getElementById('next-btn');
+    const questionsCountElement = document.getElementById('questions-count');
+    const correctCountElement = document.getElementById('correct-count');
+    const accuracyElement = document.getElementById('accuracy');
+    const retryButtonElement = document.getElementById('retry-btn');
+    const categorySelectElement = document.getElementById('category-select');
+    const categoryTagsElement = document.getElementById('category-tags');
+    const themeToggleButtonElement = document.getElementById('theme-toggle-btn');
+
+    // Theme Management
+    function initTheme() {
+        // Use a variable in memory instead of localStorage
+        window.darkTheme = true;
+    }
+
+    function toggleTheme() {
+        window.darkTheme = !window.darkTheme;
+        if (window.darkTheme) {
+            document.body.classList.remove('light-theme');
+        } else {
+            document.body.classList.add('light-theme');
         }
-    
-        // Start animation when fonts are loaded
-        document.fonts.ready.then(() => {
-            updateFavicon();
-        });
-    </script>
-    
-    <script>
-        particlesJS('particles-js',
-        {
-            "particles": {
-                "number": {
-                    "value": 80,
-                    "density": {
-                        "enable": true,
-                        "value_area": 800
-                    }
-                },
-                "color": {
-                    "value": "#8A2BE2"
-                },
-                "shape": {
-                    "type": "circle"
-                },
-                "opacity": {
-                    "value": 0.5,
-                    "random": false
-                },
-                "size": {
-                    "value": 3,
-                    "random": true
-                },
-                "line_linked": {
-                    "enable": true,
-                    "distance": 150,
-                    "color": "#8A2BE2",
-                    "opacity": 0.4,
-                    "width": 1
-                },
-                "move": {
-                    "enable": true,
-                    "speed": 2,
-                    "direction": "none",
-                    "random": false,
-                    "straight": false,
-                    "out_mode": "out",
-                    "bounce": false
-                }
-            },
-            "interactivity": {
-                "detect_on": "canvas",
-                "events": {
-                    "onhover": {
-                        "enable": true,
-                        "mode": "grab"
-                    },
-                    "onclick": {
-                        "enable": true,
-                        "mode": "push"
-                    },
-                    "resize": true
-                },
-                "modes": {
-                    "grab": {
-                        "distance": 140,
-                        "line_linked": {
-                            "opacity": 1
-                        }
-                    },
-                    "push": {
-                        "particles_nb": 4
-                    }
-                }
-            },
-            "retina_detect": true
-        });
-    </script>
-    <script>
-        // Magic star animation
-        document.addEventListener('DOMContentLoaded', () => {
-            const rand = (min, max) => Math.floor(Math.random() * (max - min + 1)) + min;
+    }
 
-            const animateStar = star => {
-                star.style.setProperty("--star-left", `${rand(-10, 100)}%`);
-                star.style.setProperty("--star-top", `${rand(-40, 80)}%`);
-                star.style.animation = "none";
-                star.offsetHeight;
-                star.style.animation = "";
-            };
-
-            // Set initial positions for magic stars
-            const stars = document.querySelectorAll('.magic-star');
-            stars.forEach((star, i) => {
-                star.style.setProperty("--star-left", `${rand(-10, 100)}%`);
-                star.style.setProperty("--star-top", `${rand(-40, 80)}%`);
-            });
-
-            // Handle hover effects
-            document.querySelectorAll('.magic').forEach(magicElement => {
-                const magicStars = magicElement.querySelectorAll('.magic-star');
-                
-                magicElement.addEventListener('mouseenter', () => {
-                    magicStars.forEach((star, i) => {
-                        setTimeout(() => {
-                            animateStar(star);
-                            star._interval = setInterval(() => animateStar(star), 1000);
-                        }, i * 300);
-                    });
-                });
-                
-                magicElement.addEventListener('mouseleave', () => {
-                    magicStars.forEach(star => {
-                        if (star._interval) {
-                            clearInterval(star._interval);
-                            star._interval = null;
-                        }
-                    });
-                });
-            });
-        });
-    </script>
-    <script>
-        // Logo visibility on scroll
-        document.addEventListener('DOMContentLoaded', () => {
-            const logoContainer = document.querySelector('.logo-container');
-            const heroSection = document.querySelector('.hero');
+    // Fetch questions from local JSON file
+    async function fetchQuestions() {
+        try {
+            showLoading();
             
-            if (logoContainer && heroSection) {
-                window.addEventListener('scroll', () => {
-                    const heroBottom = heroSection.getBoundingClientRect().bottom;
-                    
-                    if (heroBottom <= 200) {
-                        logoContainer.classList.add('visible');
-                    } else {
-                        logoContainer.classList.remove('visible');
-                    }
-                });
+            try {
+                // Try to fetch questions.json first
+                const response = await fetch('questions.json');
+                if (!response.ok) {
+                    throw new Error('questions.json not found');
+                }
+                const data = await response.json();
+                processQuestions(data);
+            } catch (error) {
+                console.error('Error loading questions.json:', error);
+                showError();
+            }
+        } catch (error) {
+            console.error('Error in fetchQuestions:', error);
+            showError();
+        }
+    }
+
+    // Process questions data
+    function processQuestions(data) {
+        if (!Array.isArray(data) || data.length === 0) {
+            showError();
+            return;
+        }
+        
+        questions = data;
+        
+        // Extract categories and count their occurrences
+        const categoryCount = new Map();
+        questions.forEach(q => {
+            if (q.category) {
+                categories.add(q.category);
+                categoryCount.set(q.category, (categoryCount.get(q.category) || 0) + 1);
             }
         });
+        
+        // Get the most popular categories
+        popularCategories = Array.from(categoryCount.entries())
+            .sort((a, b) => b[1] - a[1])
+            .slice(0, 5)
+            .map(entry => entry[0]);
+        
+        // Populate category filter
+        populateCategoryFilter();
+        
+        // Update stats display
+        updateStatsDisplay();
+        
+        // Load random question
+        loadRandomQuestion();
+    }
+
+    // Populate category filter dropdown and tags
+    function populateCategoryFilter() {
+        // Populate dropdown
+        categorySelectElement.innerHTML = '<option value="all">All Categories</option>';
+        
+        // Add categories in alphabetical order
+        Array.from(categories).sort().forEach(category => {
+            const option = document.createElement('option');
+            option.value = category;
+            option.textContent = category;
+            categorySelectElement.appendChild(option);
+        });
+        
+        // Populate tags for popular categories
+        categoryTagsElement.innerHTML = `
+            <div class="category-tag ${selectedCategory === 'all' ? 'active' : ''}" data-category="all">All</div>
+        `;
+        
+        popularCategories.forEach(category => {
+            const tagElement = document.createElement('div');
+            tagElement.className = `category-tag ${selectedCategory === category ? 'active' : ''}`;
+            tagElement.dataset.category = category;
+            tagElement.textContent = category;
+            categoryTagsElement.appendChild(tagElement);
+        });
+        
+        // Add event listeners to category tags
+        const categoryTags = categoryTagsElement.querySelectorAll('.category-tag');
+        categoryTags.forEach(tag => {
+            tag.addEventListener('click', () => {
+                selectedCategory = tag.dataset.category;
+                categorySelectElement.value = selectedCategory;
+                
+                // Update active state
+                categoryTags.forEach(t => t.classList.remove('active'));
+                tag.classList.add('active');
+                
+                loadRandomQuestion();
+            });
+        });
+    }
+
+    // Load a random question based on selected category
+    function loadRandomQuestion() {
+        if (questions.length === 0) {
+            showError();
+            return;
+        }
+
+        // Filter questions by selected category
+        let filteredQuestions = questions;
+        if (selectedCategory !== 'all') {
+            filteredQuestions = questions.filter(q => q.category === selectedCategory);
+            
+            // If no questions in this category, revert to all categories
+            if (filteredQuestions.length === 0) {
+                filteredQuestions = questions;
+                selectedCategory = 'all';
+                categorySelectElement.value = 'all';
+            }
+        }
+
+        // Find questions that haven't been seen yet
+        let unseenQuestions = filteredQuestions.filter(q => !seenQuestionIds.has(q.id));
+        
+        // If all questions have been seen, reset the seen questions set
+        if (unseenQuestions.length === 0) {
+            seenQuestionIds = new Set();
+            unseenQuestions = filteredQuestions;
+        }
+        
+        // Pick a random unseen question
+        const randomIndex = Math.floor(Math.random() * unseenQuestions.length);
+        currentQuestion = unseenQuestions[randomIndex];
+        seenQuestionIds.add(currentQuestion.id);
+        
+        displayQuestion();
+        resetAnswer();
+    }
+
+    // IMPROVED: Display the current question with better handling of LaTeX and content
+    function displayQuestion() {
+        // Hide loading and error, show question card
+        hideLoading();
+        hideError();
+        showQuestionCard();
+        
+        // Set question details
+        categoryElement.textContent = currentQuestion.category || 'Uncategorized';
+        questionIdElement.textContent = `ID: ${currentQuestion.id}`;
+        
+        // Clean up and process the question text
+        let processedQuestion = currentQuestion.question;
+        
+        // Fix common LaTeX issues
+        processedQuestion = processedQuestion
+            .replace(/Unknown environment 'enumerate'/g, '')
+            .replace(/Unknown environment 'itemize'/g, '')
+            .replace(/\\degreeC/g, '\\degree\\text{C}');
+        
+        // Replace problematic LaTeX environments with proper ones
+        processedQuestion = processedQuestion
+            .replace(/\\begin\{enumerate\}/g, '<ol>')
+            .replace(/\\end\{enumerate\}/g, '</ol>')
+            .replace(/\\begin\{itemize\}/g, '<ul>')
+            .replace(/\\end\{itemize\}/g, '</ul>')
+            .replace(/\\item/g, '<li>')
+            .replace(/(?<=<\/li>)(?!\s*<li>|\s*<\/[uo]l>)/g, '</li>');
+        
+        // Set the processed question text
+        questionTextElement.innerHTML = processedQuestion;
+        
+        // Handle image if present
+        if (currentQuestion.image) {
+            const imagePath = `images/${currentQuestion.image}`;
+            const imagePathPng = imagePath.replace('.jpg', '.png');
+            
+            // Try PNG first
+            questionImageElement.src = imagePathPng;
+            
+            questionImageElement.onerror = () => {
+                // If PNG fails, try JPG or original extension
+                questionImageElement.src = imagePath;
+                
+                questionImageElement.onerror = () => {
+                    console.log('Image failed to load:', imagePath);
+                    imageContainerElement.style.display = 'none';
+                };
+            };
+            
+            questionImageElement.onload = () => {
+                imageContainerElement.style.display = 'flex';
+            };
+            
+            // Initially show the container, it will be hidden if the image fails to load
+            imageContainerElement.style.display = 'flex';
+        } else {
+            imageContainerElement.style.display = 'none';
+        }
+        
+        // Handle answer type with improved multiple choice handling
+        if (currentQuestion.answer_type === 'multipleChoice') {
+            displayMultipleChoice();
+            textAnswerElement.style.display = 'none';
+        } else {
+            multipleChoiceElement.style.display = 'none';
+            textAnswerElement.style.display = 'block';
+        }
+        
+        // Scroll to the top of the question
+        questionCardElement.scrollIntoView({ behavior: 'smooth', block: 'start' });
+        
+        // Render LaTeX
+        renderMathJax();
+    }
+
+    // IMPROVED: Add advanced choice parser function
+    function parseChoicesFromQuestion(questionText) {
+        // First attempt: Look for explicit answer choices section
+        if (questionText.includes('Answer Choices:')) {
+            const parts = questionText.split('Answer Choices:');
+            if (parts.length >= 2) {
+                // Extract the choices text
+                const choicesText = parts[1].trim();
+                
+                // Try to find lettered options (A., B., C.)
+                const letterPattern = /([A-Z])\.\s*((?:(?!\s[A-Z]\.).)*)/gs;
+                const letterMatches = Array.from(choicesText.matchAll(letterPattern));
+                
+                if (letterMatches && letterMatches.length > 0) {
+                    return letterMatches.map(match => `${match[1]}. ${match[2].trim()}`);
+                }
+                
+                // If no lettered options, try roman numeral options or combinations
+                const romanPattern = /([A-Z])\.\s*([IVX,\s]+)/gs;
+                const romanMatches = Array.from(choicesText.matchAll(romanPattern));
+                
+                if (romanMatches && romanMatches.length > 0) {
+                    return romanMatches.map(match => `${match[1]}. ${match[2].trim()}`);
+                }
+            }
+        }
+        
+        // Second attempt: Look for a list of options at the end of the question
+        const optionsMatch = questionText.match(/(?:Options|Choices):\s*([A-Z]\..*?)(?:\s*$|\n)/s);
+        if (optionsMatch && optionsMatch[1]) {
+            const optionsText = optionsMatch[1].trim();
+            // Split by letter followed by period and space
+            return optionsText.split(/(?=[A-Z]\.\s)/).filter(option => option.trim().length > 0);
+        }
+        
+        // Third attempt: Try to extract combination answers like "A. I, II" or "S. I, II, IV, V"
+        if (questionText.includes('I.') && questionText.includes('II.')) {
+            const combinationPattern = /([A-Z])\.\s*((?:I|II|III|IV|V|VI|VII|VIII|IX|X)(?:,\s*(?:I|II|III|IV|V|VI|VII|VIII|IX|X))*)/g;
+            const combinationMatches = Array.from(questionText.matchAll(combinationPattern));
+            
+            if (combinationMatches && combinationMatches.length > 0) {
+                return combinationMatches.map(match => `${match[1]}. ${match[2].trim()}`);
+            }
+        }
+        
+        // If all else fails, check if there's a clear list of options at the end
+        const lastParagraph = questionText.split('\n').filter(para => para.trim().length > 0).pop();
+        if (lastParagraph && lastParagraph.includes('A.') && lastParagraph.includes('B.')) {
+            // This might be a list of options squished together
+            const optionsList = lastParagraph.split(/(?=[A-Z]\.)/).filter(option => option.trim().length > 0);
+            if (optionsList.length >= 2) {
+                return optionsList;
+            }
+        }
+        
+        // Final fallback: Create generic options
+        return ['A. Option A', 'B. Option B', 'C. Option C', 'D. Option D'];
+    }
+
+    // IMPROVED: Better handling for parsing choices from question text
+    function parseChoicesFallback(questionText) {
+      // Check if the question text contains "Answer Choices:"
+      if (!questionText.includes('Answer Choices:')) {
+          return null;
+      }
+      
+      // Split the text to get just the choices section
+      const parts = questionText.split('Answer Choices:');
+      if (parts.length < 2) return null;
+      
+      const choicesSection = parts[1].trim();
+      
+      // Define all the letters we want to look for
+      const letters = 'ABCDEFGHIJKLMNOPQRSTUVWXYZ';
+      const result = [];
+      
+      // For each letter, look for it explicitly
+      for (let i = 0; i < letters.length; i++) {
+          const currentLetter = letters[i];
+          
+          // Look for patterns like "A.", "A)", "A ", etc.
+          const patterns = [
+              `${currentLetter}\\.`, 
+              `${currentLetter}\\)`, 
+              `${currentLetter}\\s`
+          ];
+          
+          let found = false;
+          let startIndex = -1;
+          
+          // Try each pattern until we find one
+          for (const pattern of patterns) {
+              const regex = new RegExp(pattern, 'i');
+              const match = choicesSection.match(regex);
+              
+              if (match) {
+                  startIndex = match.index;
+                  found = true;
+                  break;
+              }
+          }
+          
+          // If we didn't find this letter, we're done
+          if (!found) {
+              break;
+          }
+          
+          // Determine where this option ends
+          let endIndex = choicesSection.length;
+          
+          // Look for the next letter
+          if (i < letters.length - 1) {
+              const nextLetter = letters[i + 1];
+              const nextPatterns = [
+                  `${nextLetter}\\.`, 
+                  `${nextLetter}\\)`, 
+                  `${nextLetter}\\s`
+              ];
+              
+              for (const pattern of nextPatterns) {
+                  const regex = new RegExp(pattern, 'i');
+                  const match = choicesSection.match(regex);
+                  
+                  if (match) {
+                      endIndex = match.index;
+                      break;
+                  }
+              }
+          }
+          
+          // Extract the content
+          const content = choicesSection.substring(startIndex, endIndex).trim();
+          result.push(content);
+      }
+      
+      return result;
+  }
+
+    // IMPROVED: Process and format a choice item
+    function processChoiceContent(choice) {
+      // Handle cases where the choice might not be properly formatted
+      if (!choice || typeof choice !== 'string' || choice.length < 2) {
+          return {
+              letter: '?',
+              content: choice || 'Unknown option',
+              isComplex: false
+          };
+      }
+      
+      // Extract the letter and content more reliably
+      const letterMatch = choice.match(/^([A-Z])\./i);
+      const letter = letterMatch ? letterMatch[1].toUpperCase() : choice.charAt(0);
+      
+      // Get content after the letter and period
+      let content = choice.replace(/^[A-Z]\.\s*/i, '').trim();
+      
+      // Check if it needs special formatting
+      const isComplexChoice = content.length > 100 || content.includes('/') || content.includes('.');
+      
+      return {
+          letter,
+          content,
+          isComplex: isComplexChoice
+      };
+    }
+
+    // IMPROVED: Display multiple choice options with better formatting
+    function displayMultipleChoice() {
+      // Clear previous choices but keep the submit button
+      const submitButton = multipleChoiceElement.querySelector('#multiple-choice-submit');
+      multipleChoiceElement.innerHTML = '';
+      if (!submitButton) {
+        const newSubmitButton = document.createElement('button');
+        newSubmitButton.id = 'multiple-choice-submit';
+        newSubmitButton.className = 'btn';
+        newSubmitButton.disabled = true;
+        newSubmitButton.textContent = 'Submit Answer';
+        newSubmitButton.addEventListener('click', checkAnswer);
+        multipleChoiceElement.appendChild(newSubmitButton);
+      } else {
+        multipleChoiceElement.appendChild(submitButton);
+      }
+      
+      // If we don't already have choices, try to parse them
+      if (!currentQuestion.choices || currentQuestion.choices.length === 0) {
+          // First try the advanced parser
+          let parsedChoices = parseChoicesFromQuestion(currentQuestion.question);
+          
+          // If that fails, try the fallback method
+          if (!parsedChoices || parsedChoices.length === 0) {
+              parsedChoices = parseChoicesFallback(currentQuestion.question);
+          }
+          
+          // If we still don't have choices, create basic ones
+          if (!parsedChoices || parsedChoices.length === 0) {
+              const choiceLetters = ['A', 'B', 'C', 'D', 'E'];
+              parsedChoices = choiceLetters.map(letter => `${letter}. Option ${letter}`);
+          }
+          
+          currentQuestion.choices = parsedChoices;
+      }
+      
+      // Check if this is a combination format (using Roman numerals)
+      const isCombinationFormat = currentQuestion.choices.some(choice => {
+          if (typeof choice !== 'string') return false;
+          return /^[A-Z]\.\s*[IVX]+,\s*[IVX]+/.test(choice) || /^[IVX]+,\s*[IVX]+/.test(choice);
+      });
+      
+      // Now create choice elements from our parsed choices
+      currentQuestion.choices.forEach((choice, index) => {
+          // Basic validation
+          if (!choice || typeof choice !== 'string') return;
+          
+          const choiceItem = document.createElement('div');
+          choiceItem.className = 'choice-item';
+          
+          // Extract letter and content using the helper function
+          const processedChoice = processChoiceContent(choice);
+          let letter = processedChoice.letter;
+          let content = processedChoice.content;
+          
+          // If no clear letter is found, use index-based lettering
+          if (letter === '?' || !/^[A-Z]$/i.test(letter)) {
+              letter = String.fromCharCode(65 + index);
+          }
+          
+          // Save the letter value for answer checking
+          choiceItem.dataset.value = letter;
+          
+          // Check if it's a complex choice
+          if (processedChoice.isComplex) {
+              choiceItem.classList.add('long-option');
+          }
+          
+          // Create letter and content elements
+          const letterElement = document.createElement('div');
+          letterElement.className = 'choice-letter';
+          letterElement.textContent = letter + '.';
+          
+          const contentElement = document.createElement('div');
+          contentElement.className = 'choice-content';
+          contentElement.innerHTML = content;
+          
+          // Add elements to the choice item
+          choiceItem.appendChild(letterElement);
+          choiceItem.appendChild(contentElement);
+          
+          // Add click event
+          choiceItem.addEventListener('click', () => {
+              if (!isAnswered) {
+                  // Clear any previously selected choices
+                  const selectedChoices = multipleChoiceElement.querySelectorAll('.selected');
+                  selectedChoices.forEach(selected => selected.classList.remove('selected'));
+                  
+                  // Select this choice
+                  choiceItem.classList.add('selected');
+                  userAnswer = letter;
+                  
+                  // Enable submit button
+                  const submitBtn = document.getElementById('multiple-choice-submit');
+                  if (submitBtn) submitBtn.disabled = false;
+              }
+          });
+          
+          // Add the choice item before the submit button
+          const submitBtn = document.getElementById('multiple-choice-submit');
+          multipleChoiceElement.insertBefore(choiceItem, submitBtn);
+      });
+      
+      multipleChoiceElement.style.display = 'block';
+    }
+
+    // IMPROVED: Process complex answer formats
+    function processAnswerCombinations(answerText) {
+      // If the answer is already a simple letter, return it
+      if (/^[A-Z]$/.test(answerText.trim())) {
+          return answerText.trim();
+      }
+      
+      // Look for formats like "A. I, II, III" or "C. III"
+      const combinationMatch = answerText.match(/^([A-Z])\.\s*.*$/);
+      if (combinationMatch) {
+          return combinationMatch[1]; // Return just the letter
+      }
+      
+      // Look for formats like "I, II, III" or "III"
+      // Map these to the corresponding choice item
+      const romanNumerals = answerText.split(',').map(part => part.trim());
+      
+      // Find the choice that matches these roman numerals
+      const choices = document.querySelectorAll('.choice-item');
+      for (const choice of choices) {
+          const content = choice.querySelector('.choice-content').textContent;
+          if (content === answerText) {
+              return choice.dataset.value;
+          }
+      }
+      
+      // If nothing matches, return the original answer
+      return answerText;
+    }
+
+    // Reset answer state
+    function resetAnswer() {
+        userAnswer = '';
+        isAnswered = false;
+        
+        // Reset input field
+        answerInputElement.value = '';
+        answerInputElement.disabled = false;
+        
+        // Reset submit buttons
+        submitButtonElement.disabled = true;
+        submitButtonElement.style.display = 'block';
+        const multipleChoiceSubmitBtn = document.getElementById('multiple-choice-submit');
+        if (multipleChoiceSubmitBtn) multipleChoiceSubmitBtn.disabled = true;
+        if (multipleChoiceSubmitBtn) multipleChoiceSubmitBtn.style.display = 'block';
+        
+        // Hide feedback
+        feedbackElement.style.display = 'none';
+        explanationElement.style.display = 'none';
+        
+        // Reset explanation button text
+        showExplanationButtonElement.textContent = 'Show Explanation';
+
+        // Focus the answer input (for text answers)
+        if (textAnswerElement.style.display !== 'none') {
+            setTimeout(() => {
+                answerInputElement.focus();
+            }, 300);
+        }
+    }
+
+    // Check the user's answer
+    function checkAnswer() {
+        if (!currentQuestion) return;
+        
+        let correct = false;
+        
+        if (currentQuestion.answer_type === 'multipleChoice') {
+            // Process user answer to handle combination answers
+            const processedUserAnswer = processAnswerCombinations(userAnswer);
+            const correctAnswer = processAnswerCombinations(currentQuestion.answer);
+            correct = processedUserAnswer.toUpperCase() === correctAnswer.toUpperCase();
+        } else {
+            const normalizedUserAnswer = userAnswer.trim().toLowerCase();
+            const normalizedCorrectAnswer = currentQuestion.answer.toLowerCase();
+            correct = normalizedUserAnswer === normalizedCorrectAnswer;
+        }
+        
+        isAnswered = true;
+        questionsAnswered++;
+        if (correct) {
+            correctAnswers++;
+            
+            // Update category stats
+            const category = currentQuestion.category || 'Uncategorized';
+            categoryStats[category] = categoryStats[category] || { total: 0, correct: 0 };
+            categoryStats[category].total = (categoryStats[category].total || 0) + 1;
+            categoryStats[category].correct = (categoryStats[category].correct || 0) + 1;
+        } else {
+            // Update category stats for incorrect answers
+            const category = currentQuestion.category || 'Uncategorized';
+            categoryStats[category] = categoryStats[category] || { total: 0, correct: 0 };
+            categoryStats[category].total = (categoryStats[category].total || 0) + 1;
+        }
+        
+        // Update stats display
+        updateStatsDisplay();
+        
+        // Display feedback
+        showFeedback(correct);
+    }
+
+    // Update stats display
+    function updateStatsDisplay() {
+        questionsCountElement.textContent = questionsAnswered;
+        correctCountElement.textContent = correctAnswers;
+        const accuracy = questionsAnswered > 0 ? Math.round((correctAnswers / questionsAnswered) * 100) : 0;
+        accuracyElement.textContent = `${accuracy}%`;
+    }
+
+    // Show feedback after answering
+    function showFeedback(isCorrect) {
+        // Hide submit button
+        submitButtonElement.style.display = 'none';
+        const multipleChoiceSubmitBtn = document.getElementById('multiple-choice-submit');
+        if (multipleChoiceSubmitBtn) multipleChoiceSubmitBtn.style.display = 'none';
+        
+        // Disable input
+        answerInputElement.disabled = true;
+        
+        // Show feedback
+        feedbackElement.style.display = 'block';
+        
+        // Set result message
+        resultMessageElement.textContent = isCorrect ? 'Correct!' : 'Incorrect!';
+        resultMessageElement.className = isCorrect ? 'result-message correct' : 'result-message incorrect';
+        
+        // Set correct answer
+        correctAnswerElement.innerHTML = `<strong>Correct answer:</strong> ${currentQuestion.answer}`;
+        
+        // Set rationale
+        rationaleElement.innerHTML = currentQuestion.rationale || 'No explanation provided.';
+        
+        // Set author if available
+        if (currentQuestion.author_name) {
+            authorElement.textContent = `Question by: ${currentQuestion.author_name}`;
+            authorElement.style.display = 'block';
+        } else {
+            authorElement.style.display = 'none';
+        }
+        
+        // Highlight correct answer for multiple choice
+        if (currentQuestion.answer_type === 'multipleChoice') {
+            const choices = multipleChoiceElement.querySelectorAll('.choice-item');
+            const processedCorrectAnswer = processAnswerCombinations(currentQuestion.answer);
+            
+            choices.forEach(choice => {
+                if (choice.dataset.value.toUpperCase() === processedCorrectAnswer.toUpperCase()) {
+                    choice.classList.add('correct');
+                } else if (choice.classList.contains('selected')) {
+                    choice.classList.add('incorrect');
+                }
+            });
+        }
+        
+        // Render LaTeX in feedback
+        renderMathJax();
+    }
+
+    // Enhanced MathJax rendering function
+    function renderMathJax() {
+        // Wait for content to be in the DOM
+        setTimeout(() => {
+            if (window.MathJax) {
+                try {
+                    // Tell MathJax to typeset the entire document
+                    window.MathJax.typesetPromise()
+                        .then(() => {
+                            console.log('MathJax typesetting complete');
+                        })
+                        .catch((err) => {
+                            console.error('MathJax typesetting failed:', err);
+                        });
+                } catch (error) {
+                    console.error('Error rendering MathJax:', error);
+                }
+            } else {
+                console.warn('MathJax not loaded yet');
+            }
+        }, 100);
+    }
+
+    // Show/hide UI elements
+    function showLoading() {
+        loadingElement.style.display = 'flex';
+        errorElement.style.display = 'none';
+        questionCardElement.style.display = 'none';
+    }
+
+    function hideLoading() {
+        loadingElement.style.display = 'none';
+    }
+
+    function showError() {
+        loadingElement.style.display = 'none';
+        errorElement.style.display = 'flex';
+        questionCardElement.style.display = 'none';
+    }
+
+    function hideError() {
+        errorElement.style.display = 'none';
+    }
+
+    function showQuestionCard() {
+        questionCardElement.style.display = 'block';
+    }
+
+    // Initialize everything
+    document.addEventListener('DOMContentLoaded', () => {
+        // Initialize theme
+        initTheme();
+        
+        // Fetch questions when page loads
+        fetchQuestions();
+        
+        // Listen for text input changes
+        answerInputElement.addEventListener('input', (event) => {
+            userAnswer = event.target.value.trim();
+            submitButtonElement.disabled = userAnswer === '';
+        });
+        
+        // Submit button click
+        submitButtonElement.addEventListener('click', () => {
+            checkAnswer();
+        });
+        
+        // Enter key in text input
+        answerInputElement.addEventListener('keypress', (event) => {
+            if (event.key === 'Enter' && userAnswer.trim() !== '') {
+                checkAnswer();
+            }
+        });
+        
+        // Show/hide explanation
+        showExplanationButtonElement.addEventListener('click', () => {
+            if (explanationElement.style.display === 'none') {
+                explanationElement.style.display = 'block';
+                showExplanationButtonElement.textContent = 'Hide Explanation';
+            } else {
+                explanationElement.style.display = 'none';
+                showExplanationButtonElement.textContent = 'Show Explanation';
+            }
+        });
+        
+        // Next question button
+        nextButtonElement.addEventListener('click', () => {
+            loadRandomQuestion();
+        });
+        
+        // Retry button
+        retryButtonElement.addEventListener('click', () => {
+            fetchQuestions();
+        });
+        
+        // Category filter change
+        categorySelectElement.addEventListener('change', (event) => {
+            selectedCategory = event.target.value;
+            
+            // Update category tags
+            const categoryTags = categoryTagsElement.querySelectorAll('.category-tag');
+            categoryTags.forEach(tag => {
+                tag.classList.toggle('active', tag.dataset.category === selectedCategory);
+            });
+            
+            loadRandomQuestion();
+        });
+        
+        // Theme toggle
+        themeToggleButtonElement.addEventListener('click', () => {
+            toggleTheme();
+        });
+        
+        // Add keypress shortcuts
+        document.addEventListener('keydown', (event) => {
+            // Press 'n' for next question when feedback is shown
+            if (event.key === 'n' && feedbackElement.style.display === 'block') {
+                loadRandomQuestion();
+            }
+            
+            // Press 'e' to toggle explanation when feedback is shown
+            if (event.key === 'e' && feedbackElement.style.display === 'block') {
+                showExplanationButtonElement.click();
+            }
+        });
+    });
     </script>
 </body>
 </html>
