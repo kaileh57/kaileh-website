@@ -15,7 +15,18 @@
           inlineMath: [['$', '$'], ['\\(', '\\)']],
           displayMath: [['$$', '$$'], ['\\[', '\\]']],
           processEscapes: true,
-          processEnvironments: true
+          processEnvironments: true,
+          packages: {'[+]': ['ams', 'noerrors']},
+          macros: {
+            // Add custom macros for common LaTeX environments
+            section: ["\\section{#1}", 1],
+            subsection: ["\\subsection{#1}", 1],
+            definition: ["\\begin{definition}#1\\end{definition}", 1],
+            problem: ["\\begin{problem}#1\\end{problem}", 1],
+            theorem: ["\\begin{theorem}#1\\end{theorem}", 1],
+            note: ["\\begin{note}#1\\end{note}", 1],
+            proof: ["\\begin{proof}#1\\end{proof}", 1]
+          }
         },
         options: {
           enableMenu: false,
@@ -668,6 +679,64 @@
       width: 100%;
       line-height: 1.6;
     }
+
+    /* Style for LaTeX environments */
+    .latex-section {
+      font-size: 1.5rem;
+      font-weight: bold;
+      margin: 1.5rem 0 1rem 0;
+      color: var(--primary);
+      border-bottom: 2px solid var(--border);
+      padding-bottom: 0.5rem;
+    }
+    
+    .latex-subsection {
+      font-size: 1.25rem;
+      font-weight: bold;
+      margin: 1.2rem 0 0.8rem 0;
+      color: var(--primary);
+    }
+    
+    .latex-definition, .latex-theorem, .latex-problem, .latex-note {
+      background-color: rgba(79, 70, 229, 0.1);
+      border-left: 4px solid var(--primary);
+      padding: 1rem;
+      margin: 1rem 0;
+      border-radius: 0 var(--radius) var(--radius) 0;
+    }
+    
+    .latex-definition:before, .latex-theorem:before, .latex-problem:before, .latex-note:before {
+      display: block;
+      font-weight: bold;
+      margin-bottom: 0.5rem;
+    }
+    
+    .latex-definition:before {
+      content: "Definition";
+    }
+    
+    .latex-theorem:before {
+      content: "Theorem";
+    }
+    
+    .latex-problem:before {
+      content: "Problem";
+    }
+    
+    .latex-note:before {
+      content: "Note";
+    }
+
+    /* Fix for category dropdown */
+    #category-select option {
+      padding: 5px;
+    }
+    
+    /* Improve dropdown readability */
+    #category-select optgroup {
+      font-weight: bold;
+      color: var(--primary);
+    }
     </style>
 </head>
 <body>
@@ -840,6 +909,25 @@
         }
     }
 
+    // Helper function to process LaTeX content
+    function processLatexContent(text) {
+        if (!text) return '';
+        
+        // Replace LaTeX environments with HTML equivalents
+        let processedText = text
+            .replace(/\\section{([^}]*)}/g, '<div class="latex-section">$1</div>')
+            .replace(/\\subsection{([^}]*)}/g, '<div class="latex-subsection">$1</div>')
+            .replace(/\\begin{definition}([\s\S]*?)\\end{definition}/g, '<div class="latex-definition">$1</div>')
+            .replace(/\\begin{theorem}([\s\S]*?)\\end{theorem}/g, '<div class="latex-theorem">$1</div>')
+            .replace(/\\begin{problem}([\s\S]*?)\\end{problem}/g, '<div class="latex-problem">$1</div>')
+            .replace(/\\begin{note}([\s\S]*?)\\end{note}/g, '<div class="latex-note">$1</div>');
+            
+        // Remove "Unknown environment" errors
+        processedText = processedText.replace(/Unknown environment '[^']*'/g, '');
+        
+        return processedText;
+    }
+
     // Fetch questions from local JSON file
     async function fetchQuestions() {
         try {
@@ -899,15 +987,35 @@
 
     // Populate category filter dropdown and tags
     function populateCategoryFilter() {
-        // Populate dropdown
+        // Populate dropdown with optgroups for better organization
         categorySelectElement.innerHTML = '<option value="all">All Categories</option>';
         
-        // Add categories in alphabetical order
-        Array.from(categories).sort().forEach(category => {
-            const option = document.createElement('option');
-            option.value = category;
-            option.textContent = category;
-            categorySelectElement.appendChild(option);
+        // Get all categories and sort alphabetically
+        const sortedCategories = Array.from(categories).sort();
+        
+        // Group categories by first letter for better organization
+        const categoriesByLetter = {};
+        sortedCategories.forEach(category => {
+            const firstLetter = category.charAt(0).toUpperCase();
+            if (!categoriesByLetter[firstLetter]) {
+                categoriesByLetter[firstLetter] = [];
+            }
+            categoriesByLetter[firstLetter].push(category);
+        });
+        
+        // Add categories to dropdown with letter groups
+        Object.keys(categoriesByLetter).sort().forEach(letter => {
+            const optgroup = document.createElement('optgroup');
+            optgroup.label = letter;
+            
+            categoriesByLetter[letter].forEach(category => {
+                const option = document.createElement('option');
+                option.value = category;
+                option.textContent = category;
+                optgroup.appendChild(option);
+            });
+            
+            categorySelectElement.appendChild(optgroup);
         });
         
         // Populate tags for popular categories
@@ -988,8 +1096,11 @@
         categoryElement.textContent = currentQuestion.category || 'Uncategorized';
         questionIdElement.textContent = `ID: ${currentQuestion.id}`;
         
+        // Process LaTeX in question text
+        const processedQuestionText = processLatexContent(currentQuestion.question);
+        
         // Set question text and process any LaTeX
-        questionTextElement.innerHTML = currentQuestion.question;
+        questionTextElement.innerHTML = processedQuestionText;
         
         // Handle image if present
         if (currentQuestion.image) {
@@ -1064,7 +1175,6 @@
       };
   }
 
-
     // Display multiple choice options
     function displayMultipleChoice() {
       // Clear previous choices but keep the submit button
@@ -1084,7 +1194,7 @@
           
           // If we still don't have choices, create basic ones
           if (!parsedChoices || parsedChoices.length === 0) {
-              const choiceLetters = ['A', 'B', 'C', 'D', 'E'];
+              const choiceLetters = ['A', 'B', 'C', 'D', 'E', 'F', 'G', 'H', 'I', 'J', 'K', 'L', 'M', 'N', 'O', 'P', 'Q', 'R', 'S', 'T', 'U', 'V', 'W', 'X', 'Y', 'Z'];
               parsedChoices = choiceLetters.map(letter => `${letter}. Option ${letter}`);
           }
           
@@ -1165,8 +1275,10 @@
       });
       
       multipleChoiceElement.style.display = 'block';
+      
+      // Make sure the submit button is displayed
+      multipleChoiceSubmitElement.style.display = 'block';
   }
-
 
   // This function handles parsing choices from the question text
   function parseChoicesFromQuestion(questionText) {
@@ -1200,8 +1312,8 @@
       });
   }
 
-  // For extreme cases where the regex approach fails, we'll add a backup
-  // method that takes a more brute-force approach
+  // For extreme cases where the regex approach fails, we'll add a better 
+  // fallback method that takes a more brute-force approach and handles A-Z
   function parseChoicesFallback(questionText) {
       // Check if the question text contains "Answer Choices:"
       if (!questionText.includes('Answer Choices:')) {
@@ -1222,11 +1334,13 @@
       for (let i = 0; i < letters.length; i++) {
           const currentLetter = letters[i];
           
-          // Look for patterns like "A.", "A)", "A ", etc.
+          // Look for patterns like "A.", "A)", "A ", "A:", "(A)" etc.
           const patterns = [
               `${currentLetter}\\.`, 
               `${currentLetter}\\)`, 
-              `${currentLetter}\\s`
+              `${currentLetter}\\s`,
+              `${currentLetter}\\:`,  // Add colon format
+              `\\(${currentLetter}\\)` // Add parentheses format (A)
           ];
           
           let found = false;
@@ -1244,43 +1358,53 @@
               }
           }
           
-          // If we didn't find this letter, we're done
+          // If we didn't find this letter, continue to the next one
+          // THIS IS THE KEY FIX: Changed from "break" to "continue"
           if (!found) {
-              break;
+              continue; 
           }
           
           // Determine where this option ends
           let endIndex = choicesSection.length;
           
           // Look for the next letter
-          if (i < letters.length - 1) {
-              const nextLetter = letters[i + 1];
+          for (let j = i + 1; j < letters.length; j++) {
+              const nextLetter = letters[j];
               const nextPatterns = [
                   `${nextLetter}\\.`, 
                   `${nextLetter}\\)`, 
-                  `${nextLetter}\\s`
+                  `${nextLetter}\\s`,
+                  `${nextLetter}\\:`,
+                  `\\(${nextLetter}\\)`
               ];
               
+              let nextLetterFound = false;
               for (const pattern of nextPatterns) {
                   const regex = new RegExp(pattern, 'i');
                   const match = choicesSection.match(regex);
                   
                   if (match) {
                       endIndex = match.index;
+                      nextLetterFound = true;
                       break;
                   }
               }
+              
+              if (nextLetterFound) break;
           }
           
           // Extract the content
           const content = choicesSection.substring(startIndex, endIndex).trim();
-          result.push(content);
+          if (content) {
+              result.push(content);
+          }
       }
       
-      return result;
+      // Add debug log
+      console.log("Fallback parser found", result.length, "options");
+      
+      return result.length > 0 ? result : null;
   }
-
-
 
     // Reset answer state
     function resetAnswer() {
@@ -1295,6 +1419,7 @@
         submitButtonElement.disabled = true;
         submitButtonElement.style.display = 'block';
         multipleChoiceSubmitElement.disabled = true;
+        multipleChoiceSubmitElement.style.display = 'block';
         
         // Hide feedback
         feedbackElement.style.display = 'none';
@@ -1377,7 +1502,7 @@
         correctAnswerElement.innerHTML = `<strong>Correct answer:</strong> ${currentQuestion.answer}`;
         
         // Set rationale
-        rationaleElement.innerHTML = currentQuestion.rationale || 'No explanation provided.';
+        rationaleElement.innerHTML = processLatexContent(currentQuestion.rationale) || 'No explanation provided.';
         
         // Set author if available
         if (currentQuestion.author_name) {
