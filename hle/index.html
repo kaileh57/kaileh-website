@@ -958,6 +958,15 @@ function displayQuestion() {
     // Set question text and process any LaTeX
     // Clean the question text: remove tcolorbox environments
     let cleanedQuestion = questionDisplay.replace(/\\begin{tcolorbox}/g, '').replace(/\\end{tcolorbox}/g, '');
+    
+    // Add cleaning for \section, definition, and problem environments
+    cleanedQuestion = cleanedQuestion
+        .replace(/\\section\{.*?\}/g, '')      // Remove \section{...} tags
+        .replace(/\\begin\{definition\}/g, '') // Remove \begin{definition}
+        .replace(/\\end\{definition\}/g, '')   // Remove \end{definition}
+        .replace(/\\begin\{problem\}/g, '')    // Remove \begin{problem}
+        .replace(/\\end\{problem\}/g, '');     // Remove \end{problem}
+
     questionTextElement.textContent = cleanedQuestion; 
     
     // Handle image if present - use local relative path
