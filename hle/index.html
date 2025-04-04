@@ -936,9 +936,9 @@ function displayQuestion() {
     questionIdElement.textContent = `ID: ${currentQuestion.id}`;
     
     // Set question text and process any LaTeX
-    // Use textContent first to avoid potential HTML injection if MathJax isn't loaded/fails
-    // Then let MathJax process it.
-    questionTextElement.textContent = currentQuestion.question; 
+    // Clean the question text: remove tcolorbox environments
+    let cleanedQuestion = currentQuestion.question.replace(/\\begin{tcolorbox}/g, '').replace(/\\end{tcolorbox}/g, '');
+    questionTextElement.textContent = cleanedQuestion; 
     
     // Handle image if present - use local relative path
     if (currentQuestion.image) {
@@ -983,22 +983,46 @@ function displayMultipleChoice() {
     // Fallback/Parsing logic if choices aren't directly provided
     if (!choicesToDisplay || choicesToDisplay.length === 0) {
         console.warn(`Question ${currentQuestion.id} is 'multipleChoice' but has no 'choices' array. Attempting to parse.`);
-        const choiceLetters = ['A', 'B', 'C', 'D', 'E', 'F', 'G', 'H']; 
         
-        // Try to extract choices from the question text (Improved Regex)
-        const potentialChoices = [];
-        const choiceRegex = /^[\(]?([A-Z])[\.\)]\s+(.*)/gm; // Handles A-Z. B. A) (B) etc.
-        let match;
-        while ((match = choiceRegex.exec(currentQuestion.question)) !== null) {
-             potentialChoices.push(match[0].trim()); // Push the full matched line (e.g., "A. Option text")
+        const parsedChoices = [];
+        const choiceStartMarker = "Answer Choices:";
+        const choiceRegex = /^[\(]?([A-Z])[\.\)]\s+/; // Matches start of a choice line (non-global)
+        
+        const markerIndex = currentQuestion.question.indexOf(choiceStartMarker);
+        
+        if (markerIndex !== -1) {
+            const choicesText = currentQuestion.question.substring(markerIndex + choiceStartMarker.length);
+            const lines = choicesText.split('\n').map(line => line.trim()).filter(line => line); // Split, trim, remove empty
+            
+            let currentChoiceText = '';
+            lines.forEach(line => {
+                const match = line.match(choiceRegex);
+                if (match) { // Starts a new choice
+                    // Save the previous choice if it exists
+                    if (currentChoiceText) {
+                        parsedChoices.push(currentChoiceText.trim());
+                    }
+                    // Start the new choice (including the letter marker)
+                    currentChoiceText = line;
+                } else if (currentChoiceText) { // Belongs to the current choice
+                    currentChoiceText += ' \n' + line; // Append with newline preserved
+                }
+            });
+            // Add the last accumulated choice
+            if (currentChoiceText) {
+                parsedChoices.push(currentChoiceText.trim());
+            }
+             console.log(`Parsed choices for ${currentQuestion.id}:`, parsedChoices);
+        } else {
+            console.error(`Could not find "${choiceStartMarker}" in question ${currentQuestion.id} to parse choices.`);
+            // Optional: Try the old regex method as a last resort?
         }
 
-        if (potentialChoices.length > 1) { // Only use if we found multiple potential choices
-             console.log(`Parsed choices for ${currentQuestion.id}:`, potentialChoices);
-             choicesToDisplay = potentialChoices;
-             // Ensure the original question text doesn't redundantly show parsed choices
-             // This is tricky; might be better to handle this at the data source level.
-             // For now, we'll leave the question text as is.
+        if (parsedChoices.length > 1) { // Only use if we found multiple potential choices
+             choicesToDisplay = parsedChoices;
+              // Ensure the original question text doesn't redundantly show parsed choices
+              // This is tricky; might be better to handle this at the data source level.
+              // For now, we'll leave the question text as is.
         } else {
             console.error(`Failed to parse choices for question ${currentQuestion.id}. Using placeholder choices.`);
              // Fallback to generic placeholders if parsing fails
@@ -1012,7 +1036,8 @@ function displayMultipleChoice() {
         
         // Extract the letter identifier (handle formats like A., A), (A))
         let choiceValue = 'UNKNOWN';
-        const valueMatch = choiceText.match(/^[\(]?([A-Z])[\.\)]/);
+        const firstLine = choiceText.split('\n')[0];
+        const valueMatch = firstLine.match(/^[\(]?([A-Z])[\.\)]/); // Support A-Z on first line
         if (valueMatch && valueMatch[1]) {
             choiceValue = valueMatch[1];
         } else {
