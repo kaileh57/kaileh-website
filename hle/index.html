@@ -931,13 +931,33 @@ function displayQuestion() {
     hideError();
     showQuestionCard();
     
+    let questionDisplay = currentQuestion.question;
+    let rawChoicesString = null; // To hold choices if parsed from question
+    
     // Set question details
     categoryElement.textContent = currentQuestion.category || 'Uncategorized';
     questionIdElement.textContent = `ID: ${currentQuestion.id}`;
     
+    // --- Try to separate question text from embedded choices ---
+    if (currentQuestion.answer_type === 'multipleChoice' && 
+        (!currentQuestion.choices || currentQuestion.choices.length === 0)) {
+            
+        const choiceStartMarker = "Answer Choices:";
+        const markerIndex = questionDisplay.indexOf(choiceStartMarker);
+        
+        if (markerIndex !== -1) {
+            rawChoicesString = questionDisplay.substring(markerIndex + choiceStartMarker.length);
+            questionDisplay = questionDisplay.substring(0, markerIndex).trim(); // Keep only text before marker
+            console.log('Separated question text from embedded choices.');
+        } else {
+             console.warn(`Question ${currentQuestion.id} is MC but couldn't find "${choiceStartMarker}" to separate choices.`);
+        }
+    }
+    // ---------------------------------------------------------
+    
     // Set question text and process any LaTeX
     // Clean the question text: remove tcolorbox environments
-    let cleanedQuestion = currentQuestion.question.replace(/\\begin{tcolorbox}/g, '').replace(/\\end{tcolorbox}/g, '');
+    let cleanedQuestion = questionDisplay.replace(/\\begin{tcolorbox}/g, '').replace(/\\end{tcolorbox}/g, '');
     questionTextElement.textContent = cleanedQuestion; 
     
     // Handle image if present - use local relative path
@@ -956,7 +976,7 @@ function displayQuestion() {
     
     // Handle answer type
     if (currentQuestion.answer_type === 'multipleChoice') {
-        displayMultipleChoice();
+        displayMultipleChoice(rawChoicesString); // Pass potentially parsed choices
         textAnswerElement.style.display = 'none';
         multipleChoiceElement.style.display = 'block';
         submitButtonElement.style.display = 'none'; // Hide submit initially for MC
@@ -975,59 +995,55 @@ function displayQuestion() {
 }
 
 // Display multiple choice options
-function displayMultipleChoice() {
+function displayMultipleChoice(rawChoicesString = null) {
     multipleChoiceElement.innerHTML = ''; // Clear previous choices
     
-    let choicesToDisplay = currentQuestion.choices;
+    let choicesToDisplay = currentQuestion.choices; // Prefer choices array if exists
 
     // Fallback/Parsing logic if choices aren't directly provided
     if (!choicesToDisplay || choicesToDisplay.length === 0) {
-        console.warn(`Question ${currentQuestion.id} is 'multipleChoice' but has no 'choices' array. Attempting to parse.`);
-        
-        const parsedChoices = [];
-        const choiceStartMarker = "Answer Choices:";
-        const choiceRegex = /^[\(]?([A-Z])[\.\)]\s+/; // Matches start of a choice line (non-global)
-        
-        const markerIndex = currentQuestion.question.indexOf(choiceStartMarker);
-        
-        if (markerIndex !== -1) {
-            const choicesText = currentQuestion.question.substring(markerIndex + choiceStartMarker.length);
-            const lines = choicesText.split('\n').map(line => line.trim()).filter(line => line); // Split, trim, remove empty
+        // If rawChoicesString was passed from displayQuestion, parse it
+        if (rawChoicesString) {
+             console.log(`Parsing choices provided externally for question ${currentQuestion.id}`);
+             const parsedChoices = [];
+             const choiceRegex = /^[\(]?([A-Z])[\.\)]\s+/; // Matches start of a choice line (non-global)
+            const lines = rawChoicesString.split('\n').map(line => line.trim()).filter(line => line); // Split, trim, remove empty
             
-            let currentChoiceText = '';
-            lines.forEach(line => {
-                const match = line.match(choiceRegex);
-                if (match) { // Starts a new choice
-                    // Save the previous choice if it exists
-                    if (currentChoiceText) {
-                        parsedChoices.push(currentChoiceText.trim());
-                    }
-                    // Start the new choice (including the letter marker)
-                    currentChoiceText = line;
-                } else if (currentChoiceText) { // Belongs to the current choice
-                    currentChoiceText += ' \n' + line; // Append with newline preserved
-                }
-            });
-            // Add the last accumulated choice
-            if (currentChoiceText) {
-                parsedChoices.push(currentChoiceText.trim());
-            }
-             console.log(`Parsed choices for ${currentQuestion.id}:`, parsedChoices);
+             let currentChoiceText = '';
+             lines.forEach(line => {
+                 const match = line.match(choiceRegex);
+                 if (match) { // Starts a new choice
+                     if (currentChoiceText) parsedChoices.push(currentChoiceText.trim());
+                     currentChoiceText = line;
+                 } else if (currentChoiceText) { // Belongs to the current choice
+                     currentChoiceText += ' \n' + line; // Append with newline preserved
+                 }
+             });
+             if (currentChoiceText) parsedChoices.push(currentChoiceText.trim());
+             
+             if (parsedChoices.length > 1) {
+                 choicesToDisplay = parsedChoices;
+             } else {
+                 console.error(`Failed to parse externally provided choices for ${currentQuestion.id}.`);
+             }
         } else {
-            console.error(`Could not find "${choiceStartMarker}" in question ${currentQuestion.id} to parse choices.`);
-            // Optional: Try the old regex method as a last resort?
+             // This case should ideally not happen if displayQuestion logic is correct
+             console.error(`Question ${currentQuestion.id} is MC, has no choices array, and no rawChoicesString was provided.`);
         }
-
-        if (parsedChoices.length > 1) { // Only use if we found multiple potential choices
-             choicesToDisplay = parsedChoices;
-              // Ensure the original question text doesn't redundantly show parsed choices
-              // This is tricky; might be better to handle this at the data source level.
-              // For now, we'll leave the question text as is.
-        } else {
-            console.error(`Failed to parse choices for question ${currentQuestion.id}. Using placeholder choices.`);
-             // Fallback to generic placeholders if parsing fails
-             choicesToDisplay = choiceLetters.slice(0, 4).map(letter => `${letter}. Option ${letter}`);
+        
+        // Final fallback if still no choices
+        if (!choicesToDisplay || choicesToDisplay.length === 0) {
+             console.error(`Using placeholder choices for question ${currentQuestion.id}.`);
+              const placeholderLetters = ['A', 'B', 'C', 'D'];
+              choicesToDisplay = placeholderLetters.map(letter => `${letter}. Option ${letter}`);
         }
+    }
+    
+    // Ensure choicesToDisplay is an array before proceeding
+    if (!Array.isArray(choicesToDisplay)) {
+        console.error(`Choices for question ${currentQuestion.id} are not an array. Using placeholders.`);
+        const placeholderLetters = ['A', 'B', 'C', 'D'];
+        choicesToDisplay = placeholderLetters.map(letter => `${letter}. Option ${letter}`);
     }
     
     choicesToDisplay.forEach((choiceText) => {
