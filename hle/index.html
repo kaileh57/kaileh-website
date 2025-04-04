@@ -983,7 +983,7 @@ function displayMultipleChoice() {
         
         // Try to extract choices from the question text (Improved Regex)
         const potentialChoices = [];
-        const choiceRegex = /^[\(]?([A-H])[\.\)]\s+(.*)/gm; // Handles A. B. A) (B) etc.
+        const choiceRegex = /^[\(]?([A-Z])[\.\)]\s+(.*)/gm; // Handles A-Z. B. A) (B) etc.
         let match;
         while ((match = choiceRegex.exec(currentQuestion.question)) !== null) {
              potentialChoices.push(match[0].trim()); // Push the full matched line (e.g., "A. Option text")
@@ -1008,7 +1008,7 @@ function displayMultipleChoice() {
         
         // Extract the letter identifier (handle formats like A., A), (A))
         let choiceValue = 'UNKNOWN';
-        const valueMatch = choiceText.match(/^[\(]?([A-H])[\.\)]/);
+        const valueMatch = choiceText.match(/^[\(]?([A-Z])[\.\)]/);
         if (valueMatch && valueMatch[1]) {
             choiceValue = valueMatch[1];
         } else {
@@ -1307,7 +1307,8 @@ document.addEventListener('DOMContentLoaded', () => {
          // Press A, B, C, D etc. to select multiple choice if available and not answered
          if (currentQuestion && currentQuestion.answer_type === 'multipleChoice' && !isAnswered) {
              const keyUpper = event.key.toUpperCase();
-             if (keyUpper >= 'A' && keyUpper <= 'H') { // Allow A-H
+             // Check if the key is a single uppercase letter
+             if (keyUpper.length === 1 && keyUpper >= 'A' && keyUpper <= 'Z') { // Allow A-Z
                  const targetChoice = multipleChoiceElement.querySelector(`.choice-item[data-value='${keyUpper}']`);
                  if (targetChoice) {
                      targetChoice.click(); // Simulate a click on the choice
