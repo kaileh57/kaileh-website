@@ -662,9 +662,11 @@
                         <label for="answer-input">Your answer:</label>
                         <div class="input-group">
                             <input type="text" id="answer-input" placeholder="Type your answer here...">
-                            <button id="submit-btn" class="btn" disabled>Submit</button>
                         </div>
                     </div>
+                    
+                    <!-- Moved Submit Button outside specific answer type divs -->
+                    <button id="submit-btn" class="btn primary" style="display: none;" disabled>Submit Answer</button>
                     
                     <div id="feedback" class="feedback" style="display: none;">
                         <div id="result-message" class="result-message"></div>
@@ -957,10 +959,12 @@ function displayQuestion() {
         displayMultipleChoice();
         textAnswerElement.style.display = 'none';
         multipleChoiceElement.style.display = 'block';
+        submitButtonElement.style.display = 'none'; // Hide submit initially for MC
     } else { // Assume text input if not multiple choice
         multipleChoiceElement.style.display = 'none';
         textAnswerElement.style.display = 'block';
-         answerInputElement.focus(); // Focus input for text answers
+        submitButtonElement.style.display = 'block'; // Show submit for text input (but disabled)
+        answerInputElement.focus(); // Focus input for text answers
     }
     
     // Scroll to the top of the question
@@ -1032,6 +1036,7 @@ function displayMultipleChoice() {
                 userAnswer = choiceItem.dataset.value; // Use the extracted value
                 
                 // Enable submit button
+                submitButtonElement.style.display = 'block'; // Show the button
                 submitButtonElement.disabled = false;
                  submitButtonElement.focus(); // Focus submit button after selection
             }
@@ -1055,8 +1060,8 @@ function resetAnswer() {
     answerInputElement.disabled = false;
     
     // Reset submit button (disabled state depends on answer type)
-    submitButtonElement.disabled = true; // Disable initially
-    submitButtonElement.style.display = 'block'; // Make sure it's visible initially
+    submitButtonElement.disabled = true; 
+    submitButtonElement.style.display = 'none'; // Hide initially, displayQuestion will show if needed
     
     // Hide feedback
     feedbackElement.style.display = 'none';
@@ -1115,7 +1120,7 @@ function updateStatsDisplay() {
 // Show feedback after answering
 function showFeedback(isCorrect, correctAnswerValue) {
     // Hide submit button
-    submitButtonElement.style.display = 'none';
+    submitButtonElement.style.display = 'none'; // Ensure submit button is hidden
     
     // Disable input/choices
     answerInputElement.disabled = true; 
@@ -1235,6 +1240,10 @@ document.addEventListener('DOMContentLoaded', () => {
         userAnswer = event.target.value; // Keep raw value, trim on check
         // Enable submit only if text isn't just whitespace
         submitButtonElement.disabled = userAnswer.trim() === ''; 
+        // Ensure submit button is visible for text input if not already
+        if (currentQuestion && currentQuestion.answer_type !== 'multipleChoice') {
+             submitButtonElement.style.display = 'block';
+        }
     });
     
     // Submit button click
@@ -1319,7 +1328,10 @@ document.addEventListener('DOMContentLoaded', () => {
           // Press 'Enter' or 'Space' to submit if a multiple choice is selected
           if (currentQuestion && currentQuestion.answer_type === 'multipleChoice' && !isAnswered && userAnswer !== '' && (event.key === 'Enter' || event.key === ' ')) {
              event.preventDefault(); // Prevent space from scrolling page
-             checkAnswer();
+             // Simulate click ONLY if button is visible and enabled
+             if (submitButtonElement.style.display !== 'none' && !submitButtonElement.disabled) {
+                checkAnswer(); 
+             }
           }
 
            // Press 'Enter' to go to next question if feedback is shown and 'Next' button is visible
