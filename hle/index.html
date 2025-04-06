@@ -214,7 +214,33 @@
     background-color: var(--card-bg);
     color: var(--text);
     font-size: 1rem;
+    appearance: none; /* Removes default dropdown arrow in some browsers */
     transition: var(--transition);
+  }
+  
+  /* Style for Load by ID */
+  .load-by-id {
+    margin-top: 15px;
+    display: flex;
+    gap: 10px;
+    align-items: center;
+  }
+  
+  #load-id-input {
+    flex-grow: 1;
+    padding: 10px 15px;
+    border: 1px solid var(--border);
+    border-radius: var(--radius);
+    background-color: var(--card-bg);
+    color: var(--text);
+    font-size: 0.9rem;
+    min-width: 100px; /* Ensure it doesn't get too small */
+  }
+  
+  #load-id-btn {
+    padding: 10px 15px;
+    font-size: 0.9rem;
+    flex-shrink: 0; /* Prevent button from shrinking */
   }
   
   /* Loading */
@@ -634,6 +660,11 @@
                     <!-- Categories will be populated by JavaScript -->
                 </select>
             </div>
+            
+            <div class="load-by-id">
+                <input type="text" id="load-id-input" placeholder="Enter Question ID...">
+                <button id="load-id-btn" class="btn secondary">Load ID</button>
+            </div>
         </header>
 
         <main id="quiz-container">
@@ -764,6 +795,8 @@ const accuracyElement = document.getElementById('accuracy');
 const retryButtonElement = document.getElementById('retry-btn');
 const categorySelectElement = document.getElementById('category-select');
 const themeToggleButtonElement = document.getElementById('theme-toggle-btn');
+const loadIdInputElement = document.getElementById('load-id-input');
+const loadIdButtonElement = document.getElementById('load-id-btn');
 
 // Theme Management
 function initTheme() {
@@ -920,6 +953,9 @@ function loadRandomQuestion() {
     // Save updated stats (including seenQuestionIds)
     saveStats();
     
+    // Clear the Load ID input field after loading a random question
+    loadIdInputElement.value = '';
+
     displayQuestion();
     resetAnswer();
 }
@@ -1397,6 +1433,36 @@ document.addEventListener('DOMContentLoaded', () => {
      // Initial MathJax render after setup (might be redundant if fetchQuestions calls it)
      renderMathJax();
 });
+
+// --- Load Question by ID Functionality ---
+function loadQuestionById(targetId) {
+    if (!targetId) {
+        alert('Please enter a Question ID.');
+        return;
+    }
+
+    const foundQuestion = questions.find(q => q.id === targetId.trim());
+
+    if (foundQuestion) {
+        hideError(); // Hide any previous errors
+        currentQuestion = foundQuestion;
+        seenQuestionIds.add(currentQuestion.id); // Mark as seen
+        saveStats(); // Save the updated seen list
+        
+        // Reset the category filter to 'All' when loading specific ID
+        // to avoid confusion if the ID is not in the currently selected category
+        selectedCategory = 'all';
+        categorySelectElement.value = 'all';
+
+        displayQuestion();
+        resetAnswer();
+        console.log(`Successfully loaded question ID: ${targetId}`);
+    } else {
+        alert(`Question with ID "${targetId}" not found.`);
+        console.warn(`Question ID not found: ${targetId}`);
+    }
+}
+// ---------------------------------------
 
     </script>
 </body>
