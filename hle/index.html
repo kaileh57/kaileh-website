@@ -965,7 +965,10 @@ function displayQuestion() {
         .replace(/\\begin\{definition\}/g, '') // Remove \begin{definition}
         .replace(/\\end\{definition\}/g, '')   // Remove \end{definition}
         .replace(/\\begin\{problem\}/g, '')    // Remove \begin{problem}
-        .replace(/\\end\{problem\}/g, '');     // Remove \end{problem}
+        .replace(/\\end\{problem\}/g, '')     // Remove \end{problem}
+        .replace(/\\begin\{itemize\}/g, '')   // Remove \begin{itemize}
+        .replace(/\\end\{itemize\}/g, '')     // Remove \end{itemize}
+        .replace(/\\item/g, '');              // Remove \item tags
 
     questionTextElement.textContent = cleanedQuestion; 
     

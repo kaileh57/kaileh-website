@@ -78,11 +78,13 @@ def download_hle_quiz_data():
                         if "Answer Choices:" in item["question"]:
                             try:
                                 choice_section = item["question"].split("Answer Choices:")[1].strip()
-                                choice_matches = re.findall(r'([A-H]\..*?)(?=[A-H]\.|$)', choice_section, re.DOTALL)
+                                # Corrected regex to handle A-Z and flexible separators (. or ))
+                                choice_matches = re.findall(r'([A-Z][\\.\\)]\\s*.*?)(?=[A-Z][\\.\\)]\\s*|$)', choice_section, re.DOTALL)
                                 if choice_matches:
                                     choices = [choice.strip() for choice in choice_matches]
-                            except:
-                                pass
+                            except Exception as e: # Catch specific errors if possible, or log the error
+                                print(f"Warning: Failed to parse choices for question {item.get('id', 'UNKNOWN')}: {e}")
+                                pass # Keep choices as empty list on failure
                         
                         question_data["choices"] = choices
                     
