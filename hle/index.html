@@ -1434,6 +1434,110 @@ document.addEventListener('DOMContentLoaded', () => {
      renderMathJax();
 });
 
+// Add event listeners for Load by ID *inside* DOMContentLoaded
+document.addEventListener('DOMContentLoaded', () => {
+    // ... (existing listeners like theme toggle, next button, etc.)
+
+    // Add Listener for Load ID Button
+    loadIdButtonElement.addEventListener('click', () => {
+        loadQuestionById(loadIdInputElement.value);
+    });
+
+    // Add Listener for Enter Key in Load ID Input
+    loadIdInputElement.addEventListener('keypress', (event) => {
+        if (event.key === 'Enter') {
+            event.preventDefault(); // Prevent potential form submission
+            loadQuestionById(loadIdInputElement.value);
+        }
+    });
+
+    // ... (the rest of the existing DOMContentLoaded code, if any was there originally)
+    // NOTE: It looks like the previous edit might have moved ALL listeners outside.
+    // Let's ensure the core listeners are definitely inside.
+
+    // Re-add core listeners just in case they got moved out:
+    answerInputElement.addEventListener('input', (event) => {
+        userAnswer = event.target.value;
+        submitButtonElement.disabled = userAnswer.trim() === '';
+        if (currentQuestion && currentQuestion.answer_type !== 'multipleChoice') {
+            submitButtonElement.style.display = 'block';
+        }
+    });
+
+    submitButtonElement.addEventListener('click', () => {
+        if (!submitButtonElement.disabled) {
+            checkAnswer();
+        }
+    });
+
+    answerInputElement.addEventListener('keypress', (event) => {
+        if (event.key === 'Enter' && userAnswer.trim() !== '') {
+            event.preventDefault(); 
+            checkAnswer();
+        }
+    });
+    
+    showExplanationButtonElement.addEventListener('click', () => {
+        const isHidden = explanationElement.style.display === 'none';
+        explanationElement.style.display = isHidden ? 'block' : 'none';
+        showExplanationButtonElement.textContent = isHidden ? 'Hide Explanation' : 'Show Explanation';
+        if (isHidden) {
+            renderMathJax(explanationElement);
+            explanationElement.scrollIntoView({ behavior: 'smooth', block: 'nearest' });
+        }
+    });
+    
+    nextButtonElement.addEventListener('click', () => {
+        loadRandomQuestion();
+    });
+    
+    retryButtonElement.addEventListener('click', () => {
+        hideError();
+        fetchQuestions();
+    });
+    
+    categorySelectElement.addEventListener('change', (event) => {
+        selectedCategory = event.target.value;
+        loadRandomQuestion();
+    });
+    
+    themeToggleButtonElement.addEventListener('click', () => {
+        toggleTheme();
+    });
+
+    document.addEventListener('keydown', (event) => {
+         if (document.activeElement === answerInputElement) return;
+
+        if ((event.key === 'n' || event.key === 'ArrowRight') && feedbackElement.style.display === 'block') {
+            loadRandomQuestion();
+        }
+        
+        if (event.key === 'e' && feedbackElement.style.display === 'block') {
+            showExplanationButtonElement.click();
+        }
+
+         if (currentQuestion && currentQuestion.answer_type === 'multipleChoice' && !isAnswered) {
+             const keyUpper = event.key.toUpperCase();
+             if (keyUpper.length === 1 && keyUpper >= 'A' && keyUpper <= 'Z') {
+                 const targetChoice = multipleChoiceElement.querySelector(`.choice-item[data-value='${keyUpper}']`);
+                 if (targetChoice) targetChoice.click(); 
+             }
+         }
+
+          if (currentQuestion && currentQuestion.answer_type === 'multipleChoice' && !isAnswered && userAnswer !== '' && (event.key === 'Enter' || event.key === ' ')) {
+             event.preventDefault(); 
+             if (submitButtonElement.style.display !== 'none' && !submitButtonElement.disabled) {
+                checkAnswer(); 
+             }
+          }
+
+           if (event.key === 'Enter' && feedbackElement.style.display === 'block') {
+                event.preventDefault();
+                nextButtonElement.click();
+           }
+    });
+});
+
 // --- Load Question by ID Functionality ---
 function loadQuestionById(targetId) {
     if (!targetId) {
