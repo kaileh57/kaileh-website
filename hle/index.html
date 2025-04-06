@@ -10,6 +10,8 @@
     <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700&display=swap" rel="stylesheet">
     <!-- Add favicon link -->
     <link rel="icon" type="image/png" id="favicon">
+    <!-- Add canvas-confetti library -->
+    <script src="https://cdn.jsdelivr.net/npm/canvas-confetti@1.9.3/dist/confetti.browser.min.js"></script>
     <!-- MathJax Configuration and Loading -->
     <script>
       window.MathJax = {
@@ -1240,6 +1242,14 @@ function checkAnswer() {
     questionsAnswered++;
     if (correct) {
         correctAnswers++;
+        // Trigger confetti!
+        if (typeof confetti === 'function') {
+            confetti({
+                particleCount: 150,
+                spread: 90,
+                origin: { y: 0.6 }
+            });
+        }
     }
     
     updateStatsDisplay();
