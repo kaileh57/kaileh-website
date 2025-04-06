@@ -733,18 +733,18 @@
     </div>
 
     <script>
-// State management
-let questions = [];
-let currentQuestion = null;
-let seenQuestionIds = new Set();
-let userAnswer = '';
-let isAnswered = false;
-let questionsAnswered = 0;
-let correctAnswers = 0;
-let categories = new Set();
-let selectedCategory = 'all';
+// Application state variables
+let questions = []; // Array to hold all fetched questions
+let currentQuestion = null; // The question object currently displayed
+let seenQuestionIds = new Set(); // Tracks IDs of questions answered in this session
+let userAnswer = ''; // Stores the user's selected/entered answer
+let isAnswered = false; // Flag indicating if the current question has been answered
+let questionsAnswered = 0; // Total questions attempted (persisted)
+let correctAnswers = 0; // Total correct answers (persisted)
+let categories = new Set(); // Set of unique categories found in questions
+let selectedCategory = 'all'; // Currently selected category filter
 
-// Load stats from localStorage if available
+// Load persisted statistics from localStorage
 function loadStats() {
     const storedStats = localStorage.getItem('hleQuizStats');
     if (storedStats) {
@@ -752,13 +752,11 @@ function loadStats() {
         questionsAnswered = stats.questionsAnswered || 0;
         correctAnswers = stats.correctAnswers || 0;
         seenQuestionIds = new Set(stats.seenQuestionIds || []);
-        
-        // Update UI
         updateStatsDisplay();
     }
 }
 
-// Save stats to localStorage
+// Save current statistics to localStorage
 function saveStats() {
     const stats = {
         questionsAnswered,
@@ -768,7 +766,7 @@ function saveStats() {
     localStorage.setItem('hleQuizStats', JSON.stringify(stats));
 }
 
-// DOM Elements
+// DOM Element References
 const loadingElement = document.getElementById('loading');
 const errorElement = document.getElementById('error');
 const questionCardElement = document.getElementById('question-card');
@@ -798,20 +796,21 @@ const themeToggleButtonElement = document.getElementById('theme-toggle-btn');
 const loadIdInputElement = document.getElementById('load-id-input');
 const loadIdButtonElement = document.getElementById('load-id-btn');
 
-// Theme Management
+// --- Theme Management ---
+
+// Initialize theme based on localStorage or default to light
 function initTheme() {
     const savedTheme = localStorage.getItem('theme');
-    if (savedTheme === 'dark') { // Check specifically for 'dark'
+    if (savedTheme === 'dark') {
         document.body.classList.add('dark-theme');
     } else {
-         document.body.classList.remove('dark-theme'); // Ensure light is default
-         localStorage.setItem('theme', 'light'); // Explicitly set light if not dark
+         document.body.classList.remove('dark-theme');
+         localStorage.setItem('theme', 'light'); // Ensure consistent state
     }
-    // Update icon visibility based on initial theme
     updateThemeIcon();
 }
 
-
+// Toggle between light and dark themes and update localStorage
 function toggleTheme() {
     if (document.body.classList.contains('dark-theme')) {
         document.body.classList.remove('dark-theme');
@@ -820,9 +819,10 @@ function toggleTheme() {
         document.body.classList.add('dark-theme');
         localStorage.setItem('theme', 'dark');
     }
-    updateThemeIcon(); // Update icon after toggling
+    updateThemeIcon();
 }
 
+// Update the theme toggle button icon visibility
 function updateThemeIcon() {
     const sunIcon = document.querySelector('.sun-icon');
     const moonIcon = document.querySelector('.moon-icon');
@@ -836,235 +836,190 @@ function updateThemeIcon() {
 }
 
 
-// Fetch questions from local JSON file
+// --- Question Loading and Display Logic ---
+
+// Fetch questions data from the local JSON file
 async function fetchQuestions() {
     try {
         showLoading();
-        // Fetch from local file relative to the HTML file
         const response = await fetch('./questions.json'); 
-        
         if (!response.ok) {
-             throw new Error(`HTTP error: ${response.status} - Could not fetch './questions.json'. Make sure the file exists in the same directory as the HTML.`);
+             throw new Error(`HTTP error: ${response.status} - Could not fetch './questions.json'.`);
         }
-        
         const data = await response.json();
-        
         if (!Array.isArray(data) || data.length === 0) {
             throw new Error('Invalid JSON format or empty data in questions.json');
         }
         
         questions = data;
         
-        // Extract categories
-        categories = new Set(); // Reset categories each time questions are loaded
+        // Extract unique categories from the loaded questions
+        categories = new Set(); 
         questions.forEach(q => {
             if (q.category) {
                 categories.add(q.category);
             }
         });
         
-        // Populate category filter
         populateCategoryFilter();
-        
-        // Reset stats if needed (optional: decide if retry should reset stats)
-        // questionsAnswered = 0;
-        // correctAnswers = 0;
-        // seenQuestionIds = new Set();
-        // updateStatsDisplay();
-        // saveStats();
+        loadRandomQuestion(); // Load the first question
 
-        loadRandomQuestion();
     } catch (error) {
         console.error('Error fetching or processing questions:', error);
-        showError(error.message); // Pass error message to display
+        showError(error.message); 
     }
 }
 
-// Populate category filter dropdown
+// Populate the category filter dropdown with unique categories
 function populateCategoryFilter() {
-    categorySelectElement.innerHTML = '<option value="all">All Categories</option>';
-    
-    // Add categories in alphabetical order
+    categorySelectElement.innerHTML = '<option value="all">All Categories</option>'; 
     Array.from(categories).sort().forEach(category => {
         const option = document.createElement('option');
         option.value = category;
         option.textContent = category;
         categorySelectElement.appendChild(option);
     });
-     // Ensure the dropdown reflects the current selectedCategory state
-    categorySelectElement.value = selectedCategory;
+    categorySelectElement.value = selectedCategory; // Reflect current filter state
 }
 
-// Load a random question based on selected category
+// Load a random question, considering the selected category and seen questions
 function loadRandomQuestion() {
-    hideError(); // Hide error message when loading a new question
+    hideError();
     if (questions.length === 0) {
         showError("No questions available to display.");
         return;
     }
 
-    // Filter questions by selected category
+    // Apply category filter
     let filteredQuestions = questions;
     if (selectedCategory !== 'all') {
         filteredQuestions = questions.filter(q => q.category === selectedCategory);
-        
-        // If no questions in this category, show a message or revert (currently reverts)
         if (filteredQuestions.length === 0) {
             console.warn(`No questions found for category "${selectedCategory}". Reverting to "All Categories".`);
-            filteredQuestions = questions;
+            filteredQuestions = questions; // Revert to all if category is empty
             selectedCategory = 'all';
             categorySelectElement.value = 'all'; 
-            // Optionally show a message to the user here
         }
     }
 
-    // Find questions that haven't been seen yet within the filtered set
+    // Filter out questions already seen in this session
     let unseenQuestions = filteredQuestions.filter(q => !seenQuestionIds.has(q.id));
     
-    // If all questions in the current filter have been seen, reset the seen set *for this filter* 
-    // or allow seeing questions again. Current implementation resets globally - consider filter-specific reset.
-    if (unseenQuestions.length === 0) {
-        if (filteredQuestions.length > 0) {
-            console.log("All questions in this category/filter have been seen. Resetting seen status for this filter.");
-            // Option 1: Reset seen status only for the current filter
-             filteredQuestions.forEach(q => seenQuestionIds.delete(q.id)); 
-             unseenQuestions = filteredQuestions; // Use all questions from the filter again
-
-            // Option 2: Globally reset (current behavior, might be confusing if switching filters)
-            // seenQuestionIds = new Set();
-            // unseenQuestions = filteredQuestions;
-
-            // Option 3: Show a message that all questions are done
-            // showError("You've completed all questions in this category!"); 
-            // return; // Stop loading new questions
-
-        } else {
-             showError("No questions available for the selected category.");
-             return;
-        }
-
+    // If all questions in the filter are seen, allow seeing them again for this filter
+    if (unseenQuestions.length === 0 && filteredQuestions.length > 0) {
+        console.log("All questions in this category/filter have been seen. Resetting seen status for this filter.");
+        filteredQuestions.forEach(q => seenQuestionIds.delete(q.id)); 
+        unseenQuestions = filteredQuestions; 
+    } else if (unseenQuestions.length === 0) {
+        // Handle case where filter genuinely has no questions (should be rare)
+        showError("No questions available for the selected category.");
+        return;
     }
     
-    // Pick a random unseen question
+    // Pick and set the next question
     const randomIndex = Math.floor(Math.random() * unseenQuestions.length);
     currentQuestion = unseenQuestions[randomIndex];
     seenQuestionIds.add(currentQuestion.id);
+    saveStats(); // Persist the updated seen list
     
-    // Save updated stats (including seenQuestionIds)
-    saveStats();
-    
-    // Clear the Load ID input field after loading a random question
-    loadIdInputElement.value = '';
-
+    loadIdInputElement.value = ''; // Clear any ID search input
     displayQuestion();
     resetAnswer();
 }
 
-// Display the current question
+// Updates the UI to display the current question
 function displayQuestion() {
-    // Hide loading and error, show question card
     hideLoading();
     hideError();
     showQuestionCard();
     
     let questionDisplay = currentQuestion.question;
-    let rawChoicesString = null; // To hold choices if parsed from question
+    let rawChoicesString = null; // Used if choices are parsed from question text
     
-    // Set question details
     categoryElement.textContent = currentQuestion.category || 'Uncategorized';
     questionIdElement.textContent = `ID: ${currentQuestion.id}`;
     
-    // --- Try to separate question text from embedded choices ---
+    // Check if multiple choice answers are embedded in the question text
     if (currentQuestion.answer_type === 'multipleChoice' && 
         (!currentQuestion.choices || currentQuestion.choices.length === 0)) {
-            
         const choiceStartMarker = "Answer Choices:";
         const markerIndex = questionDisplay.indexOf(choiceStartMarker);
         
+        // If marker found, separate the question from the choices block
         if (markerIndex !== -1) {
             rawChoicesString = questionDisplay.substring(markerIndex + choiceStartMarker.length);
-            questionDisplay = questionDisplay.substring(0, markerIndex).trim(); // Keep only text before marker
+            questionDisplay = questionDisplay.substring(0, markerIndex).trim(); 
             console.log('Separated question text from embedded choices.');
         } else {
-             console.warn(`Question ${currentQuestion.id} is MC but couldn't find "${choiceStartMarker}" to separate choices.`);
+             console.warn(`Question ${currentQuestion.id} is MC but couldn't find "${choiceStartMarker}".`);
         }
     }
-    // ---------------------------------------------------------
     
-    // Set question text and process any LaTeX
-    // Clean the question text: remove tcolorbox environments
-    let cleanedQuestion = questionDisplay.replace(/\\begin{tcolorbox}/g, '').replace(/\\end{tcolorbox}/g, '');
-    
-    // Add cleaning for \section, definition, and problem environments
-    cleanedQuestion = cleanedQuestion
-        .replace(/\\section\{.*?\}/g, '')      // Remove \section{...} tags
-        .replace(/\\begin\{definition\}/g, '') // Remove \begin{definition}
-        .replace(/\\end\{definition\}/g, '')   // Remove \end{definition}
-        .replace(/\\begin\{problem\}/g, '')    // Remove \begin{problem}
-        .replace(/\\end\{problem\}/g, '')     // Remove \end{problem}
-        .replace(/\\begin\{itemize\}/g, '')   // Remove \begin{itemize}
-        .replace(/\\end\{itemize\}/g, '')     // Remove \end{itemize}
+    // Clean the question text of unsupported LaTeX commands before display
+    let cleanedQuestion = questionDisplay
+        .replace(/\\begin{tcolorbox}/g, '').replace(/\\end{tcolorbox}/g, '') // Remove tcolorbox
+        .replace(/\\section\{.*?\}/g, '')      // Remove \section{...}
+        .replace(/\\begin\{definition\}/g, '').replace(/\\end\{definition\}/g, '')   // Remove definition env
+        .replace(/\\begin\{problem\}/g, '').replace(/\\end\{problem\}/g, '')     // Remove problem env
+        .replace(/\\begin\{itemize\}/g, '').replace(/\\end\{itemize\}/g, '')     // Remove itemize env
         .replace(/\\item/g, '');              // Remove \item tags
 
     questionTextElement.textContent = cleanedQuestion; 
     
-    // Handle image if present - use local relative path
+    // Display image if available
     if (currentQuestion.image) {
-        questionImageElement.src = `./images/${currentQuestion.image}`; // Relative path
+        questionImageElement.src = `./images/${currentQuestion.image}`;
         questionImageElement.onerror = () => {
             console.error(`Failed to load image: ./images/${currentQuestion.image}`);
-            imageContainerElement.style.display = 'none'; // Hide container if image fails
+            imageContainerElement.style.display = 'none'; 
             questionImageElement.alt = `Failed to load ${currentQuestion.image}`;
         };
-         questionImageElement.alt = `Visual for question ${currentQuestion.id}`; // Add alt text
+         questionImageElement.alt = `Visual for question ${currentQuestion.id}`;
         imageContainerElement.style.display = 'flex';
     } else {
         imageContainerElement.style.display = 'none';
     }
     
-    // Handle answer type
+    // Configure UI based on answer type (multiple choice vs text)
     if (currentQuestion.answer_type === 'multipleChoice') {
-        displayMultipleChoice(rawChoicesString); // Pass potentially parsed choices
+        displayMultipleChoice(rawChoicesString); // Pass choices if parsed
         textAnswerElement.style.display = 'none';
         multipleChoiceElement.style.display = 'block';
-        submitButtonElement.style.display = 'none'; // Hide submit initially for MC
-    } else { // Assume text input if not multiple choice
+        submitButtonElement.style.display = 'none'; 
+    } else { 
         multipleChoiceElement.style.display = 'none';
         textAnswerElement.style.display = 'block';
-        submitButtonElement.style.display = 'block'; // Show submit for text input (but disabled)
-        answerInputElement.focus(); // Focus input for text answers
+        submitButtonElement.style.display = 'block'; 
+        answerInputElement.focus(); 
     }
     
-    // Scroll to the top of the question
     questionCardElement.scrollIntoView({ behavior: 'smooth', block: 'start' });
-    
-    // Render LaTeX after content is set
-    renderMathJax(); 
+    renderMathJax(); // Trigger MathJax rendering for the new content
 }
 
-// Display multiple choice options
+// Renders the multiple choice options UI
 function displayMultipleChoice(rawChoicesString = null) {
-    multipleChoiceElement.innerHTML = ''; // Clear previous choices
-    
-    let choicesToDisplay = currentQuestion.choices; // Prefer choices array if exists
+    multipleChoiceElement.innerHTML = ''; 
+    let choicesToDisplay = currentQuestion.choices; 
 
-    // Fallback/Parsing logic if choices aren't directly provided
+    // If choices array is empty, attempt to parse from raw string (if available)
     if (!choicesToDisplay || choicesToDisplay.length === 0) {
-        // If rawChoicesString was passed from displayQuestion, parse it
         if (rawChoicesString) {
              console.log(`Parsing choices provided externally for question ${currentQuestion.id}`);
              const parsedChoices = [];
-             const choiceRegex = /^[\(]?([A-Z])[\.\)]\s+/; // Matches start of a choice line (non-global)
-            const lines = rawChoicesString.split('\n').map(line => line.trim()).filter(line => line); // Split, trim, remove empty
+             // Regex to find lines starting with an uppercase letter + period/paren + space
+             const choiceRegex = /^[\(]?([A-Z])[\.\)]\s+/; 
+             const lines = rawChoicesString.split('\n').map(line => line.trim()).filter(line => line);
             
              let currentChoiceText = '';
+             // Accumulate lines belonging to the same choice (handles multi-line choices)
              lines.forEach(line => {
                  const match = line.match(choiceRegex);
-                 if (match) { // Starts a new choice
+                 if (match) { 
                      if (currentChoiceText) parsedChoices.push(currentChoiceText.trim());
                      currentChoiceText = line;
-                 } else if (currentChoiceText) { // Belongs to the current choice
-                     currentChoiceText += ' \n' + line; // Append with newline preserved
+                 } else if (currentChoiceText) { 
+                     currentChoiceText += ' \n' + line; 
                  }
              });
              if (currentChoiceText) parsedChoices.push(currentChoiceText.trim());
@@ -1075,11 +1030,10 @@ function displayMultipleChoice(rawChoicesString = null) {
                  console.error(`Failed to parse externally provided choices for ${currentQuestion.id}.`);
              }
         } else {
-             // This case should ideally not happen if displayQuestion logic is correct
              console.error(`Question ${currentQuestion.id} is MC, has no choices array, and no rawChoicesString was provided.`);
         }
         
-        // Final fallback if still no choices
+        // Final fallback if parsing failed or wasn't possible
         if (!choicesToDisplay || choicesToDisplay.length === 0) {
              console.error(`Using placeholder choices for question ${currentQuestion.id}.`);
               const placeholderLetters = ['A', 'B', 'C', 'D'];
@@ -1087,47 +1041,42 @@ function displayMultipleChoice(rawChoicesString = null) {
         }
     }
     
-    // Ensure choicesToDisplay is an array before proceeding
+    // Ensure choicesToDisplay is usable before creating elements
     if (!Array.isArray(choicesToDisplay)) {
         console.error(`Choices for question ${currentQuestion.id} are not an array. Using placeholders.`);
         const placeholderLetters = ['A', 'B', 'C', 'D'];
         choicesToDisplay = placeholderLetters.map(letter => `${letter}. Option ${letter}`);
     }
     
+    // Create and append choice items to the DOM
     choicesToDisplay.forEach((choiceText) => {
         const choiceItem = document.createElement('div');
         choiceItem.className = 'choice-item';
         
-        // Extract the letter identifier (handle formats like A., A), (A))
+        // Extract the choice letter (A, B, etc.) for data-value attribute
         let choiceValue = 'UNKNOWN';
         const firstLine = choiceText.split('\n')[0];
-        const valueMatch = firstLine.match(/^[\(]?([A-Z])[\.\)]/); // Support A-Z on first line
+        // Regex checks first line for pattern like A. or (A) 
+        const valueMatch = firstLine.match(/^[\(]?([A-Z])[\.\)]/); 
         if (valueMatch && valueMatch[1]) {
             choiceValue = valueMatch[1];
         } else {
              console.warn(`Could not determine choice letter for "${choiceText}" in question ${currentQuestion.id}`);
-             // Attempt to use the first char as a fallback, but it might be wrong
-             choiceValue = choiceText.trim().charAt(0); 
+             choiceValue = choiceText.trim().charAt(0); // Fallback: use first character
         }
         
-        choiceItem.dataset.value = choiceValue.toUpperCase();
-        // Use textContent for safer rendering of the choice text itself
-        choiceItem.textContent = choiceText; 
+        choiceItem.dataset.value = choiceValue.toUpperCase(); // Store letter for answer checking
+        choiceItem.textContent = choiceText; // Display the full choice text
         
+        // Add click listener for selecting the choice
         choiceItem.addEventListener('click', () => {
             if (!isAnswered) {
-                // Clear any previously selected choices
-                const selectedChoices = multipleChoiceElement.querySelectorAll('.selected');
-                selectedChoices.forEach(selected => selected.classList.remove('selected'));
-                
-                // Select this choice
+                multipleChoiceElement.querySelectorAll('.selected').forEach(selected => selected.classList.remove('selected'));
                 choiceItem.classList.add('selected');
-                userAnswer = choiceItem.dataset.value; // Use the extracted value
-                
-                // Enable submit button
-                submitButtonElement.style.display = 'block'; // Show the button
+                userAnswer = choiceItem.dataset.value; 
+                submitButtonElement.style.display = 'block';
                 submitButtonElement.disabled = false;
-                 submitButtonElement.focus(); // Focus submit button after selection
+                submitButtonElement.focus();
             }
         });
         
@@ -1135,41 +1084,32 @@ function displayMultipleChoice(rawChoicesString = null) {
     });
     
     multipleChoiceElement.style.display = 'block';
-    // Render MathJax for choices if necessary
-     renderMathJax(multipleChoiceElement); 
+    renderMathJax(multipleChoiceElement); // Render MathJax within the choices
 }
 
-// Reset answer state
+
+// --- Answer Handling and Feedback ---
+
+// Reset the UI for a new question (clear inputs, hide feedback)
 function resetAnswer() {
     userAnswer = '';
     isAnswered = false;
-    
-    // Reset input field
     answerInputElement.value = '';
     answerInputElement.disabled = false;
-    
-    // Reset submit button (disabled state depends on answer type)
     submitButtonElement.disabled = true; 
-    submitButtonElement.style.display = 'none'; // Hide initially, displayQuestion will show if needed
-    
-    // Hide feedback
+    submitButtonElement.style.display = 'none'; 
     feedbackElement.style.display = 'none';
     explanationElement.style.display = 'none';
-    
-     // Reset multiple choice selection styles
-     const allChoices = multipleChoiceElement.querySelectorAll('.choice-item');
-     allChoices.forEach(choice => {
+    multipleChoiceElement.querySelectorAll('.choice-item').forEach(choice => {
          choice.classList.remove('selected', 'correct', 'incorrect');
      });
-
-    // Reset explanation button text
     showExplanationButtonElement.textContent = 'Show Explanation';
 }
 
-// Check the user's answer
+// Check the submitted answer against the correct answer
 function checkAnswer() {
-    if (!currentQuestion || isAnswered) return; // Don't check if no question or already answered
-     if (currentQuestion.answer_type !== 'multipleChoice' && userAnswer.trim() === '') return; // Don't submit empty text answer
+    if (!currentQuestion || isAnswered) return; 
+    if (currentQuestion.answer_type !== 'multipleChoice' && userAnswer.trim() === '') return; 
 
     let correct = false;
     const correctAnswerNormalized = currentQuestion.answer.trim().toUpperCase();
@@ -1177,8 +1117,8 @@ function checkAnswer() {
     if (currentQuestion.answer_type === 'multipleChoice') {
         correct = userAnswer.toUpperCase() === correctAnswerNormalized;
     } else {
+        // Basic case-insensitive comparison for text answers
         const userAnswerNormalized = userAnswer.trim().toLowerCase();
-        // Consider more lenient checking for text answers if needed (e.g., ignore punctuation)
         correct = userAnswerNormalized === currentQuestion.answer.trim().toLowerCase();
     }
     
@@ -1188,17 +1128,12 @@ function checkAnswer() {
         correctAnswers++;
     }
     
-    // Update stats display
     updateStatsDisplay();
-    
-    // Save stats
-    saveStats();
-    
-    // Display feedback
+    saveStats(); // Persist updated stats
     showFeedback(correct, correctAnswerNormalized);
 }
 
-// Update stats display
+// Update the statistics display in the header
 function updateStatsDisplay() {
     questionsCountElement.textContent = questionsAnswered;
     correctCountElement.textContent = correctAnswers;
@@ -1206,32 +1141,21 @@ function updateStatsDisplay() {
     accuracyElement.textContent = `${accuracy}%`;
 }
 
-// Show feedback after answering
+// Display feedback (correct/incorrect), show correct answer and explanation
 function showFeedback(isCorrect, correctAnswerValue) {
-    // Hide submit button
-    submitButtonElement.style.display = 'none'; // Ensure submit button is hidden
-    
-    // Disable input/choices
-    answerInputElement.disabled = true; 
-    // No need to explicitly disable choices, the event listener checks `isAnswered`
-
-    // Show feedback section
+    submitButtonElement.style.display = 'none'; 
+    answerInputElement.disabled = true; // Disable further input
     feedbackElement.style.display = 'block';
     
-    // Set result message
     resultMessageElement.textContent = isCorrect ? 'Correct!' : 'Incorrect!';
     resultMessageElement.className = isCorrect ? 'result-message correct' : 'result-message incorrect';
     
-    // Set correct answer display (use textContent for safety)
     const correctAnswerDisplay = document.createElement('span');
-    correctAnswerDisplay.textContent = currentQuestion.answer; // The raw answer string
-    correctAnswerElement.innerHTML = '<strong>Correct answer:</strong> '; // Keep <strong> safe
+    correctAnswerDisplay.textContent = currentQuestion.answer;
+    correctAnswerElement.innerHTML = '<strong>Correct answer:</strong> ';
     correctAnswerElement.appendChild(correctAnswerDisplay);
 
-    // Set rationale (use textContent for safety unless HTML is intended)
     rationaleElement.textContent = currentQuestion.rationale || 'No explanation provided.';
-    
-    // Set author if available
     if (currentQuestion.author_name) {
         authorElement.textContent = `Question by: ${currentQuestion.author_name}`;
         authorElement.style.display = 'block';
@@ -1239,57 +1163,44 @@ function showFeedback(isCorrect, correctAnswerValue) {
         authorElement.style.display = 'none';
     }
     
-    // Highlight correct/incorrect answer for multiple choice
+    // Highlight the correct choice and the user's choice if incorrect (for MC)
     if (currentQuestion.answer_type === 'multipleChoice') {
-        const choices = multipleChoiceElement.querySelectorAll('.choice-item');
-        choices.forEach(choice => {
+        multipleChoiceElement.querySelectorAll('.choice-item').forEach(choice => {
              const choiceValueUpper = choice.dataset.value.toUpperCase();
-            // Highlight the actual correct answer
             if (choiceValueUpper === correctAnswerValue) { 
                 choice.classList.add('correct');
-            } 
-            // If the user selected this choice AND it was incorrect
-            else if (choice.classList.contains('selected')) { 
+            } else if (choice.classList.contains('selected')) { 
                 choice.classList.add('incorrect');
             }
         });
     }
     
-    // Render LaTeX in feedback if needed (correct answer, rationale)
-     renderMathJax(feedbackElement);
-
-     // Focus the 'Next Question' button for easier navigation
-     nextButtonElement.focus();
+    renderMathJax(feedbackElement); // Render any MathJax in feedback/explanation
+    nextButtonElement.focus(); // Focus next button for easy progression
 }
 
-// Enhanced MathJax rendering function
+
+// --- Utilities ---
+
+// Trigger MathJax typesetting on a specific element or the whole body
 function renderMathJax(elementToRender = document.body) {
-    // Check if MathJax and typesetPromise are available
      if (window.MathJax && typeof window.MathJax.typesetPromise === 'function') {
-        // Use setTimeout to allow DOM updates before typesetting
+        // Use setTimeout to ensure DOM updates are processed before typesetting
         setTimeout(() => {
-            window.MathJax.typesetPromise([elementToRender]) // Typeset specific element or whole body
-                .then(() => {
-                    // console.log('MathJax typesetting complete for element:', elementToRender);
-                })
-                .catch((err) => {
-                    console.error('MathJax typesetting failed:', err);
-                });
-        }, 0); // 0ms delay often works, adjust if needed
+            window.MathJax.typesetPromise([elementToRender])
+                .catch((err) => console.error('MathJax typesetting failed:', err));
+        }, 0);
     } else {
-         // MathJax might not be loaded yet, or might have failed.
          // console.warn('MathJax not available or typesetPromise missing.');
-         // Consider adding a retry mechanism or checking MathJax.startup.promise
     }
 }
 
-
-// Show/hide UI elements
+// Functions to show/hide major UI sections
 function showLoading() {
     loadingElement.style.display = 'flex';
     errorElement.style.display = 'none';
     questionCardElement.style.display = 'none';
-     feedbackElement.style.display = 'none'; // Hide feedback during load
+    feedbackElement.style.display = 'none';
 }
 
 function hideLoading() {
@@ -1297,13 +1208,12 @@ function hideLoading() {
 }
 
 function showError(message = "An unknown error occurred.") {
-    hideLoading(); // Hide loading indicator
-    errorElement.querySelector('p').textContent = message; // Set specific error message
+    hideLoading();
+    errorElement.querySelector('p').textContent = message;
     errorElement.style.display = 'flex';
     questionCardElement.style.display = 'none';
-     feedbackElement.style.display = 'none'; // Hide feedback on error
+    feedbackElement.style.display = 'none';
 }
-
 
 function hideError() {
     errorElement.style.display = 'none';
@@ -1313,23 +1223,19 @@ function showQuestionCard() {
     questionCardElement.style.display = 'block';
 }
 
-// Event listeners
+
+// --- Event Listeners Setup ---
+
+// Primary setup runs after the DOM is fully loaded
 document.addEventListener('DOMContentLoaded', () => {
-    // Initialize theme as soon as possible
     initTheme(); 
-    
-    // Load saved stats
     loadStats();
-    
-    // Fetch questions when page loads
     fetchQuestions();
     
-    // Listen for text input changes
+    // Text answer input handling
     answerInputElement.addEventListener('input', (event) => {
-        userAnswer = event.target.value; // Keep raw value, trim on check
-        // Enable submit only if text isn't just whitespace
+        userAnswer = event.target.value; 
         submitButtonElement.disabled = userAnswer.trim() === ''; 
-        // Ensure submit button is visible for text input if not already
         if (currentQuestion && currentQuestion.answer_type !== 'multipleChoice') {
              submitButtonElement.style.display = 'block';
         }
@@ -1337,26 +1243,26 @@ document.addEventListener('DOMContentLoaded', () => {
     
     // Submit button click
     submitButtonElement.addEventListener('click', () => {
-         if (!submitButtonElement.disabled) { // Prevent submitting when disabled
+         if (!submitButtonElement.disabled) {
             checkAnswer();
          }
     });
     
-    // Enter key in text input
+    // Enter key in text input submits answer
     answerInputElement.addEventListener('keypress', (event) => {
         if (event.key === 'Enter' && userAnswer.trim() !== '') {
-             event.preventDefault(); // Prevent potential form submission if wrapped in one
+             event.preventDefault(); 
             checkAnswer();
         }
     });
     
-    // Show/hide explanation
+    // Explanation button toggle
     showExplanationButtonElement.addEventListener('click', () => {
         const isHidden = explanationElement.style.display === 'none';
         explanationElement.style.display = isHidden ? 'block' : 'none';
         showExplanationButtonElement.textContent = isHidden ? 'Hide Explanation' : 'Show Explanation';
          if (isHidden) {
-             renderMathJax(explanationElement); // Render mathjax if revealing explanation
+             renderMathJax(explanationElement);
              explanationElement.scrollIntoView({ behavior: 'smooth', block: 'nearest' });
          }
     });
@@ -1366,156 +1272,51 @@ document.addEventListener('DOMContentLoaded', () => {
         loadRandomQuestion();
     });
     
-    // Retry button (in case of loading error)
+    // Retry button after load error
     retryButtonElement.addEventListener('click', () => {
-        hideError(); // Hide error message first
-        fetchQuestions(); // Attempt to fetch again
+        hideError(); 
+        fetchQuestions(); 
     });
     
-    // Category filter change
+    // Category filter selection change
     categorySelectElement.addEventListener('change', (event) => {
         selectedCategory = event.target.value;
-        // Reset seen questions when category changes? Optional, but can be less confusing.
-        // seenQuestionIds = new Set(); 
-        loadRandomQuestion(); // Load a question from the new category
+        loadRandomQuestion(); // Reload question based on new category
     });
     
-    // Theme toggle
+    // Theme toggle button click
     themeToggleButtonElement.addEventListener('click', () => {
         toggleTheme();
     });
-    
-    // Add keypress shortcuts
-    document.addEventListener('keydown', (event) => {
-         // Allow shortcuts only when not typing in the text input
-         if (document.activeElement === answerInputElement) {
-             return;
-         }
 
-        // Press 'n' or 'ArrowRight' for next question when feedback is shown
-        if ((event.key === 'n' || event.key === 'ArrowRight') && feedbackElement.style.display === 'block') {
-            loadRandomQuestion();
-        }
-        
-        // Press 'e' to toggle explanation when feedback is shown
-        if (event.key === 'e' && feedbackElement.style.display === 'block') {
-            showExplanationButtonElement.click(); // Simulate a click
-        }
-
-         // Press A, B, C, D etc. to select multiple choice if available and not answered
-         if (currentQuestion && currentQuestion.answer_type === 'multipleChoice' && !isAnswered) {
-             const keyUpper = event.key.toUpperCase();
-             // Check if the key is a single uppercase letter
-             if (keyUpper.length === 1 && keyUpper >= 'A' && keyUpper <= 'Z') { // Allow A-Z
-                 const targetChoice = multipleChoiceElement.querySelector(`.choice-item[data-value='${keyUpper}']`);
-                 if (targetChoice) {
-                     targetChoice.click(); // Simulate a click on the choice
-                 }
-             }
-         }
-
-          // Press 'Enter' or 'Space' to submit if a multiple choice is selected
-          if (currentQuestion && currentQuestion.answer_type === 'multipleChoice' && !isAnswered && userAnswer !== '' && (event.key === 'Enter' || event.key === ' ')) {
-             event.preventDefault(); // Prevent space from scrolling page
-             // Simulate click ONLY if button is visible and enabled
-             if (submitButtonElement.style.display !== 'none' && !submitButtonElement.disabled) {
-                checkAnswer(); 
-             }
-          }
-
-           // Press 'Enter' to go to next question if feedback is shown and 'Next' button is visible
-           if (event.key === 'Enter' && feedbackElement.style.display === 'block') {
-                event.preventDefault();
-                nextButtonElement.click();
-           }
-    });
-
-     // Initial MathJax render after setup (might be redundant if fetchQuestions calls it)
-     renderMathJax();
-});
-
-// Add event listeners for Load by ID *inside* DOMContentLoaded
-document.addEventListener('DOMContentLoaded', () => {
-    // ... (existing listeners like theme toggle, next button, etc.)
-
-    // Add Listener for Load ID Button
+    // --- Load by ID Listeners ---
     loadIdButtonElement.addEventListener('click', () => {
         loadQuestionById(loadIdInputElement.value);
     });
-
-    // Add Listener for Enter Key in Load ID Input
     loadIdInputElement.addEventListener('keypress', (event) => {
         if (event.key === 'Enter') {
-            event.preventDefault(); // Prevent potential form submission
+            event.preventDefault(); 
             loadQuestionById(loadIdInputElement.value);
         }
     });
-
-    // ... (the rest of the existing DOMContentLoaded code, if any was there originally)
-    // NOTE: It looks like the previous edit might have moved ALL listeners outside.
-    // Let's ensure the core listeners are definitely inside.
-
-    // Re-add core listeners just in case they got moved out:
-    answerInputElement.addEventListener('input', (event) => {
-        userAnswer = event.target.value;
-        submitButtonElement.disabled = userAnswer.trim() === '';
-        if (currentQuestion && currentQuestion.answer_type !== 'multipleChoice') {
-            submitButtonElement.style.display = 'block';
-        }
-    });
-
-    submitButtonElement.addEventListener('click', () => {
-        if (!submitButtonElement.disabled) {
-            checkAnswer();
-        }
-    });
-
-    answerInputElement.addEventListener('keypress', (event) => {
-        if (event.key === 'Enter' && userAnswer.trim() !== '') {
-            event.preventDefault(); 
-            checkAnswer();
-        }
-    });
+    // ---------------------------
     
-    showExplanationButtonElement.addEventListener('click', () => {
-        const isHidden = explanationElement.style.display === 'none';
-        explanationElement.style.display = isHidden ? 'block' : 'none';
-        showExplanationButtonElement.textContent = isHidden ? 'Hide Explanation' : 'Show Explanation';
-        if (isHidden) {
-            renderMathJax(explanationElement);
-            explanationElement.scrollIntoView({ behavior: 'smooth', block: 'nearest' });
-        }
-    });
-    
-    nextButtonElement.addEventListener('click', () => {
-        loadRandomQuestion();
-    });
-    
-    retryButtonElement.addEventListener('click', () => {
-        hideError();
-        fetchQuestions();
-    });
-    
-    categorySelectElement.addEventListener('change', (event) => {
-        selectedCategory = event.target.value;
-        loadRandomQuestion();
-    });
-    
-    themeToggleButtonElement.addEventListener('click', () => {
-        toggleTheme();
-    });
-
+    // --- Global Keypress Shortcuts ---
     document.addEventListener('keydown', (event) => {
+         // Ignore shortcuts if focus is on the text input
          if (document.activeElement === answerInputElement) return;
 
+        // 'n' or ArrowRight for next question (if feedback is shown)
         if ((event.key === 'n' || event.key === 'ArrowRight') && feedbackElement.style.display === 'block') {
             loadRandomQuestion();
         }
         
+        // 'e' to toggle explanation (if feedback is shown)
         if (event.key === 'e' && feedbackElement.style.display === 'block') {
             showExplanationButtonElement.click();
         }
 
+        // A-Z keys to select multiple choice (if applicable and not answered)
          if (currentQuestion && currentQuestion.answer_type === 'multipleChoice' && !isAnswered) {
              const keyUpper = event.key.toUpperCase();
              if (keyUpper.length === 1 && keyUpper >= 'A' && keyUpper <= 'Z') {
@@ -1524,6 +1325,7 @@ document.addEventListener('DOMContentLoaded', () => {
              }
          }
 
+        // Enter or Space to submit multiple choice (if selected and not answered)
           if (currentQuestion && currentQuestion.answer_type === 'multipleChoice' && !isAnswered && userAnswer !== '' && (event.key === 'Enter' || event.key === ' ')) {
              event.preventDefault(); 
              if (submitButtonElement.style.display !== 'none' && !submitButtonElement.disabled) {
@@ -1531,14 +1333,20 @@ document.addEventListener('DOMContentLoaded', () => {
              }
           }
 
+        // Enter to advance to next question (if feedback is shown)
            if (event.key === 'Enter' && feedbackElement.style.display === 'block') {
                 event.preventDefault();
                 nextButtonElement.click();
            }
     });
+
+    renderMathJax(); // Initial render pass
 });
 
+
 // --- Load Question by ID Functionality ---
+
+// Finds and displays a specific question based on its ID
 function loadQuestionById(targetId) {
     if (!targetId) {
         alert('Please enter a Question ID.');
@@ -1548,13 +1356,12 @@ function loadQuestionById(targetId) {
     const foundQuestion = questions.find(q => q.id === targetId.trim());
 
     if (foundQuestion) {
-        hideError(); // Hide any previous errors
+        hideError(); 
         currentQuestion = foundQuestion;
-        seenQuestionIds.add(currentQuestion.id); // Mark as seen
-        saveStats(); // Save the updated seen list
+        seenQuestionIds.add(currentQuestion.id); // Mark as seen to prevent immediate repeat if random hits it
+        saveStats(); 
         
-        // Reset the category filter to 'All' when loading specific ID
-        // to avoid confusion if the ID is not in the currently selected category
+        // Reset filter to avoid confusion if ID is not in current category
         selectedCategory = 'all';
         categorySelectElement.value = 'all';
 
