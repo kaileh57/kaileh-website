@@ -1,0 +1,1049 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Expanded Sand Simulation</title>
+    <style>
+        body {
+            display: flex;
+            /* flex-direction: column; Align items vertically */
+            justify-content: center;
+            align-items: flex-start; /* Align canvas and palette to top */
+            min-height: 100vh;
+            background-color: #222;
+            margin: 20px; /* Add margin around content */
+            font-family: sans-serif;
+            color: white;
+            gap: 20px; /* Space between canvas and palette */
+        }
+        #simulation-container {
+            display: flex;
+            flex-direction: column;
+            align-items: center; /* Center canvas and its text */
+        }
+        canvas {
+            border: 1px solid #555;
+            background-color: black; /* Matches EMPTY_COLOR */
+            cursor: crosshair;
+            image-rendering: pixelated; /* Keep pixels sharp */
+            image-rendering: -moz-crisp-edges;
+            image-rendering: crisp-edges;
+        }
+        #ui-info {
+            margin-top: 10px;
+            font-size: 14px;
+            text-align: center;
+        }
+         #ui-info p {
+            margin: 3px 0;
+        }
+         #palette {
+            display: grid;
+            grid-template-columns: repeat(2, 1fr); /* 2 columns */
+            gap: 5px;
+            padding: 10px;
+            background-color: #333;
+            border-radius: 5px;
+            max-height: calc(100vh - 40px); /* Limit height */
+            overflow-y: auto; /* Allow scrolling if needed */
+        }
+        #palette button {
+            padding: 8px 5px;
+            border: 1px solid #ccc;
+            cursor: pointer;
+            font-size: 12px;
+            min-width: 80px;
+             border-radius: 3px;
+             color: #111; /* Dark text for contrast on light buttons */
+             font-weight: bold;
+             text-shadow: 0px 0px 2px rgba(255,255,255,0.4); /* Slight glow */
+        }
+         #palette button.selected {
+            border: 2px solid yellow;
+            box-shadow: 0 0 5px yellow;
+        }
+    </style>
+</head>
+<body>
+
+    <div id="simulation-container">
+        <canvas id="simulationCanvas"></canvas>
+        <div id="ui-info">
+            <p id="material-text">Brush: Sand (Size: 3)</p>
+            <p>Click Palette/Use Mouse Wheel for Size</p>
+            <p id="coords-text">Coords: (0, 0)</p>
+            <p id="fps-text">FPS: calculating...</p>
+            <p><button id="clear-button">Clear [C]</button></p>
+        </div>
+    </div>
+
+    <div id="palette">
+        <!-- Buttons will be generated here by JavaScript -->
+    </div>
+
+
+    <script>
+        const canvas = document.getElementById('simulationCanvas');
+        const ctx = canvas.getContext('2d', { alpha: false }); // Improve performance if no transparency needed
+        const uiMaterialText = document.getElementById('material-text');
+        const uiFPSText = document.getElementById('fps-text');
+        const uiCoordsText = document.getElementById('coords-text');
+        const paletteDiv = document.getElementById('palette');
+        const clearButton = document.getElementById('clear-button');
+
+        // --- Constants ---
+        const GRID_WIDTH = 200;
+        const GRID_HEIGHT = 150;
+        const CELL_SIZE = 4; // Adjust for desired canvas size
+
+        const WIDTH = GRID_WIDTH * CELL_SIZE;
+        const HEIGHT = GRID_HEIGHT * CELL_SIZE;
+
+        canvas.width = WIDTH;
+        canvas.height = HEIGHT;
+        // Disable image smoothing for crisp pixels
+        ctx.imageSmoothingEnabled = false;
+
+
+        // Particle Types (Constants for better readability)
+        const EMPTY = 0;
+        const SAND = 1;
+        const WATER = 2;
+        const STONE = 3;
+        const PLANT = 4;
+        const FIRE = 5;
+        const LAVA = 6;
+        const GLASS = 7;
+        const STEAM = 8;
+        const OIL = 9;
+        const ACID = 10;
+        const COAL = 11;
+        const GUNPOWDER = 12;
+        const ICE = 13;
+        const WOOD = 14;
+        const SMOKE = 15;
+        const TOXIC_GAS = 16;
+        const SLIME = 17;
+        const ERASER = 99; // Special type for the eraser tool
+
+        // Colors (RGB arrays) - Add colors for new materials
+        const C_EMPTY = [0, 0, 0];
+        const C_SAND = [194, 178, 128];
+        const C_WATER = [50, 100, 200];
+        const C_STONE = [100, 100, 100];
+        const C_PLANT = [50, 150, 50];
+        const C_FIRE = [255, 69, 0];
+        const C_LAVA = [200, 50, 0];
+        const C_GLASS = [210, 230, 240];
+        const C_STEAM = [180, 180, 190];
+        const C_OIL = [80, 70, 20];
+        const C_ACID = [100, 255, 100];
+        const C_COAL = [40, 40, 40];
+        const C_GUNPOWDER = [60, 60, 70];
+        const C_ICE = [170, 200, 255];
+        const C_WOOD = [139, 69, 19];
+        const C_SMOKE = [150, 150, 150];
+        const C_TOXIC_GAS = [150, 200, 150];
+        const C_SLIME = [100, 200, 100];
+        const C_ERASER = [255,0,255]; // Magenta for eraser button
+
+
+        // Material Properties
+        // Index:    0       1         2           3         4        5         6               7       8        9         10                11
+        //        [density, conduct, flammability, melt_temp, boil_temp, freeze_temp, base_color_arr, name, viscosity, lifespan, corrosive_power, explosive_yield]
+        const MATERIALS = {
+            //                 Dens Cond Flam Melt Boil Frze Color      Name         Visc Life Corr Expl
+            [EMPTY]:     [   0, 0.1, 0.0, null, null, null, C_EMPTY,     "Empty",     1, null, 0.0, null ],
+            [SAND]:      [   5, 0.3, 0.0, 1500, null, null, C_SAND,      "Sand",      1, null, 0.0, null ],
+            [WATER]:     [   3, 0.6, 0.0, null,  100,    0, C_WATER,     "Water",     1, null, 0.0, null ],
+            [STONE]:     [  10, 0.2, 0.0, null, null, null, C_STONE,     "Stone",     1, null, 0.0, null ],
+            [PLANT]:     [   2, 0.1, 0.05, 200, null, null, C_PLANT,     "Plant",     1, null, 0.0, null ], // Melts into 'Fire' (burning)
+            [FIRE]:      [  -2, 0.9, 0.0, null, null, null, C_FIRE,      "Fire",      1,   50, 0.0, null ], // Lifespan is base, fuel resets
+            [LAVA]:      [   8, 0.8, 0.0, 1800, null, 1000, C_LAVA,      "Lava",      5, null, 0.0, null ], // Freezes into Stone, viscous
+            [GLASS]:     [   9, 0.4, 0.0, 1800, null, null, C_GLASS,     "Glass",     1, null, 0.0, null ], // Melts into Lava
+            [STEAM]:     [  -5, 0.7, 0.0, null, null,   99, C_STEAM,     "Steam",     1,  200, 0.0, null ], // Condenses to Water (at top), has lifespan
+            [OIL]:       [   2, 0.4, 0.9, null,  300, null, C_OIL,       "Oil",       3, null, 0.0, null ], // Floats on water, flammable, viscous
+            [ACID]:      [ 3.5, 0.5, 0.0, null,  200, null, C_ACID,      "Acid",      1, null, 0.1, null ], // Corrosive, denser than water
+            [COAL]:      [   4, 0.2, 1.0,  800, null, null, C_COAL,      "Coal",      1, null, 0.0, null ], // Burns into fire/smoke
+            [GUNPOWDER]: [ 4.5, 0.1, 1.0,  150, null, null, C_GUNPOWDER, "Gunpowder", 1, null, 0.0, 4    ], // Explodes
+            [ICE]:       [ 2.9, 0.3, 0.0,    1, null, null, C_ICE,       "Ice",       1, null, 0.0, null ], // Melts to water, density slightly < water
+            [WOOD]:      [   7, 0.2, 0.4,  400, null, null, C_WOOD,      "Wood",      1, null, 0.0, null ], // Burns, solid
+            [SMOKE]:     [  -3, 0.1, 0.0, null, null, null, C_SMOKE,     "Smoke",     1,  150, 0.0, null ], // Rises, disappears
+            [TOXIC_GAS]: [  -4, 0.1, 0.1, null, null, null, C_TOXIC_GAS, "Toxic Gas", 1,  250, 0.01,null ], // Rises, disappears, slightly corrosive/damaging to plants
+            [SLIME]:     [ 3.2, 0.3, 0.1, null,  150, null, C_SLIME,     "Slime",    10, null, 0.0, null ], // Viscous liquid
+            [ERASER]:    [   0, 0.0, 0.0, null, null, null, C_ERASER,    "Eraser",    1, null, 0.0, null ], // Special tool type
+        };
+
+        // Simulation Parameters
+        const AMBIENT_TEMP = 20.0;
+        const COOLING_RATE = 0.005; // Slower cooling
+        const FIRE_HEAT_TRANSFER = 60.0;
+        const PLANT_GROWTH_CHANCE = 0.0015; // Slightly increased chance now it needs water
+        const MAX_TEMP = 2500; // Prevent runaway temperatures
+        const DEFAULT_FIRE_LIFESPAN = 50; // Define a default fallback
+        const CONDENSATION_Y_LIMIT = 5; // How many rows from top steam condenses easily
+
+        // --- Particle Class ---
+        class Particle {
+            constructor(x, y, type = EMPTY, temp = AMBIENT_TEMP) {
+                this.x = x;
+                this.y = y;
+                this.type = type;
+                this.temp = temp;
+                this.processed = false;
+                this.life = null; // Set during creation if needed
+                this._colorCache = null;
+                this.initProperties();
+            }
+
+            initProperties() {
+                 const props = this.getProperties();
+                 this.temp = (this.type === FIRE) ? Math.max(this.temp, 800) :
+                            (this.type === LAVA) ? Math.max(this.temp, 1100) :
+                            (this.type === STEAM) ? Math.max(this.temp, 101) :
+                             this.temp;
+
+                 // Use default lifespan if property is null
+                 this.life = props[9] ?? (this.type === FIRE ? DEFAULT_FIRE_LIFESPAN : null);
+
+                 this.invalidateColorCache();
+            }
+
+            getProperties() {
+                return MATERIALS[this.type] || MATERIALS[EMPTY];
+            }
+
+            invalidateColorCache() {
+                 this._colorCache = null;
+            }
+
+            // Slightly refined color logic
+            getColor() {
+                if (this._colorCache) return this._colorCache;
+
+                const props = this.getProperties();
+                const baseColorArr = props[6];
+                let r = baseColorArr[0], g = baseColorArr[1], b = baseColorArr[2];
+                const type = this.type;
+
+                if (type !== EMPTY) {
+                    let tempFactor = 0;
+                    if (type !== FIRE && type !== LAVA && type !== STEAM && type !== SMOKE && type !== TOXIC_GAS) { // Non-hot things
+                         tempFactor = Math.max(-0.5, Math.min(1.5, (this.temp - AMBIENT_TEMP) / 150)); // Wider range for temp effect
+                         r = Math.max(0, Math.min(255, r + tempFactor * 25));
+                         g = Math.max(0, Math.min(255, g + tempFactor * 15));
+                         b = Math.max(0, Math.min(255, b + tempFactor * 10 - Math.abs(tempFactor) * 5)); // Cool blueish tint if cold
+                    } else if (type === FIRE) {
+                        const flicker = Math.random() * 0.3 + 0.85; // 0.85 to 1.15
+                        const tempFactor = Math.max(0, Math.min(1, (this.temp - 500) / 600));
+                        r = Math.min(255, baseColorArr[0] * flicker + tempFactor * 60);
+                        g = Math.min(255, baseColorArr[1] * flicker * (1.0 - tempFactor * 0.6));
+                        b = Math.max(0, baseColorArr[2] * flicker * (1.0 - tempFactor));
+                    } else if (type === LAVA) {
+                         const tempFactor = Math.max(0, Math.min(1, (this.temp - 1000) / 800));
+                         r = Math.min(255, baseColorArr[0] + tempFactor * 50);
+                         g = Math.min(255, baseColorArr[1] + tempFactor * 70); // More yellow when hotter
+                         b = Math.max(0, baseColorArr[2] * (1 - tempFactor * 0.5));
+                    } else if (type === STEAM || type === SMOKE || type === TOXIC_GAS) {
+                         // Fade out based on life?
+                         const maxLife = props[9];
+                         if (this.life !== null && maxLife !== null && maxLife > 0) {
+                             const lifeFactor = Math.max(0, this.life / maxLife);
+                             // Fade towards black/gray instead:
+                             const fade = 0.6 * (1 - lifeFactor); // Fade up to 60% towards gray
+                             const gray = 80;
+                             r = Math.floor(r * lifeFactor + gray * fade);
+                             g = Math.floor(g * lifeFactor + gray * fade);
+                             b = Math.floor(b * lifeFactor + gray * fade);
+                         }
+                    }
+                }
+
+                this._colorCache = `rgb(${Math.floor(r)}, ${Math.floor(g)}, ${Math.floor(b)})`;
+                return this._colorCache;
+            }
+
+            changeType(newType) {
+                const oldType = this.type; // Store old type before changing
+                const oldTemp = this.temp; // Keep old temp unless specified
+                this.type = newType;
+                // Re-initialize properties like temp, life based on the new type
+                this.initProperties();
+                // Carry over some temperature momentum during phase change?
+                if (newType === WATER && oldType === STEAM) this.temp = Math.min(99, Math.max(AMBIENT_TEMP, oldTemp - 20));
+                else if (newType === WATER && oldType === ICE) this.temp = Math.max(1, Math.min(AMBIENT_TEMP, oldTemp + 5));
+                else if (newType === STEAM && oldType === WATER) this.temp = Math.max(100, oldTemp + 50);
+                else if (newType === LAVA && oldType === GLASS) this.temp = Math.max(1800, oldTemp + 50);
+                else if (newType === STONE && oldType === LAVA) this.temp = Math.min(999, oldTemp - 100);
+                else if (newType === GLASS && oldType === SAND) this.temp = Math.max(1500, oldTemp + 20);
+                else if (newType === ICE && oldType === WATER) this.temp = Math.min(0, oldTemp - 10);
+                else if (newType === FIRE) this.temp = Math.max(600, oldTemp + 200); // Ensure fire starts hot
+
+                this.invalidateColorCache();
+            }
+        }
+
+
+        // --- Simulation Class ---
+        class Simulation {
+            constructor(width, height) {
+                this.width = width;
+                this.height = height;
+                this.grid = [];
+                this.colOrder = Array.from(Array(width).keys());
+                this.initGrid();
+            }
+
+            initGrid() {
+                 this.grid = Array.from({ length: this.height }, (_, y) =>
+                    Array.from({ length: this.width }, (_, x) => new Particle(x, y, EMPTY))
+                );
+                console.log("Grid initialized/cleared.");
+            }
+
+            isValid(x, y) {
+                return x >= 0 && x < this.width && y >= 0 && y < this.height;
+            }
+
+            getParticle(x, y) {
+                return this.isValid(x, y) ? this.grid[y][x] : null;
+            }
+
+             setParticle(x, y, particle) { // Ensure this handles Particle object
+                if (this.isValid(x, y)) {
+                    const oldParticle = this.grid[y][x];
+                    particle.x = x;
+                    particle.y = y;
+                    // particle.initProperties(); // Constructor now handles this
+                    particle.invalidateColorCache();
+                    this.grid[y][x] = particle;
+                    return oldParticle;
+                }
+                return null;
+            }
+
+            // Swap particles AND update their internal x, y coordinates
+            swapParticles(x1, y1, x2, y2) {
+                if (!this.isValid(x1, y1) || !this.isValid(x2, y2)) return;
+
+                const p1 = this.grid[y1][x1];
+                const p2 = this.grid[y2][x2];
+
+                this.grid[y1][x1] = p2;
+                this.grid[y2][x2] = p1;
+
+                // Check if particles actually exist before updating coords
+                if (p1) { p1.x = x2; p1.y = y2; p1.invalidateColorCache(); }
+                if (p2) { p2.x = x1; p2.y = y1; p2.invalidateColorCache(); }
+            }
+
+             shuffleArray(array) {
+                for (let i = array.length - 1; i > 0; i--) {
+                    const j = Math.floor(Math.random() * (i + 1));
+                    [array[i], array[j]] = [array[j], array[i]];
+                }
+            }
+
+            // --- Main Update Loop ---
+            update() {
+                for (let y = 0; y < this.height; y++) {
+                    for (let x = 0; x < this.width; x++) {
+                        // Check particle exists before accessing properties
+                        if (this.grid[y][x]) {
+                             this.grid[y][x].processed = false;
+                        }
+                    }
+                }
+
+                this.shuffleArray(this.colOrder);
+
+                // Iterate bottom-up for gravity stability
+                for (let y = this.height - 1; y >= 0; y--) {
+                    for (const x of this.colOrder) { // Use shuffled column order
+                        const particle = this.grid[y][x];
+                        // Check particle exists and is valid before processing
+                        if (particle && !particle.processed && particle.type !== EMPTY) {
+                            this.updateParticle(particle);
+                        }
+                    }
+                }
+            }
+
+            // --- Individual Particle Update ---
+            updateParticle(particle) {
+                particle.processed = true;
+                const { x, y } = particle;
+                let initialType = particle.type; // Store type before changes
+
+                 // --- 0. Lifespan & State Changes First ---
+                this.handleLifespan(particle);
+                if(particle.type === EMPTY) return; // Died of old age
+
+                this.handleStateChangesAndEffects(particle);
+                if (particle.type === EMPTY) return; // State change resulted in destruction (burnout, explosion etc)
+
+                // Re-fetch props in case type changed
+                const currentProps = particle.getProperties();
+                const currentType = particle.type; // Type after state changes
+
+                // --- 1. Temperature Update ---
+                this.updateTemperature(particle);
+
+                // --- 2. Physics / Movement ---
+                this.handleMovement(particle, currentProps);
+
+            }
+
+
+            // --- Helper: Lifespan ---
+             handleLifespan(particle) {
+                if (particle.life !== null) {
+                    particle.life -= 1;
+                    if (particle.life <= 0) {
+                        const currentX = particle.x; // Store position before potentially changing type
+                        const currentY = particle.y;
+                        const currentTemp = particle.temp;
+
+                        if(particle.type === FIRE) { // Fire leaves smoke/heat
+                             const smokeTemp = Math.min(400, currentTemp); // Residual heat
+                             this.setParticle(currentX, currentY, new Particle(currentX, currentY, SMOKE, smokeTemp));
+                        } else {
+                            // Use changeType to properly reset properties
+                            // particle.changeType(EMPTY); // changeType doesn't handle grid update
+                            // Ensure the particle is replaced in the grid
+                            this.setParticle(currentX, currentY, new Particle(currentX, currentY, EMPTY));
+                        }
+                         // No need to invalidate cache on EMPTY
+                    } else {
+                        // Invalidate cache if life changed, as color might depend on it
+                         particle.invalidateColorCache();
+                    }
+                }
+            }
+
+
+            // --- Helper: State Changes & Special Effects ---
+            handleStateChangesAndEffects(particle) {
+                const { x, y } = particle;
+                let ptype = particle.type;
+                let temp = particle.temp;
+                const props = particle.getProperties();
+                let stateChanged = false;
+
+                // Temperature-based state changes
+                const meltTemp = props[3];
+                const boilTemp = props[4];
+                const freezeTemp = props[5]; // Condensation point for steam
+
+                // Melting
+                if (meltTemp !== null && temp >= meltTemp) {
+                    let newState = -1;
+                    if (ptype === SAND) newState = GLASS;
+                    else if (ptype === GLASS) newState = LAVA;
+                    else if (ptype === ICE) newState = WATER;
+                    else if (ptype === GUNPOWDER) { this.explode(x, y, props[11] || 4); return; } // Explode returns directly
+                    else if (ptype === PLANT || ptype === WOOD || ptype === COAL) {
+                        let nearFire = false;
+                         for (let dx = -1; dx <= 1; dx++) { for (let dy = -1; dy <= 1; dy++) {
+                            const neighbor = this.getParticle(x + dx, y + dy);
+                            if (neighbor && neighbor.type === FIRE) { nearFire = true; break; } } if(nearFire) break; }
+                        if(nearFire || temp > (meltTemp + 100)) newState = FIRE;
+                    }
+
+                    if (newState !== -1 && newState !== ptype) {
+                        particle.changeType(newState); stateChanged = true; return;
+                    }
+                }
+
+                 // Boiling
+                 if (!stateChanged && boilTemp !== null && temp >= boilTemp) {
+                     let newState = -1;
+                     if (ptype === WATER) newState = STEAM;
+                     if (ptype === OIL) newState = FIRE;
+                     if (ptype === ACID) newState = TOXIC_GAS;
+                     if (ptype === SLIME) newState = TOXIC_GAS;
+
+                     if (newState !== -1 && newState !== ptype) {
+                        particle.changeType(newState); stateChanged = true; return;
+                     }
+                 }
+
+                 // Freezing / Condensation
+                 if (!stateChanged && freezeTemp !== null && temp <= freezeTemp) {
+                     let newState = -1;
+                     if (ptype === LAVA) newState = STONE;
+                     // *** MODIFIED STEAM CHECK ***
+                     // Only condense if near the top (e.g., y < CONDENSATION_Y_LIMIT)
+                     else if (ptype === STEAM && particle.y < CONDENSATION_Y_LIMIT) newState = WATER;
+                     else if (ptype === WATER) newState = ICE;   // Freezing
+
+                     if (newState !== -1 && newState !== ptype) {
+                         particle.changeType(newState); stateChanged = true; return;
+                     }
+                 }
+
+
+                 // --- Special Effects ---
+                 ptype = particle.type; // Re-check type after potential state changes
+                 const fireBaseLifespan = MATERIALS[FIRE][9] ?? DEFAULT_FIRE_LIFESPAN; // Get fire lifespan from MATERIALS
+
+                 if (ptype === FIRE) {
+                    let foundFuel = false;
+                    for (let dx = -1; dx <= 1; dx++) { for (let dy = -1; dy <= 1; dy++) {
+                        if (dx === 0 && dy === 0) continue;
+                        const neighbor = this.getParticle(x + dx, y + dy);
+                        if (neighbor) {
+                            const neighborProps = neighbor.getProperties();
+                            if (neighbor.type !== EMPTY) {
+                                 neighbor.temp = Math.min(MAX_TEMP, neighbor.temp + FIRE_HEAT_TRANSFER / (1 + Math.abs(dx) + Math.abs(dy)));
+                                 neighbor.invalidateColorCache();
+                            }
+                            const flammability = neighborProps[2];
+                            // Check if neighbor is flammable and hot enough to ignite
+                            if (neighbor.type !== FIRE && flammability > 0 && neighbor.temp >= (neighborProps[3] || 150) ) {
+                                 if (Math.random() < flammability) {
+                                    neighbor.changeType(FIRE);
+                                    foundFuel = true;
+                                }
+                            } else if (flammability > 0 && neighbor.type !== FIRE) {
+                                // If neighbor is flammable but not hot enough, still count as potential fuel
+                                 foundFuel = true;
+                            }
+                            // Check for gunpowder ignition specifically
+                            if (neighbor.type === GUNPOWDER) {
+                                this.explode(neighbor.x, neighbor.y, neighborProps[11] || 4);
+                                foundFuel = true; // Explosion counts as finding 'fuel' for excitement
+                                // Check if this fire particle was destroyed by the explosion? Difficult here. Assume it survives for now.
+                            }
+                        }
+                    }}
+                     // Reset life if fuel was nearby or consumed
+                     if (foundFuel && particle.life !== null) {
+                         particle.life = Math.max(particle.life, fireBaseLifespan); // Reset to max lifespan from MATERIALS
+                     }
+                     // Generate smoke?
+                     if (Math.random() < 0.1) {
+                        const smokeX = x + (Math.random() < 0.5 ? -1 : 1);
+                        const smokeY = y - 1;
+                        const target = this.getParticle(smokeX, smokeY);
+                        if (target && target.type === EMPTY) {
+                             this.setParticle(smokeX, smokeY, new Particle(smokeX, smokeY, SMOKE, particle.temp * 0.5));
+                        }
+                     }
+                 }
+                 else if (ptype === ACID) {
+                     const corrosivePower = props[10] || 0.0;
+                     if (corrosivePower > 0) {
+                         let acidConsumed = false;
+                         for (let dx = -1; dx <= 1; dx++) { for (let dy = -1; dy <= 1; dy++) {
+                             if (Math.abs(dx) + Math.abs(dy) !== 1) continue; // Adjacent only
+                             const neighbor = this.getParticle(x + dx, y + dy);
+                             // Define materials resistant to acid
+                             const resistant = [EMPTY, ACID, GLASS, STONE];
+                             if (neighbor && !resistant.includes(neighbor.type)) {
+                                if (Math.random() < corrosivePower) {
+                                     const destroyedX = neighbor.x;
+                                     const destroyedY = neighbor.y;
+                                     // Need to create a new EMPTY particle to replace the destroyed one
+                                     this.setParticle(destroyedX, destroyedY, new Particle(destroyedX, destroyedY, EMPTY));
+
+                                     if(Math.random() < 0.05) { // Chance to consume acid
+                                         // Replace acid particle with empty
+                                         this.setParticle(x, y, new Particle(x,y, EMPTY));
+                                         acidConsumed = true;
+                                     }
+                                      if(Math.random() < 0.1 && !acidConsumed) { // Create gas if acid not consumed
+                                         const gasX = x + (dx === 0 ? (Math.random()<0.5?-1:1) : dx);
+                                         const gasY = y + dy -1;
+                                         const target = this.getParticle(gasX, gasY);
+                                         if(target && target.type === EMPTY){
+                                             this.setParticle(gasX, gasY, new Particle(gasX, gasY, TOXIC_GAS, particle.temp));
+                                         }
+                                      }
+                                     if (acidConsumed) return; // Acid gone, stop processing it
+                                     // Break after corroding one neighbor to slow down reaction rate
+                                     // stateChanged = true; // Mark state changed if acid was consumed? Not really needed here.
+                                     break;
+                                }
+                             }
+                         }} // End neighbor loop
+                     } // End corrosive power check
+                 }
+                 // *** MODIFIED PLANT LOGIC ***
+                 else if (ptype === PLANT) {
+                     let hasWater = false;
+                     // Check for adjacent water first
+                     for (let dx = -1; dx <= 1; dx++) { for (let dy = -1; dy <= 1; dy++) {
+                         if (Math.abs(dx) + Math.abs(dy) !== 1) continue; // Only direct neighbors
+                         const neighbor = this.getParticle(x + dx, y + dy);
+                         if (neighbor && neighbor.type === WATER) {
+                             hasWater = true;
+                             // Optional: Consume water slowly?
+                             // if (Math.random() < 0.01) this.setParticle(neighbor.x, neighbor.y, new Particle(neighbor.x, neighbor.y, EMPTY));
+                             break; // Found water, no need to check further
+                         }
+                     } if (hasWater) break; } // Break outer loop if water found
+
+                     // Grow only if water is adjacent and temperature is right
+                     if (hasWater && AMBIENT_TEMP < particle.temp && particle.temp < 50 && Math.random() < PLANT_GROWTH_CHANCE) {
+                        const growOptions = [];
+                        for (let dx = -1; dx <= 1; dx++) { for (let dy = -1; dy <= 1; dy++) {
+                            if (Math.abs(dx) + Math.abs(dy) !== 1) continue; // Adjacent only
+                            const neighbor = this.getParticle(x + dx, y + dy);
+                            // Grow into empty space only
+                            if (neighbor && neighbor.type === EMPTY) {
+                                growOptions.push({nx: x + dx, ny: y + dy});
+                            }
+                        }}
+                        if (growOptions.length > 0) {
+                            const choice = growOptions[Math.floor(Math.random() * growOptions.length)];
+                            this.setParticle(choice.nx, choice.ny, new Particle(choice.nx, choice.ny, PLANT, particle.temp));
+                            // Maybe slow down growth after spawning one?
+                            // break; // Uncomment if plant should only grow one new cell per frame
+                        }
+                    } // End growth check
+
+                    // Still check for damage from toxic gas
+                    for (let dx = -1; dx <= 1; dx++) { for (let dy = -1; dy <= 1; dy++) {
+                         const neighbor = this.getParticle(x+dx, y+dy);
+                         const toxicCorrosion = neighbor ? (MATERIALS[neighbor.type]?.[10] ?? 0) : 0;
+                         if(neighbor && neighbor.type === TOXIC_GAS && Math.random() < toxicCorrosion){
+                             // Replace plant with empty
+                             this.setParticle(x, y, new Particle(x, y, EMPTY));
+                             stateChanged = true; return; // Plant died
+                         }
+                    }} // End toxic gas check
+                 } // End plant logic
+
+                 // Ensure particle state is consistent after potential changes
+                 // if(stateChanged) particle.processed = true; // This might prevent movement after state change, remove for now
+            } // End handleStateChangesAndEffects
+
+
+            // --- Helper: Temperature Calculation ---
+            updateTemperature(particle) {
+                const { x, y } = particle;
+                const ptype = particle.type;
+                if (ptype === EMPTY) return;
+
+                const props = particle.getProperties();
+                let conductivity = props[1];
+                const currentTemp = particle.temp;
+
+                if (ptype === STONE || ptype === GLASS) conductivity *= 0.2;
+
+                let neighborTempSum = 0;
+                let neighborConductivitySum = 0;
+                let neighborCount = 0;
+
+                for (let dx = -1; dx <= 1; dx++) { for (let dy = -1; dy <= 1; dy++) {
+                    if (Math.abs(dx) + Math.abs(dy) !== 1) continue;
+                    const neighbor = this.getParticle(x + dx, y + dy);
+                    if (neighbor) {
+                        const neighborProps = neighbor.getProperties();
+                        // Avoid division by zero if neighbor conductivity is 0
+                        const neighborCond = neighborProps[1] || 0;
+                        neighborTempSum += neighbor.temp * neighborCond;
+                        neighborConductivitySum += neighborCond;
+                        neighborCount++;
+                    } else {
+                        neighborTempSum += AMBIENT_TEMP * MATERIALS[EMPTY][1];
+                        neighborConductivitySum += MATERIALS[EMPTY][1];
+                        neighborCount++;
+                    }
+                }}
+
+                let newTemp = currentTemp;
+                if (neighborCount > 0) {
+                    const totalConductivity = conductivity + neighborConductivitySum;
+                    if (totalConductivity > 0.001) {
+                       const weightedAvgTemp = (currentTemp * conductivity + neighborTempSum) / totalConductivity;
+                       // Limit temperature change per step to avoid instability
+                       const deltaTemp = Math.max(-50, Math.min(50, (weightedAvgTemp - currentTemp) * Math.min(0.5, conductivity * 0.5)));
+                       // const deltaTemp = (weightedAvgTemp - currentTemp) * Math.min(0.5, conductivity * 0.5);
+                       newTemp = currentTemp + deltaTemp;
+                    }
+                }
+
+                newTemp += (AMBIENT_TEMP - newTemp) * COOLING_RATE * conductivity;
+                newTemp = Math.max(-273.15, Math.min(MAX_TEMP, newTemp));
+
+                 if (Math.abs(newTemp - currentTemp) > 0.01) {
+                    particle.temp = newTemp;
+                    particle.invalidateColorCache();
+                }
+            }
+
+
+             // --- Helper: Physics and Movement (Revised for displacement) ---
+             handleMovement(particle, props) {
+                const { x, y } = particle;
+                const density = props[0];
+                const type = particle.type;
+
+                const isGas = density < 0;
+                const isLiquid = !isGas && (type === WATER || type === OIL || type === ACID || type === LAVA || type === SLIME); // Define liquids
+                const isSolid = !isGas && !isLiquid;
+
+                let moved = false;
+
+                // --- 1. Vertical Movement (Gravity / Buoyancy) ---
+                const vertDir = isGas ? -1 : 1; // -1 for up, 1 for down
+                const ny = y + vertDir;
+                const targetBelowOrAbove = this.getParticle(x, ny);
+
+                if (targetBelowOrAbove) {
+                    const targetProps = targetBelowOrAbove.getProperties();
+                    const targetDensity = targetProps[0];
+                    const targetType = targetBelowOrAbove.type;
+                    // Density check: gas wants lower density below (or higher above), non-gas wants lower density below
+                    const densityCheck = isGas ? (targetDensity > density) : (targetDensity < density);
+
+                    if (densityCheck && targetType !== EMPTY) { // Can move into target based on density, and it's not empty
+                         const targetIsGas = targetDensity < 0;
+                         // Needs displacement if gas meets non-gas
+                         const needsDisplace = (isGas && !targetIsGas) || (!isGas && targetIsGas);
+
+                         if (!needsDisplace) { // Simple swap possible (e.g. sand falling in air, gas rising in gas)
+                            this.swapParticles(x, y, x, ny);
+                            moved = true;
+                         } else { // Displacement needed (e.g. sand falling in water, steam rising in water)
+                              const dx1 = (Math.random() < 0.5) ? -1 : 1;
+                              const dx2 = -dx1;
+                              // Try pushing target diagonally first (away from original particle's movement direction)
+                              if (this.tryPush(x, ny, x + dx1, ny, particle, targetBelowOrAbove)) moved = true; // Push target sideways first
+                              else if (this.tryPush(x, ny, x + dx2, ny, particle, targetBelowOrAbove)) moved = true;
+                              // Maybe push diagonal away from source particle? Less intuitive
+                              // else if (this.tryPush(x, ny, x + dx1, ny + vertDir, particle, targetBelowOrAbove)) moved = true;
+                              // else if (this.tryPush(x, ny, x + dx2, ny + vertDir, particle, targetBelowOrAbove)) moved = true;
+
+                              // Fallback: If push fails, attempt simple diagonal move (less realistic but prevents getting stuck)
+                              else if (this.tryDiagonalMove(particle, x, y, vertDir)) moved = true;
+
+                         }
+                    } else if (targetType === EMPTY){ // Target is empty, simple swap
+                         this.swapParticles(x,y,x,ny);
+                         moved = true;
+                    }
+                } else if (this.isValid(x, ny)) { // Off grid but valid cell (bottom/top edge)
+                     // Simulate swapping with EMPTY off-grid
+                     if (vertDir > 0 || (isGas && y > 0) ) { // Allow falling off bottom, prevent rising off top row unless y>0
+                        // Create new empty particle in old spot, then move particle
+                        this.setParticle(x, y, new Particle(x, y, EMPTY));
+                        this.setParticle(x, ny, particle); // This updates particle's internal x,y too
+                        moved = true;
+                    }
+                }
+
+                if (moved) { particle.processed = true; return; }
+
+                 // --- 2. Diagonal Movement (Solids/Liquids Falling, Gases Rising) ---
+                 if (this.tryDiagonalMove(particle, x, y, vertDir)) {
+                     particle.processed = true; return;
+                 }
+
+                // --- 3. Sideways Movement (Liquids/Gases Spreading) ---
+                if (isLiquid || isGas) {
+                    const viscosity = props[8] || 1;
+                    if (Math.random() < (1.0 / viscosity)) {
+                        const dx1 = (Math.random() < 0.5) ? -1 : 1;
+                        const dx2 = -dx1;
+
+                        const trySideMove = (checkX) => {
+                             const target = this.getParticle(checkX, y);
+                             if (target) {
+                                 const targetDensity = target.getProperties()[0];
+                                 const densityCheck = isGas ? (targetDensity > density) : (targetDensity < density);
+                                 // Only allow simple sideways move into EMPTY for now
+                                 if (densityCheck && target.type === EMPTY) {
+                                     this.swapParticles(x, y, checkX, y);
+                                     return true;
+                                 }
+                                 // Add sideways liquid/gas displacement? Complex.
+                                 // Example: Water pushes air sideways, Steam pushes air sideways
+                                 // else if (target.type === EMPTY || (isLiquid && target.type !== STONE && target.density < density) ... )
+                             }
+                             return false;
+                        }
+
+                        if (trySideMove(x + dx1)) { particle.processed = true; return; }
+                        if (trySideMove(x + dx2)) { particle.processed = true; return; }
+                    }
+                }
+            } // End handleMovement
+
+
+            // Helper for displacement push (Attempt to push targetParticle at (targetX, targetY) to (pushToX, pushToY))
+            tryPush(targetX, targetY, pushToX, pushToY, originalParticle, targetParticle) {
+                 // Check if the destination for the pushed particle is valid and empty
+                 const pushTargetCell = this.getParticle(pushToX, pushToY);
+                 if (pushTargetCell && pushTargetCell.type === EMPTY) {
+                     // Move the target particle first into the empty space
+                     // this.swapParticles(targetX, targetY, pushToX, pushToY); // This moves targetParticle
+
+                     // We need to move targetParticle to pushToX, pushToY
+                     // and originalParticle to targetX, targetY
+                     // and make originalParticle's old position empty
+
+                     // Create Empty in original spot
+                     this.setParticle(originalParticle.x, originalParticle.y, new Particle(originalParticle.x, originalParticle.y, EMPTY));
+                     // Move target particle to its new spot
+                     this.setParticle(pushToX, pushToY, targetParticle);
+                     // Move original particle to target's old spot
+                     this.setParticle(targetX, targetY, originalParticle);
+
+
+                     return true; // Push successful
+                 }
+                 return false;
+            }
+
+
+            // Helper for diagonal movement check
+            tryDiagonalMove(particle, x, y, vertDir) { // vertDir = 1 (down), -1 (up)
+                 const density = particle.getProperties()[0];
+                 const isGas = density < 0;
+
+                 const dx1 = (Math.random() < 0.5) ? -1 : 1;
+                 const dx2 = -dx1;
+
+                 const checkDiag = (checkX, checkY) => {
+                     const diagTarget = this.getParticle(checkX, checkY);
+                     if (diagTarget) {
+                         const diagDensity = diagTarget.getProperties()[0];
+                         // Density check: moving particle wants to displace diagonal target
+                         const densityCheck = isGas ? (diagDensity > density) : (diagDensity < density);
+
+                         // Check if diagonal target is empty AND the space directly vertical is also empty
+                         // This prevents phasing through single diagonal blocks
+                         if (densityCheck && diagTarget.type === EMPTY) {
+                             const verticalNeighbor = this.getParticle(x, y + vertDir);
+                             if (verticalNeighbor && verticalNeighbor.type === EMPTY) {
+                                 this.swapParticles(x, y, checkX, checkY);
+                                 return true;
+                             }
+                         }
+                         // Diagonal displacement? Very complex, skip for now.
+                     }
+                     return false;
+                 };
+
+                 if (checkDiag(x + dx1, y + vertDir)) return true;
+                 if (checkDiag(x + dx2, y + vertDir)) return true;
+
+                 return false;
+            }
+
+
+            // --- Helper: Explosion ---
+            explode(cx, cy, radius) {
+                 const fireBaseLifespan = MATERIALS[FIRE][9] ?? DEFAULT_FIRE_LIFESPAN; // Get fire lifespan again
+                 // Remove the original gunpowder particle first
+                 this.setParticle(cx, cy, new Particle(cx, cy, EMPTY));
+
+                 for (let dx = -radius; dx <= radius; dx++) {
+                     for (let dy = -radius; dy <= radius; dy++) {
+                         const distSq = dx * dx + dy * dy;
+                         if (distSq <= radius * radius && !(dx === 0 && dy === 0)) { // Don't affect center cell which is now empty
+                             const px = cx + dx;
+                             const py = cy + dy;
+                             const target = this.getParticle(px, py);
+                             if (target) {
+                                 const dist = Math.sqrt(distSq);
+                                 const effectScale = Math.max(0, 1 - (dist / radius)); // 1 near center, 0 at edge
+
+                                 target.temp = Math.min(MAX_TEMP, target.temp + 1500 * effectScale);
+                                 const destroyChance = effectScale * 0.95;
+                                 const targetType = target.type;
+
+                                 // Define materials resistant to explosion (adjust as needed)
+                                 const resistant = [EMPTY, STONE, GLASS]; // Acid, Lava?
+
+                                 if (!resistant.includes(targetType) && Math.random() < destroyChance) {
+                                     if (Math.random() < 0.6 * effectScale) {
+                                          target.changeType(FIRE);
+                                          target.life = Math.max(target.life ?? 0, Math.floor(fireBaseLifespan * effectScale * 0.5));
+                                     } else {
+                                          target.changeType(SMOKE);
+                                          target.life = Math.max(target.life ?? 0, Math.floor(100 * effectScale));
+                                     }
+                                 } else if ((targetType === STONE || targetType === GLASS) && Math.random() < effectScale * 0.2) {
+                                      // Degrade Stone/Glass to Sand sometimes
+                                      target.changeType(SAND);
+                                 }
+                                 target.invalidateColorCache();
+                                 target.processed = true; // Mark affected particles as processed for this frame
+                             }
+                         }
+                     }
+                 }
+             } // End explode
+
+
+            // --- Drawing ---
+            draw() {
+                 ctx.fillStyle = 'black';
+                 ctx.fillRect(0, 0, WIDTH, HEIGHT);
+
+                 for (let y = 0; y < this.height; y++) {
+                    for (let x = 0; x < this.width; x++) {
+                        const particle = this.grid[y][x];
+                        if (particle && particle.type !== EMPTY) { // Check particle exists
+                            ctx.fillStyle = particle.getColor();
+                            ctx.fillRect(x * CELL_SIZE, y * CELL_SIZE, CELL_SIZE, CELL_SIZE);
+                        }
+                    }
+                }
+            }
+        } // End Simulation Class
+
+        // --- Global State ---
+        const simulation = new Simulation(GRID_WIDTH, GRID_HEIGHT);
+        let isDrawing = false;
+        let currentMaterial = SAND;
+        let brushSize = 3; // Radius
+
+        let lastTime = 0;
+        let frameCount = 0;
+        let fps = 0;
+
+        // --- UI Update Functions ---
+        function updateUIText() {
+             const matName = MATERIALS[currentMaterial] ? MATERIALS[currentMaterial][7] : "Unknown";
+             uiMaterialText.textContent = `Brush: ${matName} (Size: ${brushSize})`;
+             uiFPSText.textContent = `FPS: ${fps.toFixed(1)}`;
+             document.querySelectorAll('#palette button').forEach(btn => {
+                 btn.classList.remove('selected');
+                 // Use == for comparison as dataset.materialId is string
+                 if (parseInt(btn.dataset.materialId) === currentMaterial) {
+                     btn.classList.add('selected');
+                 }
+             });
+        }
+
+         function updateCoordsText(cx, cy) {
+            if (simulation.isValid(cx,cy)) {
+                const p = simulation.getParticle(cx,cy);
+                if (p) { // Check if particle exists at coords
+                    const pName = p.getProperties()[7];
+                    const pTemp = p.temp.toFixed(1);
+                    uiCoordsText.textContent = `Coords: (${cx}, ${cy}) | ${pName} | ${pTemp}°C`;
+                } else {
+                     uiCoordsText.textContent = `Coords: (${cx}, ${cy}) | Invalid`; // Should not happen if isValid passed
+                }
+            } else {
+                 uiCoordsText.textContent = `Coords: (${cx}, ${cy})`;
+            }
+        }
+
+
+        // --- Game Loop ---
+        function gameLoop(timestamp) {
+            frameCount++;
+            const deltaTime = timestamp - lastTime;
+            if (deltaTime >= 1000) {
+                 fps = (frameCount * 1000) / deltaTime;
+                 frameCount = 0;
+                 lastTime = timestamp;
+                 updateUIText();
+             }
+
+            simulation.update();
+            simulation.draw();
+
+            requestAnimationFrame(gameLoop);
+        }
+
+        // --- Event Handlers ---
+        function getMousePos(canvas, evt) {
+            const rect = canvas.getBoundingClientRect();
+            return {
+                x: evt.clientX - rect.left,
+                y: evt.clientY - rect.top
+            };
+        }
+
+        function handleDraw(event) {
+             const pos = getMousePos(canvas, event);
+             const cx = Math.floor(pos.x / CELL_SIZE);
+             const cy = Math.floor(pos.y / CELL_SIZE);
+             updateCoordsText(cx, cy);
+
+             if (!isDrawing) return;
+
+             for (let dx = -brushSize; dx <= brushSize; dx++) {
+                 for (let dy = -brushSize; dy <= brushSize; dy++) {
+                     if (dx * dx + dy * dy <= brushSize * brushSize) {
+                         const px = cx + dx;
+                         const py = cy + dy;
+
+                         if (simulation.isValid(px, py)) {
+                             if (currentMaterial !== ERASER) {
+                                 // Create new particle directly in the grid
+                                 simulation.setParticle(px, py, new Particle(px, py, currentMaterial));
+                             } else {
+                                 // Eraser: set back to empty
+                                 simulation.setParticle(px, py, new Particle(px, py, EMPTY));
+                             }
+                         }
+                     }
+                 }
+             }
+        }
+
+        canvas.addEventListener('mousedown', (e) => { isDrawing = true; handleDraw(e); });
+        canvas.addEventListener('mousemove', handleDraw);
+        canvas.addEventListener('mouseup', () => { isDrawing = false; });
+        canvas.addEventListener('mouseleave', () => { isDrawing = false; updateCoordsText(-1,-1); });
+        canvas.addEventListener('contextmenu', (e) => e.preventDefault());
+
+         canvas.addEventListener('wheel', (e) => {
+            e.preventDefault();
+            if (e.deltaY < 0) brushSize = Math.min(15, brushSize + 1);
+            else brushSize = Math.max(1, brushSize - 1);
+            updateUIText();
+        });
+
+        window.addEventListener('keydown', (e) => {
+             if (e.key === 'c' || e.key === 'C') simulation.initGrid();
+        });
+
+         clearButton.addEventListener('click', () => simulation.initGrid());
+
+        // --- Palette Generation ---
+        function populatePalette() {
+             const eraserBtn = document.createElement('button');
+             eraserBtn.textContent = MATERIALS[ERASER][7];
+             eraserBtn.dataset.materialId = ERASER;
+             eraserBtn.style.backgroundColor = `rgb(${C_ERASER.join(',')})`;
+             eraserBtn.style.color = 'white';
+              eraserBtn.addEventListener('click', () => { currentMaterial = ERASER; updateUIText(); });
+             paletteDiv.appendChild(eraserBtn);
+
+            for (const matId in MATERIALS) {
+                const id = parseInt(matId);
+                if (id !== EMPTY && id !== ERASER) {
+                     const props = MATERIALS[id];
+                     const btn = document.createElement('button');
+                     btn.textContent = props[7];
+                     btn.dataset.materialId = id;
+                     const colorArr = props[6];
+                     btn.style.backgroundColor = `rgb(${colorArr.join(',')})`;
+                     const brightness = (colorArr[0] * 299 + colorArr[1] * 587 + colorArr[2] * 114) / 1000;
+                     if (brightness < 128) btn.style.color = 'white';
+                     btn.addEventListener('click', () => { currentMaterial = id; updateUIText(); });
+                     paletteDiv.appendChild(btn);
+                 }
+             }
+         }
+
+        // --- Start Simulation ---
+        populatePalette();
+        updateUIText();
+        requestAnimationFrame(gameLoop);
+
+    </script>
+
+</body>
+</html>
