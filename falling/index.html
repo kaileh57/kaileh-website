@@ -211,6 +211,22 @@
         const MIN_STATE_SECONDS = 10.0; // Min time for Lava/Steam state
         const TARGET_DT_SCALING = 60.0; // Factor to scale rates based on 60fps baseline
 
+        // Helper function to check if a type is liquid
+        function isLiquid(type) {
+            // Only true fluids should flow like liquids
+            return type === WATER || type === OIL || type === ACID || type === GASOLINE || type === LAVA;
+        }
+
+        // Helper function to check if a type behaves like a powder/granular solid
+        function isPowder(type) {
+            return type === SAND || type === ASH || type === GUNPOWDER || type === COAL; // Maybe add PLANT?
+        }
+
+        // Helper function to check if a type is a generally rigid solid
+        function isRigidSolid(type) {
+            return type === STONE || type === GLASS || type === WOOD || type === ICE;
+        }
+
         // --- PARTICLE CLASS ---
         class Particle {
             constructor(x, y, type = EMPTY, temp = AMBIENT_TEMP) {
@@ -218,6 +234,8 @@
                 this.initialTemp = temp; this.temp = temp; this.processed = false;
                 this.life = null; // Life is now in seconds
                 this.timeInState = 0.0; // Tracks time in current state (for Lava/Steam)
+                this.movedThisStep = false; // For wave/splash logic
+                this.burning = false;
                 this.initProperties();
             }
             initProperties() {
@@ -299,8 +317,14 @@
 
             // --- Main Update Loop --- Takes deltaTime in seconds ---
             update(deltaTime) {
-                // Reset processed flag
-                for (let y = 0; y < this.height; y++) { for (let x = 0; x < this.width; x++) { const p = this.grid[y][x]; if (p) p.processed = false; } }
+                // Reset processed flag and movedThisStep flag
+                for (let y = 0; y < this.height; y++) { for (let x = 0; x < this.width; x++) {
+                    const p = this.grid[y][x];
+                    if (p) {
+                         p.processed = false;
+                         p.movedThisStep = false;
+                    }
+                }}
                 // Shuffle column processing order
                 this.shuffleArray(this.colOrder);
                 // Process particles bottom-up, using shuffled column order
@@ -560,13 +584,58 @@
                 if (type === GENERATOR) { particle.processed = true; return; } // Generators immovable
 
                 const density = props[0]; const isGas = density < 0;
-                const isLiquid = !isGas && (type === WATER || type === OIL || type === ACID || type === LAVA || type === SLIME || type === GASOLINE);
-                const isSolid = !isGas && !isLiquid;
+                const isCurrentLiquid = isLiquid(type);
+                const isSolid = !isGas && !isCurrentLiquid;
                 let moved = false;
 
-                // --- 1. Vertical Movement: Check below (or above for gas) ---
+                // --- 0. Splash Check (Solid falling onto Liquid) ---
                 const vertDir = isGas ? -1 : 1;
                 const ny = y + vertDir;
+                if (isSolid && vertDir === 1 && this.isValid(x, ny)) {
+                    const targetBelow = this.getParticle(x, ny);
+                    if (targetBelow && isLiquid(targetBelow.type)) { // Use isLiquid helper
+                        // Try to splash the liquid sideways/up
+                        const splashDir = (Math.random() < 0.5) ? -1 : 1;
+                        let splashed = false;
+
+                        // Check diagonal up-left/right from the target liquid's spot (relative to falling solid)
+                        const splashX1 = x + splashDir;
+                        const splashY1 = y; // Splash target is level with the falling solid
+                        if (!splashed && this.isValid(splashX1, splashY1)) {
+                            const splashTarget1 = this.getParticle(splashX1, splashY1);
+                            if (splashTarget1 && splashTarget1.type === EMPTY) {
+                                this.setParticle(splashX1, splashY1, targetBelow); // Move liquid
+                                this.setParticle(x, ny, particle); // Move solid down
+                                this.setParticle(x, y, new Particle(x, y, EMPTY)); // Empty original spot
+                                moved = true;
+                                splashed = true;
+                                // Mark both moved particles
+                                if (this.grid[splashX1]?.[splashY1]) this.grid[splashX1][splashY1].movedThisStep = true;
+                                if (this.grid[x]?.[ny]) this.grid[x][ny].movedThisStep = true;
+                            }
+                        }
+                        // Check other diagonal direction if first failed
+                        const splashX2 = x - splashDir;
+                        const splashY2 = y;
+                        if (!splashed && this.isValid(splashX2, splashY2)) {
+                           const splashTarget2 = this.getParticle(splashX2, splashY2);
+                           if (splashTarget2 && splashTarget2.type === EMPTY) {
+                               this.setParticle(splashX2, splashY2, targetBelow); // Move liquid
+                               this.setParticle(x, ny, particle); // Move solid down
+                               this.setParticle(x, y, new Particle(x, y, EMPTY)); // Empty original spot
+                               moved = true;
+                               splashed = true;
+                               // Mark both moved particles
+                               if (this.grid[splashX2]?.[splashY2]) this.grid[splashX2][splashY2].movedThisStep = true;
+                               if (this.grid[x]?.[ny]) this.grid[x][ny].movedThisStep = true;
+                           }
+                       }
+                    }
+                }
+                // If splashed, particle processing is done for this step
+                if (moved) { particle.processed = true; return; }
+
+                // --- 1. Vertical Movement: Check below (or above for gas) ---
                 if (!this.isValid(x, ny)) { particle.processed = true; return; } // Boundary check
 
                 const target = this.getParticle(x, ny);
@@ -603,6 +672,9 @@
                                     this.setParticle(x, y, new Particle(x, y, EMPTY)); // Empty original spot
                                     moved = true;
                                     pushed = true;
+                                    // Mark moved particles
+                                    if (this.grid[pushX1]?.[ny]) this.grid[pushX1][ny].movedThisStep = true;
+                                    if (this.grid[x]?.[ny]) this.grid[x][ny].movedThisStep = true;
                                 }
                             }
 
@@ -617,6 +689,9 @@
                                         this.setParticle(x, y, new Particle(x, y, EMPTY)); // Empty original spot
                                         moved = true;
                                         pushed = true;
+                                        // Mark moved particles
+                                        if (this.grid[pushX2]?.[ny]) this.grid[pushX2][ny].movedThisStep = true;
+                                        if (this.grid[x]?.[ny]) this.grid[x][ny].movedThisStep = true;
                                     }
                                 }
                             }
@@ -634,6 +709,10 @@
                             if (densityAllowsSwap) {
                                 this.swapParticles(x, y, x, ny);
                                 moved = true;
+                                particle.movedThisStep = true;
+                                // Also mark the particle it swapped with if it exists
+                                const swappedWith = this.getParticle(x, y); // Now the other particle is here
+                                if (swappedWith) swappedWith.movedThisStep = true;
                             }
                         }
                     } // End target.type !== EMPTY block
@@ -641,36 +720,111 @@
 
                 if (moved) { particle.processed = true; return; }
 
-                // --- 2. Diagonal Movement (if vertical failed, only into EMPTY) ---
-                if (this.tryDiagonalMove(particle, x, y, vertDir, density, isGas)) {
-                    particle.processed = true; return;
-                }
-
-                // --- 3. Sideways Movement (Liquids/Gases, if vertical/diagonal failed) ---
-                // Only moves into EMPTY cells.
-                if (isLiquid || isGas) {
-                    const viscosity = props[8] || 1;
-                    if (Math.random() < (1.0 / viscosity)) { // Keep viscosity check for spread
-                        const dx1 = (Math.random() < 0.5) ? -1 : 1; const dx2 = -dx1;
-                        const trySideMove = (checkX) => {
-                             if (!this.isValid(checkX, y)) return false;
-                             const sideTarget = this.getParticle(checkX, y);
-                             // Allow sideways move only into EMPTY
-                             if (sideTarget && sideTarget.type === EMPTY) {
-                                 this.swapParticles(x, y, checkX, y);
-                                 return true;
-                             } return false;
-                        }
-                        if (trySideMove(x + dx1)) { particle.processed = true; return; }
-                        if (trySideMove(x + dx2)) { particle.processed = true; return; }
+                // --- Check if Powder is blocked by Rigid Solid Below --- NEW STEP
+                if (!moved && vertDir === 1 && isPowder(type)) { // Only check if falling down and is powder
+                    const particleBelow = this.getParticle(x, y + 1);
+                    if (particleBelow && isRigidSolid(particleBelow.type)) {
+                        // Powder is directly above a rigid solid it couldn't displace vertically.
+                        // Stop further movement attempts (diagonal/piling) for this step.
+                        particle.processed = true;
+                        return;
                     }
                 }
+
+                // --- 2. Diagonal Movement (if vertical/splash/powder-on-solid failed, only into EMPTY) ---
+                // Restrict rigid solids from easy diagonal movement
+                 if (!isRigidSolid(type)) {
+                      if (this.tryDiagonalMove(particle, x, y, vertDir, density, isGas)) {
+                          particle.processed = true; return;
+                      }
+                 }
+
+                // --- 3. Sideways/Piling Movement (if vertical/diagonal failed) ---
+                 const amPowder = isPowder(type);
+                 const amLiquidOrGas = isCurrentLiquid || isGas;
+
+                 if (amLiquidOrGas) { // Liquid/Gas Spreading
+                      const viscosity = props[8] || 1;
+                      const baseSpreadChance = isCurrentLiquid ? (1.0 / viscosity) : 1.0; // Gases always try to spread
+
+                      // Randomize check order
+                      const dx1 = (Math.random() < 0.5) ? -1 : 1;
+                      const dx2 = -dx1;
+
+                      const trySideMove = (dx) => {
+                          if (Math.random() >= baseSpreadChance) return false; // Check base spread chance
+
+                          const checkX = x + dx;
+                          if (!this.isValid(checkX, y)) return false;
+
+                          const sideTarget = this.getParticle(checkX, y);
+
+                          // Priority 1: Move into EMPTY
+                          if (sideTarget && sideTarget.type === EMPTY) {
+                              this.swapParticles(x, y, checkX, y);
+                              particle.movedThisStep = true; // Mark as moved
+                              return true;
+                          }
+                          // Priority 2: Push adjacent liquid (Wave/Momentum effect)
+                          else if (isCurrentLiquid && sideTarget && isLiquid(sideTarget.type) && particle.movedThisStep) {
+                              // Check if cell beyond the target liquid is empty
+                              const pushX = checkX + dx;
+                              if (this.isValid(pushX, y)) {
+                                  const pushTarget = this.getParticle(pushX, y);
+                                  if (pushTarget && pushTarget.type === EMPTY) {
+                                      // Probability based on viscosity (less chance for viscous liquids)
+                                      const pushChance = (0.5 / viscosity);
+                                      if (Math.random() < pushChance) {
+                                          this.setParticle(pushX, y, sideTarget); // Push neighbor
+                                          this.setParticle(checkX, y, particle); // Move current particle
+                                          this.setParticle(x, y, new Particle(x, y, EMPTY));
+                                          // Mark moved particles
+                                          if (this.grid[pushX]?.[y]) this.grid[pushX][y].movedThisStep = true;
+                                          if (this.grid[checkX]?.[y]) this.grid[checkX][y].movedThisStep = true;
+                                          return true;
+                                      }
+                                  }
+                              }
+                          }
+                          return false; // Didn't move into empty or push
+                      };
+
+                      if (trySideMove(dx1)) { particle.processed = true; return; }
+                      if (trySideMove(dx2)) { particle.processed = true; return; }
+
+                 } else if (amPowder && vertDir === 1) { // Powder Piling (only applies when falling down)
+                      const below = this.getParticle(x, y + 1);
+                      // Check if resting on something (not empty, not generator)
+                      if (below && below.type !== EMPTY && below.type !== GENERATOR) {
+                           const dx1 = (Math.random() < 0.5) ? -1 : 1;
+                           const dx2 = -dx1;
+
+                           const tryPile = (dx) => {
+                                const pileX = x + dx;
+                                const pileY = y + 1; // Below and to the side
+                                if (this.isValid(pileX, pileY)) {
+                                     const pileTarget = this.getParticle(pileX, pileY);
+                                     // If the diagonal-down spot is empty, move there
+                                     if (pileTarget && pileTarget.type === EMPTY) {
+                                          this.swapParticles(x, y, pileX, pileY);
+                                          particle.movedThisStep = true;
+                                          return true;
+                                     }
+                                }
+                                return false;
+                           };
+
+                           if (tryPile(dx1)) { particle.processed = true; return; }
+                           if (tryPile(dx2)) { particle.processed = true; return; }
+                      }
+                 } // End Liquid/Gas/Powder horizontal/piling logic
+
+
             } // End handleMovement
 
 
             // Helper for diagonal movement check (Modified: Still only into Empty, but checks vertical block correctly)
             tryDiagonalMove(particle, x, y, vertDir, density, isGas) {
-                 //const props = particle.getProperties(); const density = props[0]; const isGas = density < 0; // Passed in now
                  const dx1 = (Math.random() < 0.5) ? -1 : 1; const dx2 = -dx1;
 
                  const checkDiag = (checkX) => {
@@ -687,7 +841,12 @@
                                                    (isGas ? verticalNeighbor.getProperties()[0] <= density : verticalNeighbor.getProperties()[0] >= density));
 
                            if (verticalBlocked) {
-                               this.swapParticles(x, y, checkX, diagY); return true; // Perform the diagonal move
+                               this.swapParticles(x, y, checkX, diagY); // Perform the diagonal move
+                               particle.movedThisStep = true; // Mark as moved
+                               // Mark the particle it swapped with (which is now EMPTY)
+                               const swappedWith = this.getParticle(x, y); // Should be null or EMPTY now
+                               // No need to mark the swapped particle as it's empty or gone
+                               return true;
                            }
                       } return false;
                  };
