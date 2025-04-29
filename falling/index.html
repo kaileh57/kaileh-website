@@ -3,7 +3,7 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Enhanced Falling Sand Simulation</title>
+    <title>Everything Falls</title>
     <link rel="icon" href="#" id="favicon"> <!-- Placeholder for dynamic favicon -->
     <style>
         body {
@@ -181,7 +181,7 @@
             [FIRE]:      [  -2, 0.9, 0.0, null, null, null, C_FIRE,      "Fire",       1,   50, 0.0, null, 0.0, null ],
             [LAVA]:      [   8, 0.8, 0.0, 1800, null, 1000, C_LAVA,      "Lava",       5, null, 0.0, null, 0.0, null ],
             [GLASS]:     [   9, 0.4, 0.0, 1800, null, null, C_GLASS,     "Glass",      1, null, 0.0, null, 0.0, null ],
-            [STEAM]:     [  -5, 0.7, 0.0, null, null,   99, C_STEAM,     "Steam",      1,  200, 0.0, null, 0.0, null ],
+            [STEAM]:     [  -5, 0.7, 0.0, null, null,   99, C_STEAM,     "Steam",      1,  500, 0.0, null, 0.0, null ],
             [OIL]:       [   2, 0.4, 0.9, null,  300, null, C_OIL,       "Oil",        3, null, 0.0, null, 0.0, 200  ],
             [ACID]:      [ 3.5, 0.5, 0.0, null,  200, null, C_ACID,      "Acid",       1, null, 0.15,null, 0.0, null ],
             [COAL]:      [   4, 0.2, 1.0,  800, null, null, C_COAL,      "Coal",       1, null, 0.0, null, 0.0, 350  ],
@@ -202,7 +202,10 @@
         const AMBIENT_TEMP = 20.0; const COOLING_RATE = 0.005; const FIRE_HEAT_TRANSFER = 60.0;
         const WATER_COOLING_FACTOR = 80.0; const PLANT_GROWTH_CHANCE = 0.0015; const MAX_TEMP = 3000;
         const DEFAULT_FIRE_LIFESPAN = 50; const FUSE_BURN_LIFESPAN = 200; const CONDENSATION_Y_LIMIT = 5;
-        const CONDENSATION_CHANCE_ANYWHERE = 0.0005;
+        const CONDENSATION_CHANCE_ANYWHERE = 0.0001;
+        const PHASE_CHANGE_TEMP_BUFFER = 5.0;
+        const HIGH_INERTIA_DAMPING = 0.2;
+        const MIN_STATE_FRAMES = 600;
 
 
         // --- PARTICLE CLASS ---
@@ -211,13 +214,20 @@
                 this.x = x; this.y = y; this.type = type;
                 this.initialTemp = temp; this.temp = temp; this.processed = false;
                 this.life = null; this._colorCache = null; this.burning = false;
+                this.framesInState = 0;
                 this.initProperties();
             }
-            initProperties() { const props = this.getProperties(); let targetTemp = this.temp; if (this.type === FIRE) targetTemp = Math.max(this.temp, 800); else if (this.type === LAVA) targetTemp = Math.max(this.temp, 1100); else if (this.type === STEAM) targetTemp = Math.max(this.temp, 101); else if (this.type === GENERATOR) targetTemp = Math.max(this.temp, 300); else if (this.type === ICE) targetTemp = Math.min(this.temp, -5); this.temp = Math.max(-273.15, Math.min(MAX_TEMP, targetTemp)); this.life = props[9] ?? null; this.burning = false; this.invalidateColorCache(); }
+            initProperties() { const props = this.getProperties(); let targetTemp = this.temp; if (this.type === FIRE) targetTemp = Math.max(this.temp, 800); else if (this.type === LAVA) targetTemp = Math.max(this.temp, 1100); else if (this.type === STEAM) targetTemp = Math.max(this.temp, 101); else if (this.type === GENERATOR) targetTemp = Math.max(this.temp, 300); else if (this.type === ICE) targetTemp = Math.min(this.temp, -5); else if (this.type === SAND && this.temp > 1500) targetTemp = Math.max(this.temp, 1500);
+                else if (this.type === STONE && this.temp > 1000) targetTemp = Math.max(this.temp, 1000);
+                this.temp = Math.max(-273.15, Math.min(MAX_TEMP, targetTemp)); this.life = props[9] ?? null; this.burning = false; this.invalidateColorCache(); }
             getProperties() { return MATERIALS[this.type] || MATERIALS[EMPTY]; }
             invalidateColorCache() { this._colorCache = null; }
             getColor() { if (this._colorCache) return this._colorCache; const props = this.getProperties(); const baseColorArr = props[6]; let r = baseColorArr[0], g = baseColorArr[1], b = baseColorArr[2]; const type = this.type; if (type !== EMPTY) { let tempFactor = 0; if (type !== FIRE && type !== LAVA && type !== STEAM && type !== SMOKE && type !== TOXIC_GAS && type !== GENERATOR) { tempFactor = Math.max(-0.5, Math.min(1.5, (this.temp - AMBIENT_TEMP) / 150)); r = Math.max(0, Math.min(255, r + tempFactor * 25)); g = Math.max(0, Math.min(255, g + tempFactor * 15)); b = Math.max(0, Math.min(255, b + tempFactor * 10 - Math.abs(tempFactor) * 15)); } else if (type === FIRE) { const flicker = Math.random() * 0.3 + 0.85; tempFactor = Math.max(0, Math.min(1, (this.temp - 500) / 600)); r = Math.min(255, baseColorArr[0] * flicker + tempFactor * 60); g = Math.min(255, baseColorArr[1] * flicker * (1.0 - tempFactor * 0.6)); b = Math.max(0, baseColorArr[2] * flicker * (1.0 - tempFactor)); } else if (type === LAVA) { tempFactor = Math.max(0, Math.min(1, (this.temp - 1000) / 800)); r = Math.min(255, baseColorArr[0] + tempFactor * 50); g = Math.min(255, baseColorArr[1] + tempFactor * 70); b = Math.max(0, baseColorArr[2] * (1 - tempFactor * 0.5)); } else if (type === GENERATOR) { tempFactor = Math.max(0, Math.min(1, (this.temp - 300) / 1000)); r = Math.min(255, baseColorArr[0] + tempFactor * 50); g = Math.max(0, baseColorArr[1] * (1 - tempFactor * 0.8)); b = Math.max(0, baseColorArr[2] * (1 - tempFactor * 0.8)); } else if (type === STEAM || type === SMOKE || type === TOXIC_GAS) { const maxLife = props[9]; if (this.life !== null && maxLife !== null && maxLife > 0) { const lifeFactor = Math.max(0, this.life / maxLife); const fade = 0.6 * (1 - lifeFactor); const gray = 80; r = Math.floor(r * lifeFactor + gray * fade); g = Math.floor(g * lifeFactor + gray * fade); b = Math.floor(b * lifeFactor + gray * fade); } } else if (type === FUSE && this.burning) { r = Math.min(255, r + 100); g = Math.min(255, g + 50); b = Math.max(0, b - 20); } } this._colorCache = `rgb(${Math.floor(r)}, ${Math.floor(g)}, ${Math.floor(b)})`; return this._colorCache; }
-            changeType(newType, newTemp = null) { const oldType = this.type; const oldTemp = this.temp; const currentX = this.x; const currentY = this.y; this.type = newType; if (newTemp !== null) { this.temp = newTemp; } this.initProperties(); this.x = currentX; this.y = currentY; if (newTemp === null) { let needsPhaseTempAdjust = true; if (newType === FIRE || newType === LAVA || newType === STEAM || newType === GENERATOR || newType === ICE) { needsPhaseTempAdjust = false; } if (needsPhaseTempAdjust) { if (newType === WATER && oldType === STEAM) this.temp = Math.min(99, Math.max(AMBIENT_TEMP, oldTemp - 20)); else if (newType === WATER && oldType === ICE) this.temp = Math.max(1, Math.min(AMBIENT_TEMP, oldTemp + 5)); else if (newType === LAVA && oldType === GLASS) this.temp = Math.max(1800, oldTemp + 50); else if (newType === STONE && oldType === LAVA) this.temp = Math.min(999, oldTemp - 100); else if (newType === GLASS && oldType === SAND) this.temp = Math.max(1500, oldTemp + 20); else if (newType === ASH && oldType === FUSE) this.temp = Math.max(AMBIENT_TEMP, oldTemp * 0.5); else if (newType === SMOKE && oldType === FIRE) this.temp = Math.max(AMBIENT_TEMP, oldTemp * 0.6); else { this.temp = oldTemp; } this.temp = Math.max(-273.15, Math.min(MAX_TEMP, this.temp)); } } this.invalidateColorCache(); }
+            changeType(newType, newTemp = null) { const oldType = this.type; const oldTemp = this.temp; const currentX = this.x; const currentY = this.y; this.type = newType; if (newTemp !== null) { this.temp = newTemp; } this.initProperties(); this.x = currentX; this.y = currentY; if (newTemp === null) { let needsPhaseTempAdjust = true; if (newType === FIRE || newType === LAVA || newType === STEAM || newType === GENERATOR || newType === ICE) { needsPhaseTempAdjust = false; } if (needsPhaseTempAdjust) { if (newType === WATER && oldType === STEAM) this.temp = Math.min(99, Math.max(AMBIENT_TEMP, oldTemp - 20)); else if (newType === WATER && oldType === ICE) this.temp = Math.max(1, Math.min(AMBIENT_TEMP, oldTemp + 5)); else if (newType === LAVA && oldType === GLASS) this.temp = Math.max(1800, oldTemp + 50); else if (newType === STONE && oldType === LAVA) this.temp = Math.min(999, oldTemp - 100); else if (newType === GLASS && oldType === SAND) this.temp = Math.max(1500, oldTemp + 20); else if (newType === ASH && oldType === FUSE) this.temp = Math.max(AMBIENT_TEMP, oldTemp * 0.5); else if (newType === SMOKE && oldType === FIRE) this.temp = Math.max(AMBIENT_TEMP, oldTemp * 0.6); else { this.temp = oldTemp; } this.temp = Math.max(-273.15, Math.min(MAX_TEMP, this.temp)); } }
+            if (newType === LAVA || newType === STEAM) {
+                 this.framesInState = 0;
+            }
+            this.invalidateColorCache(); }
         } // --- END OF PARTICLE CLASS ---
 
 
@@ -244,6 +254,11 @@
                 this.handleLifespanAndBurnout(particle); const p1 = this.getParticle(x,y); if (!p1 || p1 !== particle || p1.type === EMPTY) return;
                 this.updateTemperature(particle); const p2 = this.getParticle(x,y); if (!p2 || p2 !== particle || p2.type === EMPTY) return;
                 this.handleStateChangesAndEffects(particle); const p3 = this.getParticle(x,y); if (!p3 || p3 !== particle || p3.type === EMPTY) return;
+
+                if (particle.type === LAVA || particle.type === STEAM) {
+                     particle.framesInState++;
+                 }
+
                 const currentProps = particle.getProperties(); this.handleMovement(particle, currentProps);
             }
 
@@ -251,11 +266,30 @@
              handleLifespanAndBurnout(particle) { let checkLife = particle.life !== null; let checkBurning = particle.type === FUSE && particle.burning; if (checkLife || checkBurning) { if (checkBurning) { if (particle.life === null) particle.life = FUSE_BURN_LIFESPAN; particle.life -= 1; particle.temp = Math.min(MAX_TEMP, particle.temp + 5); particle.invalidateColorCache(); } else if (checkLife) { particle.life -= 1; particle.invalidateColorCache(); } if (particle.life !== null && particle.life <= 0) { const cX = particle.x; const cY = particle.y; const cT = particle.temp; const oT = particle.type; let rT = EMPTY; let rTp = AMBIENT_TEMP; if(oT === FIRE) { rT = SMOKE; rTp = Math.min(400, cT * 0.6); } else if (oT === FUSE) { rT = ASH; rTp = Math.max(AMBIENT_TEMP, cT * 0.5); } else if (oT === STEAM || oT === SMOKE || oT === TOXIC_GAS) { rT = EMPTY; } this.setParticle(cX, cY, new Particle(cX, cY, rT, rTp)); } } }
 
             // --- Helper: State Changes & Special Effects ---
-            handleStateChangesAndEffects(particle) { const { x, y } = particle; let ptype = particle.type; let temp = particle.temp; const props = particle.getProperties(); let stateChanged = false; const mT = props[3]; const bT = props[4]; const fT = props[5]; const iT = props[13]; if (!stateChanged && iT !== null && temp >= iT && props[2] > 0) { let nS = -1; let iST = temp; let eI = false; for (let dx = -1; dx <= 1; dx++) { for (let dy = -1; dy <= 1; dy++) { if (dx === 0 && dy === 0) continue; const n = this.getParticle(x + dx, y + dy); if (n && (n.type === FIRE || n.type === LAVA)) { eI = true; iST = Math.max(iST, n.temp); break; } } if(eI) break; } if (ptype === PLANT || ptype === WOOD || ptype === COAL || ptype === OIL || ptype === GASOLINE) { nS = FIRE; } else if (ptype === GUNPOWDER) { this.explode(x, y, props[11] || 4); return; } else if (ptype === FUSE && !particle.burning) { particle.burning = true; particle.life = FUSE_BURN_LIFESPAN; particle.temp = Math.max(temp, iT + 50); particle.invalidateColorCache(); stateChanged = true; } if (nS !== -1 && nS !== ptype) { particle.changeType(nS, Math.max(600, iST)); return; } } if (!stateChanged && mT !== null && temp >= mT) { let nS = -1; if (ptype === SAND) nS = GLASS; else if (ptype === GLASS) nS = LAVA; else if (ptype === ICE) nS = WATER; if (nS !== -1 && nS !== ptype) { particle.changeType(nS); return; } } if (!stateChanged && bT !== null && temp >= bT) { let nS = -1; if (ptype === WATER) nS = STEAM; else if (ptype === ACID) nS = TOXIC_GAS; else if (ptype === SLIME) nS = TOXIC_GAS; if (nS !== -1 && nS !== ptype) { particle.changeType(nS); return; } } if (!stateChanged && fT !== null && temp <= fT) { let nS = -1; if (ptype === LAVA) nS = STONE; else if (ptype === WATER) nS = ICE; else if (ptype === STEAM && (y < CONDENSATION_Y_LIMIT || Math.random() < CONDENSATION_CHANCE_ANYWHERE)) { nS = WATER; } if (nS !== -1 && nS !== ptype) { particle.changeType(nS); return; } } ptype = particle.type; const cP = particle.getProperties(); if (ptype === FIRE) { let fF = false; let e = false; for (let dx = -1; dx <= 1; dx++) { for (let dy = -1; dy <= 1; dy++) { if (dx === 0 && dy === 0) continue; const n = this.getParticle(x + dx, y + dy); if (n) { const nP = n.getProperties(); const nT = n.type; if (nT !== EMPTY) { n.temp = Math.min(MAX_TEMP, n.temp + FIRE_HEAT_TRANSFER / (1 + Math.abs(dx) + Math.abs(dy))); n.invalidateColorCache(); } if (nT === WATER) { particle.temp -= WATER_COOLING_FACTOR; particle.life = Math.max(1, (particle.life ?? DEFAULT_FIRE_LIFESPAN) - 10); if (Math.random() < 0.5) { n.changeType(STEAM); } if (particle.temp < 300) e = true; particle.invalidateColorCache(); } const fl = nP[2]; const nIT = nP[13]; if (nT !== FIRE && fl > 0 && nIT !== null && n.temp >= nIT ) { if (Math.random() < fl * 0.5) { if (nT === GUNPOWDER) { this.explode(n.x, n.y, nP[11] || 4); } else if (nT === FUSE && !n.burning) { n.burning = true; n.life = FUSE_BURN_LIFESPAN; n.temp = Math.max(n.temp, nIT + 50); n.invalidateColorCache(); } else if (nT !== FIRE) { n.changeType(FIRE); } fF = true; } } else if (fl > 0 && nT !== FIRE) { fF = true; } } }} if (fF && particle.life !== null) { particle.life = Math.max(particle.life, DEFAULT_FIRE_LIFESPAN); } if (!e && Math.random() < 0.1) { const sX = x + (Math.random() < 0.5 ? -1 : 1); const sY = y - 1; const t = this.getParticle(sX, sY); if (t && t.type === EMPTY) { this.setParticle(sX, sY, new Particle(sX, sY, SMOKE, particle.temp * 0.5)); } } if (e) { this.setParticle(x, y, new Particle(x, y, SMOKE, particle.temp)); return; } } else if (ptype === FUSE && particle.burning) { for (let dx = -1; dx <= 1; dx++) { for (let dy = -1; dy <= 1; dy++) { if (dx === 0 && dy === 0) continue; const n = this.getParticle(x + dx, y + dy); if (n) { const nP = n.getProperties(); const nT = n.type; const nIT = nP[13]; n.temp = Math.min(MAX_TEMP, n.temp + 20); n.invalidateColorCache(); if (nIT !== null && n.temp >= nIT) { if (nT === FUSE && !n.burning && Math.random() < 0.8) { n.burning = true; n.life = FUSE_BURN_LIFESPAN; n.temp = Math.max(n.temp, nIT + 50); n.invalidateColorCache(); } else if (nT === GUNPOWDER && Math.random() < 0.9) { this.explode(n.x, n.y, nP[11] || 4); } else if (nP[2] > 0 && nT !== FIRE && Math.random() < nP[2] * 0.2) { n.changeType(FIRE); } } } }} } else if (ptype === LAVA) { for (let dx = -1; dx <= 1; dx++) { for (let dy = -1; dy <= 1; dy++) { if (dx === 0 && dy === 0) continue; const n = this.getParticle(x + dx, y + dy); if(n){ const nP = n.getProperties(); const nT = n.type; const nIT = nP[13]; if(nIT !== null && nP[2] > 0 && nT !== FIRE){ n.temp = Math.min(MAX_TEMP, n.temp + FIRE_HEAT_TRANSFER); if(n.temp >= nIT){ if (nT === GUNPOWDER) { this.explode(n.x, n.y, nP[11] || 4); } else if (nT === FUSE && !n.burning) { n.burning = true; n.life = FUSE_BURN_LIFESPAN; n.temp = Math.max(n.temp, nIT + 50); n.invalidateColorCache(); } else if (nT !== FIRE) { n.changeType(FIRE); } } n.invalidateColorCache(); } } }} } else if (ptype === ACID) { const cPow = cP[10] || 0.0; if (cPow > 0) { let aC = false; for (let dx = -1; dx <= 1; dx++) { for (let dy = -1; dy <= 1; dy++) { if (Math.abs(dx) + Math.abs(dy) !== 1) continue; const n = this.getParticle(x + dx, y + dy); const r = [EMPTY, ACID, GLASS, GENERATOR]; if (n && !r.includes(n.type)) { if (Math.random() < cPow) { const tX = n.x; const tY = n.y; let d = true; if (n.type === STONE && Math.random() < 0.3) { n.changeType(SAND); d = false; } if (d) { this.setParticle(tX, tY, new Particle(tX, tY, EMPTY)); } if(Math.random() < 0.05) { this.setParticle(x, y, new Particle(x,y, EMPTY)); aC = true; } if(!aC && Math.random() < 0.15) { const gX = x + dx; const gY = y - 1; const t = this.getParticle(gX, gY); if(t && t.type === EMPTY){ this.setParticle(gX, gY, new Particle(gX, gY, TOXIC_GAS, particle.temp)); } } if (aC) return; break; } } }} } } else if (ptype === PLANT) { let hW = false; for (let dx = -1; dx <= 1; dx++) { for (let dy = -1; dy <= 1; dy++) { if (Math.abs(dx) + Math.abs(dy) !== 1) continue; const n = this.getParticle(x + dx, y + dy); if (n && n.type === WATER) { hW = true; break; } } if (hW) break; } if (hW && AMBIENT_TEMP < temp && temp < 50 && Math.random() < PLANT_GROWTH_CHANCE) { const gO = []; for (let dx = -1; dx <= 1; dx++) { for (let dy = -1; dy <= 1; dy++) { if (Math.abs(dx) + Math.abs(dy) !== 1) continue; const n = this.getParticle(x + dx, y + dy); if (n && n.type === EMPTY) { gO.push({nx: x + dx, ny: y + dy}); } }} if (gO.length > 0) { const c = gO[Math.floor(Math.random() * gO.length)]; this.setParticle(c.nx, c.ny, new Particle(c.nx, c.ny, PLANT, particle.temp)); } } for (let dx = -1; dx <= 1; dx++) { for (let dy = -1; dy <= 1; dy++) { const n = this.getParticle(x+dx, y+dy); if(n && n.type === TOXIC_GAS){ const tC = n.getProperties()[10] || 0.01; if(Math.random() < tC * 5) { this.setParticle(x, y, new Particle(x, y, EMPTY)); return; } } }} }
+            handleStateChangesAndEffects(particle) { const { x, y } = particle; let ptype = particle.type; let temp = particle.temp; const props = particle.getProperties(); let stateChanged = false; const mT = props[3]; const bT = props[4]; const fT = props[5]; const iT = props[13]; if (!stateChanged && iT !== null && temp >= iT && props[2] > 0) { let nS = -1; let iST = temp; let eI = false; for (let dx = -1; dx <= 1; dx++) { for (let dy = -1; dy <= 1; dy++) { if (dx === 0 && dy === 0) continue; const n = this.getParticle(x + dx, y + dy); if (n && (n.type === FIRE || n.type === LAVA || (n.type === FUSE && n.burning))) { eI = true; iST = Math.max(iST, n.temp); break; } } if(eI) break; } if (ptype === PLANT || ptype === WOOD || ptype === COAL || ptype === OIL || ptype === GASOLINE) { nS = FIRE; } else if (ptype === GUNPOWDER) { this.explode(x, y, props[11] || 4); return; } else if (ptype === FUSE && !particle.burning) { particle.burning = true; particle.life = FUSE_BURN_LIFESPAN; particle.temp = Math.max(temp, iT + 50); particle.invalidateColorCache(); stateChanged = true; } if (nS !== -1 && nS !== ptype) { particle.changeType(nS, Math.max(600, iST)); return; } } if (!stateChanged && mT !== null && temp >= mT + PHASE_CHANGE_TEMP_BUFFER) {
+                 let nS = -1; if (ptype === SAND) nS = GLASS; else if (ptype === GLASS) nS = LAVA; else if (ptype === ICE) nS = WATER; if (nS !== -1 && nS !== ptype) { particle.changeType(nS); return; } } if (!stateChanged && bT !== null && temp >= bT + PHASE_CHANGE_TEMP_BUFFER) {
+                 let nS = -1; if (ptype === WATER) nS = STEAM; else if (ptype === ACID) nS = TOXIC_GAS; else if (ptype === SLIME) nS = TOXIC_GAS; if (nS !== -1 && nS !== ptype) { particle.changeType(nS); return; } } if (!stateChanged && fT !== null && temp <= fT - PHASE_CHANGE_TEMP_BUFFER) {
+                 let nS = -1;
+                 if (ptype === LAVA && particle.framesInState >= MIN_STATE_FRAMES) {
+                    nS = STONE;
+                 } else if (ptype === WATER) {
+                    nS = ICE;
+                 } else if (ptype === STEAM && particle.framesInState >= MIN_STATE_FRAMES && (y < CONDENSATION_Y_LIMIT || Math.random() < CONDENSATION_CHANCE_ANYWHERE)) {
+                    nS = WATER;
+                 }
+                 if (nS !== -1 && nS !== ptype) { particle.changeType(nS); return; } }
+             ptype = particle.type;
+             const cP = particle.getProperties(); if (ptype === FIRE) { let fF = false; let e = false; for (let dx = -1; dx <= 1; dx++) { for (let dy = -1; dy <= 1; dy++) { if (dx === 0 && dy === 0) continue; const n = this.getParticle(x + dx, y + dy); if (n) { const nP = n.getProperties(); const nT = n.type; if (nT !== EMPTY) { n.temp = Math.min(MAX_TEMP, n.temp + FIRE_HEAT_TRANSFER / (1 + Math.abs(dx) + Math.abs(dy))); n.invalidateColorCache(); } if (nT === WATER || nT === ICE) {
+                     particle.temp -= WATER_COOLING_FACTOR; particle.life = Math.max(1, (particle.life ?? DEFAULT_FIRE_LIFESPAN) - 10); if (Math.random() < 0.5) { if (nT === WATER) n.changeType(STEAM); else if (nT === ICE) n.changeType(WATER);
+                      } if (particle.temp < 300) e = true; particle.invalidateColorCache(); } const fl = nP[2]; const nIT = nP[13]; if (nT !== FIRE && fl > 0 && nIT !== null && n.temp >= nIT ) { if (Math.random() < fl * 0.5) { if (nT === GUNPOWDER) { this.explode(n.x, n.y, nP[11] || 4); } else if (nT === FUSE && !n.burning) { n.burning = true; n.life = FUSE_BURN_LIFESPAN; n.temp = Math.max(n.temp, nIT + 50); n.invalidateColorCache(); } else if (nT !== FIRE) { n.changeType(FIRE); } fF = true; } } else if (fl > 0 && nT !== FIRE) { fF = true; } } }} if (fF && particle.life !== null) { particle.life = Math.max(particle.life, DEFAULT_FIRE_LIFESPAN * 2); } if (!e && Math.random() < 0.1) { const sX = x + (Math.random() < 0.5 ? -1 : 1); const sY = y - 1; const t = this.getParticle(sX, sY); if (t && t.type === EMPTY) { this.setParticle(sX, sY, new Particle(sX, sY, SMOKE, particle.temp * 0.5)); } } if (e) { this.setParticle(x, y, new Particle(x, y, SMOKE, particle.temp)); return; } } else if (ptype === FUSE && particle.burning) { for (let dx = -1; dx <= 1; dx++) { for (let dy = -1; dy <= 1; dy++) { if (dx === 0 && dy === 0) continue; const n = this.getParticle(x + dx, y + dy); if (n) { const nP = n.getProperties(); const nT = n.type; const nIT = nP[13]; n.temp = Math.min(MAX_TEMP, n.temp + 20); n.invalidateColorCache(); if (nIT !== null && n.temp >= nIT) { if (nT === FUSE && !n.burning && Math.random() < 0.8) { n.burning = true; n.life = FUSE_BURN_LIFESPAN; n.temp = Math.max(n.temp, nIT + 50); n.invalidateColorCache(); } else if (nT === GUNPOWDER && Math.random() < 0.9) { this.explode(n.x, n.y, nP[11] || 4); } else if (nP[2] > 0 && nT !== FIRE && Math.random() < nP[2] * 0.2) { n.changeType(FIRE); } } } }} } else if (ptype === LAVA) { for (let dx = -1; dx <= 1; dx++) { for (let dy = -1; dy <= 1; dy++) { if (dx === 0 && dy === 0) continue; const n = this.getParticle(x + dx, y + dy); if(n){ const nP = n.getProperties(); const nT = n.type; const nIT = nP[13]; if(nIT !== null && nP[2] > 0 && nT !== FIRE){ n.temp = Math.min(MAX_TEMP, n.temp + FIRE_HEAT_TRANSFER); if(n.temp >= nIT){ if (nT === GUNPOWDER) { this.explode(n.x, n.y, nP[11] || 4); } else if (nT === FUSE && !n.burning) { n.burning = true; n.life = FUSE_BURN_LIFESPAN; n.temp = Math.max(n.temp, nIT + 50); n.invalidateColorCache(); } else if (nT !== FIRE) { n.changeType(FIRE); } } n.invalidateColorCache(); } } }} } else if (ptype === ACID) { const cPow = cP[10] || 0.0; if (cPow > 0) { let aC = false; for (let dx = -1; dx <= 1; dx++) { for (let dy = -1; dy <= 1; dy++) { if (Math.abs(dx) + Math.abs(dy) !== 1) continue; const n = this.getParticle(x + dx, y + dy); const r = [EMPTY, ACID, GLASS, GENERATOR]; if (n && !r.includes(n.type)) { if (Math.random() < cPow) { const tX = n.x; const tY = n.y; let d = true; if (n.type === STONE && Math.random() < 0.3) { n.changeType(SAND); d = false; } if (d) { this.setParticle(tX, tY, new Particle(tX, tY, EMPTY)); } if(Math.random() < 0.05) { this.setParticle(x, y, new Particle(x,y, EMPTY)); aC = true; } if(!aC && Math.random() < 0.15) { const gX = x + dx; const gY = y - 1; const t = this.getParticle(gX, gY); if(t && t.type === EMPTY){ this.setParticle(gX, gY, new Particle(gX, gY, TOXIC_GAS, particle.temp)); } } if (aC) return; break; } } }} } } else if (ptype === PLANT) { let hW = false; for (let dx = -1; dx <= 1; dx++) { for (let dy = -1; dy <= 1; dy++) { if (Math.abs(dx) + Math.abs(dy) !== 1) continue; const n = this.getParticle(x + dx, y + dy); if (n && n.type === WATER) { hW = true; break; } } if (hW) break; } if (hW && AMBIENT_TEMP < temp && temp < 50 && Math.random() < PLANT_GROWTH_CHANCE) { const gO = []; for (let dx = -1; dx <= 1; dx++) { for (let dy = -1; dy <= 1; dy++) { if (Math.abs(dx) + Math.abs(dy) !== 1) continue; const n = this.getParticle(x + dx, y + dy); if (n && n.type === EMPTY) { gO.push({nx: x + dx, ny: y + dy}); } }} if (gO.length > 0) { const c = gO[Math.floor(Math.random() * gO.length)]; this.setParticle(c.nx, c.ny, new Particle(c.nx, c.ny, PLANT, particle.temp)); } } for (let dx = -1; dx <= 1; dx++) { for (let dy = -1; dy <= 1; dy++) { const n = this.getParticle(x+dx, y+dy); if(n && n.type === TOXIC_GAS){ const tC = n.getProperties()[10] || 0.01; if(Math.random() < tC * 5) { this.setParticle(x, y, new Particle(x, y, EMPTY)); return; } } }} }
             } // End handleStateChangesAndEffects
 
             // --- Helper: Temperature Calculation ---
-            updateTemperature(particle) { const { x, y } = particle; const pT = particle.type; if (pT === EMPTY) return; const p = particle.getProperties(); let c = p[1]; const cT = particle.temp; const hG = p[12] || 0.0; if (pT === GENERATOR) { c *= 0.1; } if (pT === STONE || pT === GLASS) { c *= 0.3; } let nTS = 0; let nCS = 0; let nC = 0; for (let dX = -1; dX <= 1; dX++) { for (let dY = -1; dY <= 1; dY++) { if (dX === 0 && dY === 0) continue; const n = this.getParticle(x + dX, y + dY); if (n) { const nP = n.getProperties(); const nCond = nP[1] || 0; const dF = (dX === 0 || dY === 0) ? 1.0 : 0.707; nTS += n.temp * nCond * dF; nCS += nCond * dF; nC++; } else { nTS += AMBIENT_TEMP * MATERIALS[EMPTY][1]; nCS += MATERIALS[EMPTY][1]; nC++; } } } let nTp = cT; if (nC > 0 && (c > 0 || nCS > 0)) { const tC = c + nCS; if (tC > 0.001) { const wAT = (cT * c + nTS) / tC; const dT = Math.max(-50, Math.min(50, (wAT - cT) * Math.min(0.5, c * 0.8))); nTp = cT + dT; } } nTp += (AMBIENT_TEMP - nTp) * COOLING_RATE * c; if (hG > 0) { nTp += hG; } nTp = Math.max(-273.15, Math.min(MAX_TEMP, nTp)); if (Math.abs(nTp - cT) > 0.01) { particle.temp = nTp; particle.invalidateColorCache(); } }
+            updateTemperature(particle) { const { x, y } = particle; const pT = particle.type; if (pT === EMPTY) return; const p = particle.getProperties(); let c = p[1]; const cT = particle.temp; const hG = p[12] || 0.0; if (pT === GENERATOR) { c *= 0.1; } if (pT === STONE || pT === GLASS) { c *= 0.3; } let nTS = 0; let nCS = 0; let nC = 0; for (let dX = -1; dX <= 1; dX++) { for (let dY = -1; dY <= 1; dY++) { if (dX === 0 && dY === 0) continue; const n = this.getParticle(x + dX, y + dY); if (n) { const nP = n.getProperties(); const nCond = nP[1] || 0; const dF = (dX === 0 || dY === 0) ? 1.0 : 0.707; nTS += n.temp * nCond * dF; nCS += nCond * dF; nC++; } else { nTS += AMBIENT_TEMP * MATERIALS[EMPTY][1]; nCS += MATERIALS[EMPTY][1]; nC++; } } } let nTp = cT; if (nC > 0 && (c > 0 || nCS > 0)) { const tC = c + nCS; if (tC > 0.001) { const wAT = (cT * c + nTS) / tC; let dT = Math.max(-50, Math.min(50, (wAT - cT) * Math.min(0.5, c * 0.8)));
+                        if (pT === LAVA || pT === STONE || pT === GLASS || pT === ICE) {
+                             dT *= HIGH_INERTIA_DAMPING;
+                        }
+                         nTp = cT + dT; } } nTp += (AMBIENT_TEMP - nTp) * COOLING_RATE * c; if (hG > 0) { nTp += hG; } nTp = Math.max(-273.15, Math.min(MAX_TEMP, nTp)); if (Math.abs(nTp - cT) > 0.01) { particle.temp = nTp; particle.invalidateColorCache(); } }
 
 
             // --- Helper: Physics and Movement (Prioritizes Empty Space & Density Swap) ---
@@ -281,29 +315,72 @@
                         this.swapParticles(x, y, x, ny);
                         moved = true;
                     }
-                    // --- Priority 2: Density-based SWAP ---
-                    else {
+                    // --- Priority 2: Sideways Displacement (Pushing) ---
+                    else if (target.type !== EMPTY) { // Only consider pushing if target is not empty
                         const targetProps = target.getProperties();
                         const targetDensity = targetProps[0];
-                        let densityAllowsSwap = false;
-                        if (isGas) { // Gas moving up
-                            if (targetDensity > density) densityAllowsSwap = true; // Move into denser gas or any non-gas
-                        } else { // Non-gas moving down
-                            if (density > targetDensity) densityAllowsSwap = true; // Move into less dense (solid, liquid, gas)
+                        let shouldPush = false;
+                        if (isGas && targetDensity > density) { // Gas trying to rise through denser
+                            shouldPush = true;
+                        } else if (!isGas && density > targetDensity) { // Non-gas trying to fall through lighter
+                             shouldPush = true;
                         }
 
-                        if (densityAllowsSwap) {
-                            this.swapParticles(x, y, x, ny);
-                            moved = true;
+                        if (shouldPush) {
+                            // Check horizontal neighbors of the *target* cell (x, ny) for an EMPTY spot
+                            const pushDir = (Math.random() < 0.5) ? -1 : 1; // Randomize push direction check
+                            let pushed = false;
+
+                            // Check first direction
+                            const pushX1 = x + pushDir;
+                            if (this.isValid(pushX1, ny)) {
+                                const pushTarget1 = this.getParticle(pushX1, ny);
+                                if (pushTarget1 && pushTarget1.type === EMPTY) {
+                                    this.setParticle(pushX1, ny, target); // Move target sideways
+                                    this.setParticle(x, ny, particle); // Move original particle down/up
+                                    this.setParticle(x, y, new Particle(x, y, EMPTY)); // Empty original spot
+                                    moved = true;
+                                    pushed = true;
+                                }
+                            }
+
+                            // Check second direction if first failed
+                            if (!pushed) {
+                                const pushX2 = x - pushDir;
+                                if (this.isValid(pushX2, ny)) {
+                                    const pushTarget2 = this.getParticle(pushX2, ny);
+                                    if (pushTarget2 && pushTarget2.type === EMPTY) {
+                                        this.setParticle(pushX2, ny, target); // Move target sideways
+                                        this.setParticle(x, ny, particle); // Move original particle down/up
+                                        this.setParticle(x, y, new Particle(x, y, EMPTY)); // Empty original spot
+                                        moved = true;
+                                        pushed = true;
+                                    }
+                                }
+                            }
+                        } // end shouldPush
+
+                        // --- Priority 3: Density-based SWAP (if pushing failed) ---
+                        if (!moved) { // Only try density swap if not already moved by pushing
+                            let densityAllowsSwap = false;
+                            if (isGas) { // Gas moving up
+                                if (targetDensity > density) densityAllowsSwap = true; // Move into denser gas or any non-gas
+                            } else { // Non-gas moving down
+                                if (density > targetDensity) densityAllowsSwap = true; // Move into less dense (solid, liquid, gas)
+                            }
+
+                            if (densityAllowsSwap) {
+                                this.swapParticles(x, y, x, ny);
+                                moved = true;
+                            }
                         }
-                    }
+                    } // End target.type !== EMPTY block
                 } // End target check
 
                 if (moved) { particle.processed = true; return; }
 
-                // --- 2. Diagonal Movement (if vertical failed) ---
-                // Tries to move diagonally only into EMPTY cells, if vertical path is blocked.
-                if (this.tryDiagonalMove(particle, x, y, vertDir)) {
+                // --- 2. Diagonal Movement (if vertical failed, only into EMPTY) ---
+                if (this.tryDiagonalMove(particle, x, y, vertDir, density, isGas)) {
                     particle.processed = true; return;
                 }
 
@@ -311,12 +388,13 @@
                 // Only moves into EMPTY cells.
                 if (isLiquid || isGas) {
                     const viscosity = props[8] || 1;
-                    if (Math.random() < (1.0 / viscosity)) {
+                    if (Math.random() < (1.0 / viscosity)) { // Keep viscosity check for spread
                         const dx1 = (Math.random() < 0.5) ? -1 : 1; const dx2 = -dx1;
                         const trySideMove = (checkX) => {
                              if (!this.isValid(checkX, y)) return false;
                              const sideTarget = this.getParticle(checkX, y);
-                             if (sideTarget && sideTarget.type === EMPTY && sideTarget.type !== GENERATOR) {
+                             // Allow sideways move only into EMPTY
+                             if (sideTarget && sideTarget.type === EMPTY) {
                                  this.swapParticles(x, y, checkX, y);
                                  return true;
                              } return false;
@@ -328,9 +406,9 @@
             } // End handleMovement
 
 
-            // Helper for diagonal movement check (Simplified: Only into Empty)
-            tryDiagonalMove(particle, x, y, vertDir) {
-                 const props = particle.getProperties(); const density = props[0]; const isGas = density < 0;
+            // Helper for diagonal movement check (Modified: Still only into Empty, but checks vertical block correctly)
+            tryDiagonalMove(particle, x, y, vertDir, density, isGas) {
+                 //const props = particle.getProperties(); const density = props[0]; const isGas = density < 0; // Passed in now
                  const dx1 = (Math.random() < 0.5) ? -1 : 1; const dx2 = -dx1;
 
                  const checkDiag = (checkX) => {
@@ -340,9 +418,11 @@
                       // Condition: Can move diagonally only if the diagonal target is EMPTY.
                       if (diagTarget && diagTarget.type === EMPTY && diagTarget.type !== GENERATOR) {
                            // AND the vertical path must be blocked by something denser (if falling) or less dense (if rising)
+                           // OR blocked by an immovable generator
                            const verticalNeighbor = this.getParticle(x, diagY);
-                           const verticalBlocked = verticalNeighbor && verticalNeighbor.type !== EMPTY && verticalNeighbor.type !== GENERATOR &&
-                                                   (isGas ? verticalNeighbor.getProperties()[0] <= density : verticalNeighbor.getProperties()[0] >= density);
+                           const verticalBlocked = verticalNeighbor && verticalNeighbor.type !== EMPTY &&
+                                                   (verticalNeighbor.type === GENERATOR ||
+                                                   (isGas ? verticalNeighbor.getProperties()[0] <= density : verticalNeighbor.getProperties()[0] >= density));
 
                            if (verticalBlocked) {
                                this.swapParticles(x, y, checkX, diagY); return true; // Perform the diagonal move
@@ -368,10 +448,43 @@
         function updateCoordsText(cx, cy) { if (simulation.isValid(cx,cy)) { const p = simulation.getParticle(cx,cy); if (p && p.type !== EMPTY) { const pN = p.getProperties()[7]; const pT = p.temp.toFixed(1); const pL = p.life !== null ? ` | Life: ${p.life}` : ''; const pB = p.burning ? ' (Burning!)' : ''; uiCoordsText.textContent = `Coords: (${cx}, ${cy}) | ${pN}${pB} | ${pT}°C${pL}`; } else { uiCoordsText.textContent = `Coords: (${cx}, ${cy}) | Empty`; } } else { uiCoordsText.textContent = `Coords: (${cx}, ${cy}) | OOB`; } }
 
         // --- FAVICON UPDATE ---
-        function updateFavicon() { faviconCtx.clearRect(0, 0, 16, 16); faviconCtx.fillStyle = faviconColors[faviconColorIndex]; faviconCtx.fillRect(0, 0, 16, 16); faviconCtx.fillStyle = '#000'; const px = (faviconUpdateCounter * 2) % 16; faviconCtx.fillRect(px, 4, 4, 8); faviconLink.href = faviconCanvas.toDataURL('image/png'); faviconColorIndex = (faviconColorIndex + 1) % faviconColors.length; }
+        function updateFavicon() {
+            faviconCtx.fillStyle = 'black'; // Background
+            faviconCtx.fillRect(0, 0, 16, 16);
+
+            // Sample 4 pixels from the grid: top-left, top-right, bottom-left, center
+            const coordsToSample = [
+                {x: 0, y: 0},
+                {x: GRID_WIDTH - 1, y: 0},
+                {x: 0, y: GRID_HEIGHT - 1},
+                {x: Math.floor(GRID_WIDTH / 2), y: Math.floor(GRID_HEIGHT / 2)}
+            ];
+
+            // Draw 4 squares (8x8 each) on the 16x16 canvas
+            const positions = [
+                {fx: 0, fy: 0},  // Top-left square
+                {fx: 8, fy: 0},  // Top-right square
+                {fx: 0, fy: 8},  // Bottom-left square
+                {fx: 8, fy: 8}   // Bottom-right square
+            ];
+
+            for (let i = 0; i < coordsToSample.length; i++) {
+                const gridCoord = coordsToSample[i];
+                const favCoord = positions[i];
+                const particle = simulation.getParticle(gridCoord.x, gridCoord.y);
+                if (particle) {
+                    faviconCtx.fillStyle = particle.getColor();
+                } else {
+                    faviconCtx.fillStyle = 'black'; // Default if out of bounds somehow
+                }
+                faviconCtx.fillRect(favCoord.fx, favCoord.fy, 8, 8);
+            }
+
+            faviconLink.href = faviconCanvas.toDataURL('image/png');
+        }
 
         // --- GAME LOOP ---
-        function gameLoop(timestamp) { frameCount++; const dT = timestamp - lastTime; if (dT >= 1000) { fps = (frameCount * 1000) / dT; frameCount = 0; lastTime = timestamp; updateUIText(); } simulation.update(); simulation.draw(); faviconUpdateCounter++; if (faviconUpdateCounter % 15 === 0) { updateFavicon(); } requestAnimationFrame(gameLoop); }
+        function gameLoop(timestamp) { frameCount++; const dT = timestamp - lastTime; if (dT >= 1000) { fps = (frameCount * 1000) / dT; frameCount = 0; lastTime = timestamp; updateUIText(); } simulation.update(); simulation.draw(); updateFavicon(); requestAnimationFrame(gameLoop); }
 
         // --- EVENT HANDLERS ---
         function getMousePos(canvas, evt) { const rect = canvas.getBoundingClientRect(); return { x: evt.clientX - rect.left, y: evt.clientY - rect.top }; }
