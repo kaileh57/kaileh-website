@@ -58,17 +58,17 @@ const MATERIALS = {
     [SAND]:      [   5, 0.3, 0.0, 1500, null, null, C_SAND,      "Sand",       1, null, 0.0, null, 0.0, null ],
     [WATER]:     [   3, 0.6, 0.0, null,  100,    0, C_WATER,     "Water",      1, null, 0.0, null, 0.0, null ],
     [STONE]:     [  10, 0.2, 0.0, null, null, null, C_STONE,     "Stone",      1, null, 0.0, null, 0.0, null ],
-    [PLANT]:     [   2, 0.1, 0.4,  200, null, null, C_PLANT,     "Plant",      1, null, 0.0, null, 0.0, 150  ],
+    [PLANT]:     [ 0.1, 0.1, 0.4,  200, null, null, C_PLANT,     "Plant",      1, null, 0.0, null, 0.0, 150  ],
     [FIRE]:      [  -2, 0.9, 0.0, null, null, null, C_FIRE,      "Fire",       1,  1.0, 0.0, null, 0.0, null ], // ~1 sec
     [LAVA]:      [   8, 0.8, 0.0, 1800, null, 1000, C_LAVA,      "Lava",       5, null, 0.0, null, 0.0, null ],
     [GLASS]:     [   9, 0.4, 0.0, 1800, null, null, C_GLASS,     "Glass",      1, null, 0.0, null, 0.0, null ],
     [STEAM]:     [  -5, 0.7, 0.0, null, null,   99, C_STEAM,     "Steam",      1, 10.0, 0.0, null, 0.0, null ], // ~10 sec
     [OIL]:       [   2, 0.4, 0.9, null,  300, null, C_OIL,       "Oil",        3, null, 0.0, null, 0.0, 200  ],
     [ACID]:      [ 3.5, 0.5, 0.0, null,  200, null, C_ACID,      "Acid",       1, null, 0.15,null, 0.0, null ],
-    [COAL]:      [   4, 0.2, 1.0,  800, null, null, C_COAL,      "Coal",       1, null, 0.0, null, 0.0, 350  ],
+    [COAL]:      [   4, 0.2, 1.0,  800, null, null, C_COAL,      "Coal",       1, null, 0.0, null, 0.0, 300  ],
     [GUNPOWDER]: [ 4.5, 0.1, 1.0,  null, null, null, C_GUNPOWDER, "Gunpowder",  1, null, 0.0, 4,    0.0, 150  ],
     [ICE]:       [ 2.9, 0.01, 0.0,   1, null, null, C_ICE,       "Ice",        1, null, 0.0, null, 0.0, null ], // Very low conductivity
-    [WOOD]:      [   0.7, 0.2, 0.6,  400, null, null, C_WOOD,    "Wood",       1, null, 0.0, null, 0.0, 300  ],
+    [WOOD]:      [   0.7, 0.2, 0.6,  400, null, null, C_WOOD,    "Wood",       1, null, 0.0, null, 0.0, 250  ],
     [SMOKE]:     [  -3, 0.1, 0.0, null, null, null, C_SMOKE,     "Smoke",      1,  3.0, 0.0, null, 0.0, null ], // ~3 sec
     [TOXIC_GAS]: [  -4, 0.1, 0.1, null, null, null, C_TOXIC_GAS, "Toxic Gas",  1,  5.0, 0.02,null, 0.0, null ], // ~5 sec
     [SLIME]:     [ 3.2, 0.3, 0.1, null,  150, null, C_SLIME,     "Slime",     10, null, 0.0, null, 0.0, null ],
@@ -89,6 +89,7 @@ const CONDENSATION_Y_LIMIT = 5; const CONDENSATION_CHANCE_ANYWHERE_PER_SEC = 0.0
 const PHASE_CHANGE_TEMP_BUFFER = 5.0; const HIGH_INERTIA_DAMPING = 0.2;
 const MIN_STATE_SECONDS = 10.0; // Min time for Lava/Steam state
 const TARGET_DT_SCALING = 60.0; // Factor to scale rates based on 60fps baseline
+const ACID_GAS_TEMP_FACTOR = 0.8; // Temperature factor for gas created by acid
 
 // Helper function to check if a type is liquid
 function isLiquid(type) {
@@ -365,12 +366,41 @@ class Simulation {
          // --- Specific Material Effects ---
          if (ptype === FIRE) {
              let fuelFound = false; let extinguish = false;
-             for (let dx = -1; dx <= 1; dx++) { for (let dy = -1; dy <= 1; dy++) { if (dx === 0 && dy === 0) continue; const n = this.getParticle(x + dx, y + dy); if (n) { const nP = n.getProperties(); const nT = n.type; // Heat transfer (already happens in updateTemperature, maybe adjust here?)
-                 // if (nT !== EMPTY) { n.temp = Math.min(MAX_TEMP, n.temp + (FIRE_HEAT_TRANSFER * dtScale) / (1 + Math.abs(dx) + Math.abs(dy))); n.invalidateColorCache(); }
-                 // Check for extinguishing materials
-                 if (nT === WATER || nT === ICE) { particle.temp -= WATER_COOLING_FACTOR * dtScale; particle.life = Math.max(0.01, (particle.life ?? DEFAULT_FIRE_LIFESPAN_SEC) - 10 * deltaTime); if (Math.random() < 0.5 * dtScale) { if (nT === WATER) n.changeType(STEAM); else if (nT === ICE) n.changeType(WATER); } if (particle.temp < 300) extinguish = true; particle.invalidateColorCache(); }
-                 // Check for fuel & ignition
-                 const fl = nP[2]; const nIT = nP[13]; if (nT !== FIRE && fl > 0) { fuelFound = true; if (nIT !== null && n.temp >= nIT ) { if (Math.random() < fl * 0.5 * dtScale) { if (nT === GUNPOWDER) { this.explode(n.x, n.y, nP[11] || 4); } else if (nT === FUSE && !n.burning) { n.burning = true; n.life = FUSE_BURN_LIFESPAN_SEC; n.temp = Math.max(n.temp, nIT + 50); n.invalidateColorCache(); } else if (nT !== FIRE) { n.changeType(FIRE); } } } } } }} // Extend fire life if fuel nearby
+             for (let dx = -1; dx <= 1; dx++) {
+                 for (let dy = -1; dy <= 1; dy++) {
+                     if (dx === 0 && dy === 0) continue;
+                     const n = this.getParticle(x + dx, y + dy);
+                     if (n) {
+                         const nP = n.getProperties();
+                         const nT = n.type;
+                         // Heat transfer (already happens in updateTemperature, maybe adjust here?)
+                         // if (nT !== EMPTY) { n.temp = Math.min(MAX_TEMP, n.temp + (FIRE_HEAT_TRANSFER * dtScale) / (1 + Math.abs(dx) + Math.abs(dy))); n.invalidateColorCache(); }
+                         // Check for extinguishing materials
+                         if (nT === WATER || nT === ICE) { particle.temp -= WATER_COOLING_FACTOR * dtScale; particle.life = Math.max(0.01, (particle.life ?? DEFAULT_FIRE_LIFESPAN_SEC) - 10 * deltaTime); if (Math.random() < 0.5 * dtScale) { if (nT === WATER) n.changeType(STEAM); else if (nT === ICE) n.changeType(WATER); } if (particle.temp < 300) extinguish = true; particle.invalidateColorCache(); }
+                         // Check for fuel & ignition (more reliable ignition)
+                         const fl = nP[2]; const nIT = nP[13];
+                         if (nT !== FIRE && fl > 0) {
+                             fuelFound = true;
+                             if (nIT !== null && n.temp >= nIT ) {
+                                 // Removed random chance
+                                 if (nT === GUNPOWDER) {
+                                     this.explode(n.x, n.y, nP[11] || 4);
+                                 } else if (nT === FUSE && !n.burning) {
+                                     n.burning = true;
+                                     n.life = FUSE_BURN_LIFESPAN_SEC;
+                                     n.temp = Math.max(n.temp, nIT + 50);
+                                     n.invalidateColorCache();
+                                 } else if (nT !== FIRE) {
+                                     n.changeType(FIRE);
+                                     // Example: Give fire from solid fuel slightly longer life?
+                                     // if ([PLANT, WOOD, COAL].includes(nT)) n.life = 5.0;
+                                 }
+                             }
+                         }
+                     } // End if(n)
+                 } // End inner loop (dy)
+             } // End outer loop (dx)
+             // Extend fire life if fuel nearby
              if (fuelFound && particle.life !== null) { particle.life = Math.max(particle.life, DEFAULT_FIRE_LIFESPAN_SEC); }
              // Spawn smoke randomly
              if (!extinguish && Math.random() < 0.1 * dtScale) { const sX = x + (Math.random() < 0.5 ? -1 : 1); const sY = y - 1; const t = this.getParticle(sX, sY); if (t && t.type === EMPTY) { this.setParticle(sX, sY, new Particle(sX, sY, SMOKE, particle.temp * 0.5)); } }
@@ -378,28 +408,119 @@ class Simulation {
              if (extinguish) { this.setParticle(x, y, new Particle(x, y, SMOKE, particle.temp)); return; }
          }
          else if (ptype === FUSE && particle.burning) {
-             for (let dx = -1; dx <= 1; dx++) { for (let dy = -1; dy <= 1; dy++) { if (dx === 0 && dy === 0) continue; const n = this.getParticle(x + dx, y + dy); if (n) { const nP = n.getProperties(); const nT = n.type; const nIT = nP[13]; // Heat neighbours slightly
-                 n.temp = Math.min(MAX_TEMP, n.temp + 20 * dtScale); n.invalidateColorCache(); // Check ignition
-                 if (nIT !== null && n.temp >= nIT) { if (nT === FUSE && !n.burning && Math.random() < 0.8 * dtScale) { n.burning = true; n.life = FUSE_BURN_LIFESPAN_SEC; n.temp = Math.max(n.temp, nIT + 50); n.invalidateColorCache(); } else if (nT === GUNPOWDER && Math.random() < 0.9 * dtScale) { this.explode(n.x, n.y, nP[11] || 4); } else if (nP[2] > 0 && nT !== FIRE && Math.random() < (nP[2] * 0.2 * dtScale)) { n.changeType(FIRE); } } } }} }
+             for (let dx = -1; dx <= 1; dx++) {
+                 for (let dy = -1; dy <= 1; dy++) {
+                     if (dx === 0 && dy === 0) continue;
+                     const n = this.getParticle(x + dx, y + dy);
+                     if (n) {
+                         const nP = n.getProperties();
+                         const nT = n.type;
+                         const nIT = nP[13]; // Heat neighbours slightly
+                         n.temp = Math.min(MAX_TEMP, n.temp + 20 * dtScale);
+                         n.invalidateColorCache(); // Check ignition
+                         if (nIT !== null && n.temp >= nIT) {
+                             // Removed random chance
+                             if (nT === FUSE && !n.burning /*&& Math.random() < 0.8 * dtScale*/) {
+                                 n.burning = true;
+                                 n.life = FUSE_BURN_LIFESPAN_SEC;
+                                 n.temp = Math.max(n.temp, nIT + 50);
+                                 n.invalidateColorCache();
+                             } else if (nT === GUNPOWDER /*&& Math.random() < 0.9 * dtScale*/) {
+                                 this.explode(n.x, n.y, nP[11] || 4);
+                             } else if (nP[2] > 0 && nT !== FIRE /*&& Math.random() < (nP[2] * 0.2 * dtScale)*/) {
+                                 n.changeType(FIRE);
+                             }
+                         }
+                     } // End if(n)
+                 } // End inner loop (dy)
+             } // End outer loop (dx)
+         }
          else if (ptype === LAVA) {
-             for (let dx = -1; dx <= 1; dx++) { for (let dy = -1; dy <= 1; dy++) { if (dx === 0 && dy === 0) continue; const n = this.getParticle(x + dx, y + dy); if(n){ const nP = n.getProperties(); const nT = n.type; const nIT = nP[13]; if(nIT !== null && nP[2] > 0 && nT !== FIRE){ // Heat neighbours strongly
-                     // n.temp = Math.min(MAX_TEMP, n.temp + FIRE_HEAT_TRANSFER * dtScale); // Temp transfer handled globally
-                     // Check ignition
-                     if(n.temp >= nIT){ if (nT === GUNPOWDER) { this.explode(n.x, n.y, nP[11] || 4); } else if (nT === FUSE && !n.burning) { n.burning = true; n.life = FUSE_BURN_LIFESPAN_SEC; n.temp = Math.max(n.temp, nIT + 50); n.invalidateColorCache(); } else if (nT !== FIRE && Math.random() < 0.5 * dtScale) { // High chance to ignite flammable
-                         n.changeType(FIRE); } } n.invalidateColorCache(); } } }} }
+             for (let dx = -1; dx <= 1; dx++) {
+                 for (let dy = -1; dy <= 1; dy++) {
+                     if (dx === 0 && dy === 0) continue;
+                     const n = this.getParticle(x + dx, y + dy);
+                     if(n){
+                         const nP = n.getProperties();
+                         const nT = n.type;
+                         const nIT = nP[13];
+                         if(nIT !== null && nP[2] > 0 && nT !== FIRE){ // Heat neighbours strongly
+                             // n.temp = Math.min(MAX_TEMP, n.temp + FIRE_HEAT_TRANSFER * dtScale); // Temp transfer handled globally
+                             // Check ignition
+                             if(n.temp >= nIT){
+                                 // Removed random chance
+                                 if (nT === GUNPOWDER) {
+                                     this.explode(n.x, n.y, nP[11] || 4);
+                                 } else if (nT === FUSE && !n.burning) {
+                                     n.burning = true; n.life = FUSE_BURN_LIFESPAN_SEC; n.temp = Math.max(n.temp, nIT + 50); n.invalidateColorCache();
+                                 } else if (nT !== FIRE /*&& Math.random() < 0.5 * dtScale*/) { // High chance to ignite flammable
+                                     n.changeType(FIRE);
+                                 }
+                             }
+                             n.invalidateColorCache();
+                         }
+                     }
+                 }
+             }
+         }
          else if (ptype === ACID) {
              const cPow = cP[10] || 0.0; if (cPow > 0) { let consumed = false; for (let dx = -1; dx <= 1; dx++) { for (let dy = -1; dy <= 1; dy++) { if (Math.abs(dx) + Math.abs(dy) !== 1) continue; const n = this.getParticle(x + dx, y + dy); const immune = [EMPTY, ACID, GLASS, GENERATOR]; if (n && !immune.includes(n.type)) { if (Math.random() < cPow * dtScale) { const tX = n.x; const tY = n.y; let dissolve = true; if (n.type === STONE && Math.random() < 0.3) { n.changeType(SAND); dissolve = false; } if (dissolve) { this.setParticle(tX, tY, new Particle(tX, tY, EMPTY)); } // Acid consumption chance
                  if(Math.random() < 0.05 * dtScale) { this.setParticle(x, y, new Particle(x,y, EMPTY)); consumed = true; } // Gas generation chance
                  if(!consumed && Math.random() < 0.15 * dtScale) { const gX = x + dx; const gY = y - 1; const t = this.getParticle(gX, gY); if(t && t.type === EMPTY){ this.setParticle(gX, gY, new Particle(gX, gY, TOXIC_GAS, particle.temp)); } } if (consumed) return; break; } } }} } }
          else if (ptype === PLANT) {
-              // Check for water nearby
-              let hasWater = false; for (let dx = -1; dx <= 1; dx++) { for (let dy = -1; dy <= 1; dy++) { if (Math.abs(dx) + Math.abs(dy) !== 1) continue; const n = this.getParticle(x + dx, y + dy); if (n && n.type === WATER) { hasWater = true; break; } } if (hasWater) break; }
-              // Growth Check
-              if (hasWater && AMBIENT_TEMP < temp && temp < 50 && Math.random() < PLANT_GROWTH_CHANCE_PER_SEC * deltaTime) {
-                  const gO = []; for (let dx = -1; dx <= 1; dx++) { for (let dy = -1; dy <= 1; dy++) { if (Math.abs(dx) + Math.abs(dy) !== 1) continue; const n = this.getParticle(x + dx, y + dy); if (n && n.type === EMPTY) { gO.push({nx: x + dx, ny: y + dy}); } }} if (gO.length > 0) { const c = gO[Math.floor(Math.random() * gO.length)]; this.setParticle(c.nx, c.ny, new Particle(c.nx, c.ny, PLANT, particle.temp)); } 
+              // --- Revised Plant Growth/Spread Logic ---
+              let hasAdjacentWater = false;
+              let emptyNeighbors = [];
+              const currentTemp = particle.temp;
+
+              // 1. Scan neighbors for water and empty spots
+              for (let dx = -1; dx <= 1; dx++) {
+                  for (let dy = -1; dy <= 1; dy++) {
+                      if (Math.abs(dx) + Math.abs(dy) !== 1) continue; // Cardinal only
+                      const n = this.getParticle(x + dx, y + dy);
+                      if (n) {
+                          if (n.type === WATER) {
+                              hasAdjacentWater = true;
+                          } else if (n.type === EMPTY) {
+                              emptyNeighbors.push(n);
+                          }
+                      }
+                  }
               }
-              // Toxic Gas Check
-              for (let dx = -1; dx <= 1; dx++) { for (let dy = -1; dy <= 1; dy++) { const n = this.getParticle(x+dx, y+dy); if(n && n.type === TOXIC_GAS){ const tC = n.getProperties()[10] || 0.01; if(Math.random() < tC * 5 * dtScale) { this.setParticle(x, y, new Particle(x, y, EMPTY)); return; } } }}
+
+              // 2. Try to grow into an empty neighbor if water is adjacent and temp is right
+              if (hasAdjacentWater && emptyNeighbors.length > 0 && AMBIENT_TEMP < currentTemp && currentTemp < 50) {
+                  if (Math.random() < PLANT_GROWTH_CHANCE_PER_SEC * deltaTime) {
+                      // Pick a random empty neighbor to grow into
+                      const target = emptyNeighbors[Math.floor(Math.random() * emptyNeighbors.length)];
+                      this.setParticle(target.x, target.y, new Particle(target.x, target.y, PLANT, currentTemp));
+                      // Don't 'return' or 'break' here, allow water conversion attempt too in the same step if chance allows
+                  }
+              }
+
+              // 3. Try to convert adjacent water directly into plant (lower chance?)
+              //    This allows plants to slowly take over water bodies even without empty space nearby
+              if (hasAdjacentWater && AMBIENT_TEMP < currentTemp && currentTemp < 50) {
+                   if (Math.random() < PLANT_GROWTH_CHANCE_PER_SEC * deltaTime * 0.5) { // Lower chance for direct conversion
+                       let convertedWater = false;
+                       for (let dx = -1; dx <= 1; dx++) {
+                           for (let dy = -1; dy <= 1; dy++) {
+                               if (Math.abs(dx) + Math.abs(dy) !== 1) continue;
+                               const n = this.getParticle(x + dx, y + dy);
+                               if (n && n.type === WATER) {
+                                    n.changeType(PLANT, currentTemp);
+                                    convertedWater = true;
+                                    break; // Limit to one conversion per step
+                               }
+                           }
+                           if (convertedWater) break;
+                       }
+                   }
+              }
+              // ------------------------------------
+
+              // Toxic Gas Check (Keep this)
+              for (let dx = -1; dx <= 1; dx++) { for (let dy = -1; dy <= 1; dy++) { const n = this.getParticle(x+dx, y+dy); if(n && n.type === TOXIC_GAS){ const tC = n.getProperties()[10] || 0.01; if(Math.random() < tC * 5 * dtScale) { this.setParticle(x, y, new Particle(x, y, EMPTY)); return; } } } };
          }
     } // End handleStateChangesAndEffects
 
@@ -624,25 +745,31 @@ class Simulation {
 
          if (amLiquidOrGas) { // Liquid/Gas Spreading
               const viscosity = props[8] || 1;
-              const baseSpreadChance = isCurrentLiquid ? (1.0 / viscosity) : 1.0; // Gases always try to spread
+              // Significantly increase base spread chance for liquids/gas into empty
+              const baseSpreadChance = 1.0; //isCurrentLiquid ? (1.0 / viscosity) : 1.0;
 
               // Randomize check order
               const dx1 = (Math.random() < 0.5) ? -1 : 1;
               const dx2 = -dx1;
 
               const trySideMove = (dx) => {
-                  if (Math.random() >= baseSpreadChance) return false; // Check base spread chance
+                  // Removed base spread chance check for moving into EMPTY
+                  // if (Math.random() >= baseSpreadChance) return false;
 
                   const checkX = x + dx;
                   if (!this.isValid(checkX, y)) return false;
 
                   const sideTarget = this.getParticle(checkX, y);
 
-                  // Priority 1: Move into EMPTY
+                  // Priority 1: Move into EMPTY (Higher Priority/Chance)
                   if (sideTarget && sideTarget.type === EMPTY) {
-                      this.swapParticles(x, y, checkX, y);
-                      particle.movedThisStep = true; // Mark as moved
-                      return true;
+                      // Add back a small viscosity check? Or just let low viscosity liquids flow fast?
+                      const moveChance = isCurrentLiquid ? Math.max(0.1, 1.0 - viscosity * 0.1) : 1.0; // Gases always move, liquids slowed by high viscosity
+                      if (Math.random() < moveChance) {
+                          this.swapParticles(x, y, checkX, y);
+                          particle.movedThisStep = true; // Mark as moved
+                          return true;
+                      }
                   }
                   // Priority 2: Push adjacent liquid (Wave/Momentum effect)
                   else if (isCurrentLiquid && sideTarget && isLiquid(sideTarget.type) && particle.movedThisStep) {

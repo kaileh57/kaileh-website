@@ -8,7 +8,8 @@ body {
     margin: 20px; /* Add margin around content */
     font-family: sans-serif;
     color: white;
-    gap: 20px; /* Space between main content areas */
+    gap: 10px; /* Space between main content areas - Reduced */
+    overflow-y: hidden; /* Prevent vertical scrollbar */
 }
 #simulation-container {
     display: flex;
@@ -28,9 +29,10 @@ canvas#simulationCanvas {
 #right-panel {
     display: flex;
     flex-direction: column; /* Stack info above palette */
-    gap: 15px; /* Space between info and palette */
-    width: 210px; /* Fixed width for the right panel */
-    max-height: calc(100vh - 40px); /* Limit height */
+    gap: 10px; /* Space between info and palette - Reduced */
+    width: 240px; /* Fixed width for the right panel - Increased */
+    height: 600px; /* Match canvas height (150 * 4) */
+    box-sizing: border-box; /* Include padding in height */
     padding: 10px;
     background-color: #333;
     border-radius: 5px;
@@ -48,6 +50,12 @@ canvas#simulationCanvas {
  #ui-info p {
     margin: 4px 0; /* Adjust spacing */
 }
+/* Add style for coordinate text to prevent overflow */
+ #ui-info p#coords-text {
+    white-space: nowrap;
+    overflow: hidden;
+    text-overflow: ellipsis;
+}
  #ui-info button { /* Style the clear button */
      padding: 5px 10px;
      font-size: 12px;
@@ -61,6 +69,7 @@ canvas#simulationCanvas {
     gap: 6px; /* Slightly more gap */
     overflow-y: auto; /* Allow scrolling if needed */
     flex-grow: 1; /* Allow palette to take remaining space */
+    min-height: 0; /* Add min-height to help flex shrinking */
  }
 #palette button {
     padding: 8px 5px;
