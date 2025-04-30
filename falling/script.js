@@ -65,10 +65,10 @@ const MATERIALS = {
     [STEAM]:     [  -5, 0.7, 0.0, null, null,   99, C_STEAM,     "Steam",      1, 10.0, 0.0, null, 0.0, null ], // ~10 sec
     [OIL]:       [   2, 0.4, 0.9, null,  300, null, C_OIL,       "Oil",        3, null, 0.0, null, 0.0, 200  ],
     [ACID]:      [ 3.5, 0.5, 0.0, null,  200, null, C_ACID,      "Acid",       1, null, 0.15,null, 0.0, null ],
-    [COAL]:      [   4, 0.2, 1.0,  800, null, null, C_COAL,      "Coal",       1, null, 0.0, null, 0.0, 300  ],
+    [COAL]:      [   4, 0.2, 1.0,  800, null, null, C_COAL,      "Coal",       1, null, 0.0, null, 0.0, 250  ], // Lowered ignition temp further
     [GUNPOWDER]: [ 4.5, 0.1, 1.0,  null, null, null, C_GUNPOWDER, "Gunpowder",  1, null, 0.0, 4,    0.0, 150  ],
     [ICE]:       [ 2.9, 0.01, 0.0,   1, null, null, C_ICE,       "Ice",        1, null, 0.0, null, 0.0, null ], // Very low conductivity
-    [WOOD]:      [   0.7, 0.2, 0.6,  400, null, null, C_WOOD,    "Wood",       1, null, 0.0, null, 0.0, 250  ],
+    [WOOD]:      [   0.7, 0.2, 0.6,  400, null, null, C_WOOD,    "Wood",       1, null, 0.0, null, 0.0, 200  ], // Lowered ignition temp further
     [SMOKE]:     [  -3, 0.1, 0.0, null, null, null, C_SMOKE,     "Smoke",      1,  3.0, 0.0, null, 0.0, null ], // ~3 sec
     [TOXIC_GAS]: [  -4, 0.1, 0.1, null, null, null, C_TOXIC_GAS, "Toxic Gas",  1,  5.0, 0.02,null, 0.0, null ], // ~5 sec
     [SLIME]:     [ 3.2, 0.3, 0.1, null,  150, null, C_SLIME,     "Slime",     10, null, 0.0, null, 0.0, null ],
@@ -299,7 +299,7 @@ class Simulation {
 
              if (ptype === PLANT || ptype === WOOD || ptype === COAL || ptype === OIL || ptype === GASOLINE) {
                  // Needs external ignition source or very high temp
-                 if (externalIgnition || temp > iT + 200) { // Require source or much higher temp
+                 if (externalIgnition || temp > iT + 100) { // Slightly reduced extra temp requirement
                     nS = FIRE;
                  }
              } else if (ptype === GUNPOWDER) {
@@ -317,7 +317,14 @@ class Simulation {
                  }
              }
              if (nS !== -1 && nS !== ptype) {
-                 particle.changeType(nS, Math.max(600, iST));
+                 // Set high initial temp and longer lifespan for Wood/Coal fire
+                 const initialFireTemp = Math.max(800, iST); // Ensure high temp
+                 let initialFireLife = DEFAULT_FIRE_LIFESPAN_SEC;
+                 if (ptype === WOOD) initialFireLife = 3.0;
+                 if (ptype === COAL) initialFireLife = 4.0;
+
+                 particle.changeType(nS, initialFireTemp);
+                 particle.life = initialFireLife; // Set lifespan *after* changeType
                  return; // Type changed
              }
          }
@@ -391,9 +398,16 @@ class Simulation {
                                      n.temp = Math.max(n.temp, nIT + 50);
                                      n.invalidateColorCache();
                                  } else if (nT !== FIRE) {
-                                     n.changeType(FIRE);
-                                     // Example: Give fire from solid fuel slightly longer life?
-                                     // if ([PLANT, WOOD, COAL].includes(nT)) n.life = 5.0;
+                                     // When fire spreads to Wood/Coal, give it longer life
+                                     const neighborIsWood = (nT === WOOD);
+                                     const neighborIsCoal = (nT === COAL);
+                                     const initialFireTemp = Math.max(800, n.temp); // Ensure high temp
+                                     let initialFireLife = DEFAULT_FIRE_LIFESPAN_SEC;
+                                     if (neighborIsWood) initialFireLife = 3.0;
+                                     if (neighborIsCoal) initialFireLife = 4.0;
+
+                                     n.changeType(FIRE, initialFireTemp);
+                                     n.life = initialFireLife; // Set lifespan *after* changeType
                                  }
                              }
                          }
@@ -428,7 +442,16 @@ class Simulation {
                              } else if (nT === GUNPOWDER /*&& Math.random() < 0.9 * dtScale*/) {
                                  this.explode(n.x, n.y, nP[11] || 4);
                              } else if (nP[2] > 0 && nT !== FIRE /*&& Math.random() < (nP[2] * 0.2 * dtScale)*/) {
-                                 n.changeType(FIRE);
+                                 // When fuse ignites Wood/Coal
+                                 const neighborIsWood = (nT === WOOD);
+                                 const neighborIsCoal = (nT === COAL);
+                                 const initialFireTemp = Math.max(800, n.temp); // Ensure high temp
+                                 let initialFireLife = DEFAULT_FIRE_LIFESPAN_SEC;
+                                 if (neighborIsWood) initialFireLife = 3.0;
+                                 if (neighborIsCoal) initialFireLife = 4.0;
+
+                                 n.changeType(FIRE, initialFireTemp);
+                                 n.life = initialFireLife; // Set lifespan *after* changeType
                              }
                          }
                      } // End if(n)
@@ -454,7 +477,16 @@ class Simulation {
                                  } else if (nT === FUSE && !n.burning) {
                                      n.burning = true; n.life = FUSE_BURN_LIFESPAN_SEC; n.temp = Math.max(n.temp, nIT + 50); n.invalidateColorCache();
                                  } else if (nT !== FIRE /*&& Math.random() < 0.5 * dtScale*/) { // High chance to ignite flammable
-                                     n.changeType(FIRE);
+                                     // When lava ignites Wood/Coal
+                                     const neighborIsWood = (nT === WOOD);
+                                     const neighborIsCoal = (nT === COAL);
+                                     const initialFireTemp = Math.max(1000, n.temp); // Lava makes hotter fire
+                                     let initialFireLife = DEFAULT_FIRE_LIFESPAN_SEC;
+                                     if (neighborIsWood) initialFireLife = 3.0;
+                                     if (neighborIsCoal) initialFireLife = 4.0;
+
+                                     n.changeType(FIRE, initialFireTemp);
+                                     n.life = initialFireLife; // Set lifespan *after* changeType
                                  }
                              }
                              n.invalidateColorCache();
