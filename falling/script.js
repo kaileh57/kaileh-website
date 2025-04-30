@@ -464,11 +464,11 @@ class Simulation {
              }
          }
          else if (ptype === ACID) {
-             const cPow = cP[10] || 0.0; if (cPow > 0) { let consumed = false; for (let dx = -1; dx <= 1; dx++) { for (let dy = -1; dy <= 1; dy++) { if (Math.abs(dx) + Math.abs(dy) !== 1) continue; const n = this.getParticle(x + dx, y + dy); const immune = [EMPTY, ACID, GLASS, GENERATOR]; if (n && !immune.includes(n.type)) { if (Math.random() < cPow * dtScale) { const tX = n.x; const tY = n.y; let dissolve = true; if (n.type === STONE && Math.random() < 0.3) { n.changeType(SAND); dissolve = false; } if (dissolve) { this.setParticle(tX, tY, new Particle(tX, tY, EMPTY)); } // Acid consumption chance
-                 if(Math.random() < 0.05 * dtScale) { this.setParticle(x, y, new Particle(x,y, EMPTY)); consumed = true; } // Gas generation chance
-                 if(!consumed && Math.random() < 0.15 * dtScale) { const gX = x + dx; const gY = y - 1; const t = this.getParticle(gX, gY); if(t && t.type === EMPTY){ this.setParticle(gX, gY, new Particle(gX, gY, TOXIC_GAS, particle.temp)); } } if (consumed) return; break; } } }} } }
+             const cPow = cP[10] || 0.0; if (cPow > 0) { let consumed = false; for (let dx = -1; dx <= 1; dx++) { for (let dy = -1; dy <= 1; dy++) { if (Math.abs(dx) + Math.abs(dy) !== 1) continue; const n = this.getParticle(x + dx, y + dy); const immune = [EMPTY, ACID, GLASS, GENERATOR]; if (n && !immune.includes(n.type)) { if (Math.random() < cPow * dtScale) { const tX = n.x; const tY = n.y; let dissolve = true; if (n.type === STONE && Math.random() < 0.3) { n.changeType(SAND); dissolve = false; } if (dissolve) { this.setParticle(tX, tY, new Particle(tX, tY, EMPTY)); const gasSpawnTemp = particle.temp * ACID_GAS_TEMP_FACTOR; const gX1 = tX; const gY1 = tY - 1; const target1 = this.getParticle(gX1, gY1); if (target1 && target1.type === EMPTY) { this.setParticle(gX1, gY1, new Particle(gX1, gY1, TOXIC_GAS, gasSpawnTemp)); } else { const gX2 = x; const gY2 = y - 1; const target2 = this.getParticle(gX2, gY2); if(target2 && target2.type === EMPTY){ this.setParticle(gX2, gY2, new Particle(gX2, gY2, TOXIC_GAS, gasSpawnTemp)); } } } if(Math.random() < 0.05 * dtScale) { this.setParticle(x, y, new Particle(x,y, EMPTY)); consumed = true; } if (consumed) return; break; } } } } }; // Added semicolon
+         }
          else if (ptype === PLANT) {
               // --- Revised Plant Growth/Spread Logic ---
+              // console.log(`Plant at (${x},${y}) update. Temp: ${particle.temp.toFixed(1)}`); // Basic check
               let hasAdjacentWater = false;
               let emptyNeighbors = [];
               const currentTemp = particle.temp;
@@ -488,12 +488,17 @@ class Simulation {
                   }
               }
 
+              // console.log(`Plant at (${x},${y}) - Adjacent Water: ${hasAdjacentWater}, Empty Neighbors: ${emptyNeighbors.length}`); // Check neighbors
+
               // 2. Try to grow into an empty neighbor if water is adjacent and temp is right
               if (hasAdjacentWater && emptyNeighbors.length > 0 && AMBIENT_TEMP < currentTemp && currentTemp < 50) {
+                  // console.log(`Plant at (${x},${y}) - Conditions met for empty space growth.`); // Check conditions
                   if (Math.random() < PLANT_GROWTH_CHANCE_PER_SEC * deltaTime) {
+                      console.log(`Plant at (${x},${y}) - RND check PASSED for empty space growth.`); // Check random pass
                       // Pick a random empty neighbor to grow into
                       const target = emptyNeighbors[Math.floor(Math.random() * emptyNeighbors.length)];
                       this.setParticle(target.x, target.y, new Particle(target.x, target.y, PLANT, currentTemp));
+                      console.log(`Plant at (${x},${y}) - Grew into empty at (${target.x},${target.y})`); // Confirm growth
                       // Don't 'return' or 'break' here, allow water conversion attempt too in the same step if chance allows
                   }
               }
@@ -501,21 +506,24 @@ class Simulation {
               // 3. Try to convert adjacent water directly into plant (lower chance?)
               //    This allows plants to slowly take over water bodies even without empty space nearby
               if (hasAdjacentWater && AMBIENT_TEMP < currentTemp && currentTemp < 50) {
-                   if (Math.random() < PLANT_GROWTH_CHANCE_PER_SEC * deltaTime * 0.5) { // Lower chance for direct conversion
-                       let convertedWater = false;
-                       for (let dx = -1; dx <= 1; dx++) {
-                           for (let dy = -1; dy <= 1; dy++) {
-                               if (Math.abs(dx) + Math.abs(dy) !== 1) continue;
-                               const n = this.getParticle(x + dx, y + dy);
-                               if (n && n.type === WATER) {
-                                    n.changeType(PLANT, currentTemp);
-                                    convertedWater = true;
-                                    break; // Limit to one conversion per step
-                               }
-                           }
-                           if (convertedWater) break;
-                       }
-                   }
+                  // console.log(`Plant at (${x},${y}) - Conditions met for water conversion.`); // Check conditions
+                    if (Math.random() < PLANT_GROWTH_CHANCE_PER_SEC * deltaTime * 0.5) { // Lower chance for direct conversion
+                        console.log(`Plant at (${x},${y}) - RND check PASSED for water conversion.`); // Check random pass
+                        let convertedWater = false;
+                        for (let dx = -1; dx <= 1; dx++) {
+                            for (let dy = -1; dy <= 1; dy++) {
+                                if (Math.abs(dx) + Math.abs(dy) !== 1) continue;
+                                const n = this.getParticle(x + dx, y + dy);
+                                if (n && n.type === WATER) {
+                                     n.changeType(PLANT, currentTemp);
+                                     console.log(`Plant at (${x},${y}) - Converted water at (${n.x},${n.y})`); // Confirm conversion
+                                     convertedWater = true;
+                                     break; // Limit to one conversion per step
+                                }
+                            }
+                            if (convertedWater) break;
+                        }
+                    }
               }
               // ------------------------------------
 
@@ -882,7 +890,7 @@ function updateUIText() {
      faviconLink.href = faviconCanvas.toDataURL('image/png');
 }
 
-function updateCoordsText(cx, cy) { if (simulation.isValid(cx,cy)) { const p = simulation.getParticle(cx,cy); if (p && p.type !== EMPTY) { const pN = p.getProperties()[7]; const pT = p.temp.toFixed(1); const pL = p.life !== null ? ` | Life: ${p.life}` : ''; const pB = p.burning ? ' (Burning!)' : ''; uiCoordsText.textContent = `Coords: (${cx}, ${cy}) | ${pN}${pB} | ${pT}°C${pL}`; } else { uiCoordsText.textContent = `Coords: (${cx}, ${cy}) | Empty`; } } else { uiCoordsText.textContent = `Coords: (${cx}, ${cy}) | OOB`; } }
+function updateCoordsText(cx, cy) { if (simulation.isValid(cx,cy)) { const p = simulation.getParticle(cx,cy); if (p && p.type !== EMPTY) { const pN = p.getProperties()[7]; const pT = p.temp.toFixed(1); const pL = p.life !== null ? ` | Life: ${p.life.toFixed(1)}s` : ''; const pB = p.burning ? ' (Burning!)' : ''; uiCoordsText.textContent = `Coords: (${cx}, ${cy}) | ${pN}${pB} | ${pT}°C${pL}`; } else { uiCoordsText.textContent = `Coords: (${cx}, ${cy}) | Empty`; } } else { uiCoordsText.textContent = `Coords: (${cx}, ${cy}) | OOB`; } }
 
 // --- FAVICON UPDATE ---
 function updateFavicon() {
