@@ -1791,7 +1791,6 @@ function init() {
     // Initialize DOM element references
     screens = {
         title: document.getElementById('title-screen'),
-        country: document.getElementById('country-screen'),
         game: document.getElementById('game-screen'),
         events: document.getElementById('events-screen'),
         gameOver: document.getElementById('game-over-screen')
@@ -1826,24 +1825,26 @@ function init() {
     notification = document.getElementById('notification');
     loadingOverlay = document.querySelector('.loading-overlay');
 
-    loadCountrySelection();
+    // loadCountrySelection(); // Removed as country selection is disabled
     setupEventListeners();
 }
 
 // Set up event listeners
 function setupEventListeners() {
     startGameBtn.addEventListener('click', () => {
-        showScreen('country');
+        // Skip country selection, initialize directly for USA
+        initializeGameWithCountry('usa'); // Assuming 'usa' is the ID for the USA
+        showScreen('game');
     });
     
-    startWithCountryBtn.addEventListener('click', () => {
-        if (gameState.selectedCountry) {
-            initializeGameWithCountry(gameState.selectedCountry);
-            // Permanently remove the start button
-            startWithCountryBtn.remove();
-            showScreen('game');
-        }
-    });
+    // startWithCountryBtn.addEventListener('click', () => { // Remove or comment out this listener as it's no longer needed
+    //     if (gameState.selectedCountry) {
+    //         initializeGameWithCountry(gameState.selectedCountry);
+    //         // Permanently remove the start button
+    //         startWithCountryBtn.remove();
+    //         showScreen('game');
+    //     }
+    // });
     
     confirmInvestmentsBtn.addEventListener('click', () => {
         if (gameState.selectedInvestments.length > 0) {
