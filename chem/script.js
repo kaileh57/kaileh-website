@@ -988,7 +988,163 @@ const gameData = {
             ]
         }
     },
-    
+    policies: {
+        "usa": {
+            "turn1": [
+                {
+                    id: "carbon-price",
+                    name: "Carbon Pricing Mechanism",
+                    description: "Implement a national carbon pricing system that puts a price on emissions across the economy.",
+                    cost: 2,
+                    effects: {
+                        emissions: -10,
+                        budget: 8,
+                        publicApproval: -5
+                    },
+                    risk: "Medium"
+                },
+                {
+                    id: "renewable-standard",
+                    name: "National Renewable Portfolio Standard",
+                    description: "Require utilities to source an increasing percentage of electricity from renewable sources.",
+                    effects: {
+                        emissions: -8,
+                        gridStability: -3,
+                        publicApproval: 5
+                    },
+                    risk: "Low"
+                }
+            ],
+            "turn2": [],
+            "turn3": [],
+            "turn4": [],
+            "turn5": []
+        },
+        "china": {
+            "turn1": [
+                {
+                    id: "coal-cap",
+                    name: "Coal Consumption Cap",
+                    description: "Set strict regional limits on coal consumption with enforceable penalties.",
+                    effects: {
+                        emissions: -12,
+                        publicApproval: -3,
+                        gridStability: -5
+                    },
+                    risk: "Medium"
+                },
+                {
+                    id: "green-manufacturing",
+                    name: "Green Manufacturing Incentives",
+                    description: "Provide tax benefits and subsidies for clean energy manufacturing.",
+                    cost: 5,
+                    effects: {
+                        budget: -5,
+                        emissions: -5,
+                        publicApproval: 8
+                    },
+                    risk: "Low"
+                }
+            ],
+            "turn2": [],
+            "turn3": [],
+            "turn4": [],
+            "turn5": []
+        },
+        "india": {
+            "turn1": [
+                {
+                    id: "solar-mandate",
+                    name: "Solar Rooftop Mandate",
+                    description: "Require solar installations on all new commercial buildings and government facilities.",
+                    effects: {
+                        emissions: -7,
+                        publicApproval: 5,
+                        gridStability: -2
+                    },
+                    risk: "Low"
+                },
+                {
+                    id: "clean-vehicle-incentives",
+                    name: "Clean Vehicle Incentives",
+                    description: "Implement tax breaks and subsidies for electric vehicles and charging infrastructure.",
+                    cost: 3,
+                    effects: {
+                        emissions: -5,
+                        budget: -3,
+                        publicApproval: 7
+                    },
+                    risk: "Low"
+                }
+            ],
+            "turn2": [],
+            "turn3": [],
+            "turn4": [],
+            "turn5": []
+        },
+        "germany": {
+            "turn1": [
+                {
+                    id: "carbon-tax-increase",
+                    name: "Carbon Tax Increase",
+                    description: "Raise the carbon tax rate to accelerate emissions reductions across all sectors.",
+                    effects: {
+                        emissions: -12,
+                        budget: 10,
+                        publicApproval: -8
+                    },
+                    risk: "High"
+                },
+                {
+                    id: "coal-phaseout-acceleration",
+                    name: "Coal Phaseout Acceleration",
+                    description: "Speed up the timeline for closing all coal power plants with compensation for affected regions.",
+                    cost: 8,
+                    effects: {
+                        emissions: -15,
+                        gridStability: -8,
+                        publicApproval: 5
+                    },
+                    risk: "Medium"
+                }
+            ],
+            "turn2": [],
+            "turn3": [],
+            "turn4": [],
+            "turn5": []
+        },
+        "brazil": {
+            "turn1": [
+                {
+                    id: "deforestation-enforcement",
+                    name: "Deforestation Enforcement",
+                    description: "Strengthen enforcement against illegal deforestation in the Amazon rainforest.",
+                    cost: 3,
+                    effects: {
+                        emissions: -20,
+                        publicApproval: -3,
+                        budget: -2
+                    },
+                    risk: "Medium"
+                },
+                {
+                    id: "biofuel-expansion",
+                    name: "Sustainable Biofuel Expansion",
+                    description: "Expand sustainable biofuel production and create incentives for biofuel use in transportation.",
+                    effects: {
+                        emissions: -8,
+                        publicApproval: 10,
+                        budget: 3
+                    },
+                    risk: "Low"
+                }
+            ],
+            "turn2": [],
+            "turn3": [],
+            "turn4": [],
+            "turn5": []
+        }
+    },
     events: {
         environmental: [
             {
@@ -1603,625 +1759,6 @@ const gameData = {
                 ]
             }
         ]
-    },
-    
-    // Policies for each country
-    policies: {
-        usa: {
-            turn1: [
-                {
-                    id: "clean-energy-standard",
-                    name: "Federal Clean Energy Standard",
-                    description: "Establish a national clean energy standard requiring utilities to increase clean energy in their portfolios.",
-                    effects: {
-                        publicApproval: -5,
-                        emissions: -10
-                    },
-                    risk: "Low"
-                },
-                {
-                    id: "carbon-pricing",
-                    name: "Carbon Pricing Framework",
-                    description: "Implement a carbon price across the economy to create market incentives for emissions reduction.",
-                    effects: {
-                        publicApproval: -10,
-                        budget: 15,
-                        emissions: -3
-                    },
-                    risk: "High"
-                },
-                {
-                    id: "state-federal",
-                    name: "State-Federal Climate Partnership",
-                    description: "Create a coordinated approach between federal and state governments to implement climate policies.",
-                    cost: 10,
-                    effects: {
-                        publicApproval: 10
-                    },
-                    risk: "Low"
-                },
-                {
-                    id: "tax-credits",
-                    name: "Clean Energy Tax Credits Extension",
-                    description: "Extend and expand tax credits for renewable energy, energy storage, and electric vehicles.",
-                    cost: 15,
-                    effects: {
-                        emissions: -5
-                    },
-                    risk: "Low"
-                }
-            ],
-            turn2: [
-                {
-                    id: "clean-finance",
-                    name: "Clean Energy Infrastructure Finance Corporation",
-                    description: "Establish a government-backed entity to provide low-cost financing for clean energy projects.",
-                    cost: 30,
-                    effects: {
-                        emissions: -7,
-                        budget: -5
-                    },
-                    risk: "Medium"
-                },
-                {
-                    id: "industrial-roadmap",
-                    name: "Industrial Decarbonization Roadmap",
-                    description: "Develop a comprehensive plan for decarbonizing hard-to-abate industrial sectors.",
-                    cost: 5,
-                    effects: {
-                        emissions: -3
-                    },
-                    risk: "Low"
-                },
-                {
-                    id: "climate-security",
-                    name: "Climate National Security Directive",
-                    description: "Designate climate change as a national security priority, directing military installations to adopt clean energy.",
-                    cost: 10,
-                    effects: {
-                        gridStability: 5,
-                        emissions: -2
-                    },
-                    risk: "Low"
-                }
-            ],
-            turn3: [
-                {
-                    id: "export-initiative",
-                    name: "Clean Energy Export Initiative",
-                    description: "Create a coordinated program to promote U.S. clean energy technology exports worldwide.",
-                    cost: 15,
-                    effects: {
-                        budget: 10
-                    },
-                    risk: "Medium"
-                },
-                {
-                    id: "transition-authority",
-                    name: "National Energy Transition Authority",
-                    description: "Establish a dedicated agency to coordinate all aspects of the clean energy transition.",
-                    cost: 10,
-                    effects: {
-                        emissions: -5,
-                        gridStability: 5
-                    },
-                    risk: "Low"
-                }
-            ],
-            turn4: [
-                {
-                    id: "zero-electricity",
-                    name: "Zero-Carbon Electricity Standard",
-                    description: "Mandate 100% zero-carbon electricity by 2045 with binding interim targets.",
-                    effects: {
-                        publicApproval: -5,
-                        emissions: -15
-                    },
-                    risk: "Medium"
-                },
-                {
-                    id: "climate-bank",
-                    name: "National Climate Bank",
-                    description: "Establish a public financial institution dedicated to leveraging private investment in climate solutions.",
-                    cost: 50,
-                    effects: {
-                        emissions: -10,
-                        budget: -5
-                    },
-                    risk: "Low"
-                }
-            ],
-            turn5: [
-                {
-                    id: "carbon-neutrality",
-                    name: "Economy-Wide Carbon Neutrality Target",
-                    description: "Enact legislation establishing a legally binding economy-wide carbon neutrality target by 2050.",
-                    effects: {
-                        publicApproval: -10,
-                        emissions: -20
-                    },
-                    risk: "Medium"
-                },
-                {
-                    id: "global-alliance",
-                    name: "Global Clean Technology Alliance",
-                    description: "Form an international alliance focused on accelerating clean technology development and deployment.",
-                    cost: 10,
-                    effects: {
-                        budget: 5,
-                        emissions: -5
-                    },
-                    risk: "Low"
-                }
-            ]
-        },
-        china: {
-            turn1: [
-                {
-                    id: "five-year-plan",
-                    name: "14th Five-Year Plan Clean Energy Targets",
-                    description: "Incorporate ambitious clean energy and emissions targets into the national five-year plan.",
-                    cost: 10,
-                    effects: {
-                        emissions: -5
-                    },
-                    risk: "Low"
-                },
-                {
-                    id: "renewable-standard",
-                    name: "Renewable Portfolio Standard",
-                    description: "Implement mandatory renewable energy targets for power companies across provinces.",
-                    cost: 5,
-                    effects: {
-                        emissions: -8
-                    },
-                    risk: "Medium"
-                }
-            ],
-            turn2: [
-                {
-                    id: "coal-retirement",
-                    name: "Coal Capacity Retirement Schedule",
-                    description: "Establish a binding timetable for retiring coal plants, starting with the oldest and least efficient.",
-                    effects: {
-                        publicApproval: -5,
-                        emissions: -15
-                    },
-                    cost: 10,
-                    risk: "Medium"
-                },
-                {
-                    id: "electrification",
-                    name: "Electrification First Directive",
-                    description: "Direct all sectors to prioritize electrification as the primary decarbonization strategy.",
-                    cost: 5,
-                    effects: {
-                        emissions: -7
-                    },
-                    risk: "Low"
-                }
-            ],
-            turn3: [
-                {
-                    id: "five-year-plan-15",
-                    name: "15th Five-Year Plan Decarbonization Targets",
-                    description: "Set ambitious economy-wide decarbonization targets in the national five-year plan.",
-                    cost: 10,
-                    effects: {
-                        emissions: -10
-                    },
-                    risk: "Low"
-                },
-                {
-                    id: "carbon-intensity",
-                    name: "Regional Carbon Intensity Targets",
-                    description: "Assign differentiated carbon reduction targets to provinces based on development level and resources.",
-                    cost: 5,
-                    effects: {
-                        emissions: -10
-                    },
-                    risk: "Medium"
-                }
-            ],
-            turn4: [
-                {
-                    id: "carbon-neutrality",
-                    name: "Carbon Neutrality Implementation Plan",
-                    description: "Develop detailed sectoral plans to achieve the national carbon neutrality goal.",
-                    cost: 20,
-                    effects: {
-                        emissions: -15
-                    },
-                    risk: "Medium"
-                },
-                {
-                    id: "global-south",
-                    name: "Global South Clean Energy Partnerships",
-                    description: "Form partnerships with developing nations to finance and build clean energy infrastructure.",
-                    cost: 30,
-                    effects: {
-                        budget: 30
-                    },
-                    risk: "Medium"
-                }
-            ],
-            turn5: [
-                {
-                    id: "carbon-neutrality-achieve",
-                    name: "Carbon Neutrality Achievement Plan",
-                    description: "Finalize and implement the comprehensive strategy to achieve carbon neutrality.",
-                    cost: 30,
-                    effects: {
-                        emissions: -20
-                    },
-                    risk: "Low"
-                },
-                {
-                    id: "climate-leadership",
-                    name: "International Climate Leadership Initiative",
-                    description: "Position China as the global leader in climate action and clean technology.",
-                    cost: 20,
-                    effects: {
-                        budget: 20,
-                        publicApproval: 10
-                    },
-                    risk: "Low"
-                }
-            ]
-        },
-        india: {
-            turn1: [
-                {
-                    id: "climate-finance",
-                    name: "International Climate Finance Framework",
-                    description: "Establish mechanisms to attract and effectively utilize international climate funding.",
-                    cost: 1,
-                    effects: {
-                        budget: 20
-                    },
-                    risk: "Low"
-                },
-                {
-                    id: "renewable-obligations",
-                    name: "Renewable Purchase Obligations",
-                    description: "Strengthen and enforce renewable energy purchase requirements for utilities.",
-                    cost: 2,
-                    effects: {
-                        emissions: -5
-                    },
-                    risk: "Medium"
-                }
-            ],
-            turn2: [
-                {
-                    id: "hydrogen-mission",
-                    name: "Green Hydrogen Mission",
-                    description: "Launch a national mission to develop hydrogen production, storage, and utilization capabilities.",
-                    cost: 5,
-                    effects: {
-                        emissions: -2
-                    },
-                    risk: "Medium"
-                },
-                {
-                    id: "green-corridor",
-                    name: "Green Energy Corridor Policy",
-                    description: "Develop dedicated transmission infrastructure for renewable energy evacuation.",
-                    cost: 3,
-                    effects: {
-                        gridStability: 7
-                    },
-                    risk: "Low"
-                }
-            ],
-            turn3: [
-                {
-                    id: "carbon-market",
-                    name: "Carbon Market Implementation",
-                    description: "Establish a domestic carbon market with gradually increasing prices.",
-                    cost: 3,
-                    effects: {
-                        emissions: -5,
-                        budget: 3
-                    },
-                    risk: "Medium"
-                },
-                {
-                    id: "energy-equity",
-                    name: "Clean Energy Equity Program",
-                    description: "Ensure clean energy benefits reach all segments of society, especially rural and low-income.",
-                    cost: 7,
-                    effects: {
-                        publicApproval: 15
-                    },
-                    risk: "Low"
-                }
-            ],
-            turn4: [
-                {
-                    id: "climate-resilience",
-                    name: "Climate Resilience Framework",
-                    description: "Develop a comprehensive approach to climate adaptation across vulnerable sectors.",
-                    cost: 10,
-                    effects: {
-                        publicApproval: 10
-                    },
-                    risk: "Low"
-                },
-                {
-                    id: "tech-export",
-                    name: "Clean Technology Export Strategy",
-                    description: "Develop India as an exporter of affordable clean technologies to other developing countries.",
-                    cost: 5,
-                    effects: {
-                        budget: 10
-                    },
-                    risk: "Medium"
-                }
-            ],
-            turn5: [
-                {
-                    id: "net-zero",
-                    name: "Net-Zero Economy Roadmap",
-                    description: "Develop a comprehensive, sector-by-sector plan for achieving net-zero emissions.",
-                    cost: 5,
-                    effects: {
-                        emissions: -15
-                    },
-                    risk: "Medium"
-                },
-                {
-                    id: "climate-leadership",
-                    name: "Global Climate Leadership Initiative",
-                    description: "Position India as a leader in sustainable development and climate solutions.",
-                    cost: 3,
-                    effects: {
-                        budget: 5,
-                        publicApproval: 10
-                    },
-                    risk: "Low"
-                }
-            ]
-        },
-        germany: {
-            turn1: [
-                {
-                    id: "coal-exit",
-                    name: "Coal Exit Acceleration",
-                    description: "Accelerate the phase-out of coal power with increased compensation for affected regions.",
-                    cost: 15,
-                    effects: {
-                        emissions: -10,
-                        publicApproval: -5
-                    },
-                    risk: "Medium"
-                },
-                {
-                    id: "carbon-floor",
-                    name: "Carbon Price Floor",
-                    description: "Establish a minimum carbon price that increases predictably over time.",
-                    effects: {
-                        publicApproval: -5,
-                        budget: 10,
-                        emissions: -5
-                    },
-                    risk: "Medium"
-                }
-            ],
-            turn2: [
-                {
-                    id: "hydrogen-strategy",
-                    name: "National Hydrogen Strategy",
-                    description: "Develop a comprehensive strategy for hydrogen production, transport, and use across sectors.",
-                    cost: 5,
-                    effects: {
-                        emissions: -5
-                    },
-                    risk: "Medium"
-                },
-                {
-                    id: "industrial-roadmaps",
-                    name: "Industrial Transformation Roadmaps",
-                    description: "Develop detailed decarbonization plans for each major industrial sector.",
-                    cost: 3,
-                    effects: {
-                        emissions: -7
-                    },
-                    risk: "Low"
-                }
-            ],
-            turn3: [
-                {
-                    id: "border-adjustment",
-                    name: "Carbon Border Adjustment Mechanism",
-                    description: "Implement a carbon-based tariff on imports from countries without comparable climate policies.",
-                    cost: 3,
-                    effects: {
-                        budget: 5,
-                        emissions: -3
-                    },
-                    risk: "Medium"
-                },
-                {
-                    id: "climate-finance",
-                    name: "Climate Finance Initiative",
-                    description: "Mobilize private capital for clean energy projects through innovative financial instruments.",
-                    cost: 8,
-                    effects: {
-                        emissions: -5
-                    },
-                    risk: "Low"
-                }
-            ],
-            turn4: [
-                {
-                    id: "certification",
-                    name: "Zero-Carbon Industry Certification",
-                    description: "Develop certification standards for zero-carbon industrial products to create market premium.",
-                    cost: 2,
-                    effects: {
-                        emissions: -7,
-                        budget: 3
-                    },
-                    risk: "Low"
-                },
-                {
-                    id: "adaptation-strategy",
-                    name: "Climate Adaptation Strategy",
-                    description: "Develop comprehensive plans to prepare infrastructure and communities for unavoidable climate impacts.",
-                    cost: 10,
-                    effects: {
-                        publicApproval: 10,
-                        gridStability: 5
-                    },
-                    risk: "Low"
-                }
-            ],
-            turn5: [
-                {
-                    id: "prosperity-plan",
-                    name: "Climate Prosperity Plan",
-                    description: "Develop an integrated approach to climate action that enhances economic competitiveness.",
-                    cost: 5,
-                    effects: {
-                        publicApproval: 10,
-                        emissions: -5,
-                        budget: 5
-                    },
-                    risk: "Low"
-                },
-                {
-                    id: "industrial-leadership",
-                    name: "Industrial Leadership Compact",
-                    description: "Form a pact with industry to maintain global leadership in clean manufacturing.",
-                    cost: 8,
-                    effects: {
-                        emissions: -10,
-                        budget: 10
-                    },
-                    risk: "Medium"
-                }
-            ]
-        },
-        brazil: {
-            turn1: [
-                {
-                    id: "zero-deforestation",
-                    name: "Zero Deforestation Policy",
-                    description: "Implement strict enforcement against illegal deforestation with international monitoring.",
-                    effects: {
-                        publicApproval: -5,
-                        emissions: -15
-                    },
-                    cost: 5,
-                    risk: "High"
-                },
-                {
-                    id: "renewable-auction",
-                    name: "Renewable Energy Auction Program",
-                    description: "Expand competitive auctions for renewable energy projects with long-term contracts.",
-                    cost: 3,
-                    effects: {
-                        emissions: -5
-                    },
-                    risk: "Low"
-                }
-            ],
-            turn2: [
-                {
-                    id: "forest-conservation",
-                    name: "Forest Conservation Payment Program",
-                    description: "Pay forest communities and landowners for maintaining forest cover and ecosystem services.",
-                    cost: 10,
-                    effects: {
-                        emissions: -15,
-                        publicApproval: 5
-                    },
-                    risk: "Medium"
-                },
-                {
-                    id: "biofuel-mandate",
-                    name: "Biofuel Mandate Expansion",
-                    description: "Increase required biofuel blending percentages for transportation fuels.",
-                    cost: 4,
-                    effects: {
-                        emissions: -10,
-                        publicApproval: 5
-                    },
-                    risk: "Low"
-                }
-            ],
-            turn3: [
-                {
-                    id: "bioeconomy-strategy",
-                    name: "Bioeconomy Strategy",
-                    description: "Develop high-value products from biodiversity and forest resources without deforestation.",
-                    cost: 5,
-                    effects: {
-                        emissions: -5,
-                        budget: 7
-                    },
-                    risk: "Medium"
-                },
-                {
-                    id: "carbon-pricing",
-                    name: "Carbon Pricing System",
-                    description: "Implement a national carbon price that increases predictably over time.",
-                    effects: {
-                        publicApproval: -5,
-                        budget: 8,
-                        emissions: -7
-                    },
-                    risk: "Medium"
-                }
-            ],
-            turn4: [
-                {
-                    id: "circular-economy",
-                    name: "Circular Economy Framework",
-                    description: "Implement comprehensive regulations to minimize waste and maximize resource efficiency.",
-                    cost: 4,
-                    effects: {
-                        emissions: -5
-                    },
-                    risk: "Low"
-                },
-                {
-                    id: "amazon-protection",
-                    name: "Amazon Permanent Protection Act",
-                    description: "Establish permanent legal protection for the Amazon with indigenous rights recognition.",
-                    effects: {
-                        publicApproval: -10,
-                        emissions: -25
-                    },
-                    risk: "High"
-                }
-            ],
-            turn5: [
-                {
-                    id: "regenerative-economy",
-                    name: "Regenerative Economy Framework",
-                    description: "Transform the economy to restore natural systems while providing prosperity.",
-                    cost: 5,
-                    effects: {
-                        emissions: -15,
-                        publicApproval: 10
-                    },
-                    risk: "Medium"
-                },
-                {
-                    id: "south-alliance",
-                    name: "Global South Climate Leadership Alliance",
-                    description: "Lead a coalition of developing nations to advance climate solutions appropriate for the Global South.",
-                    cost: 3,
-                    effects: {
-                        budget: 10,
-                        publicApproval: 5
-                    },
-                    risk: "Low"
-                }
-            ]
-        }
     }
 };
 
@@ -2242,7 +1779,7 @@ let gameState = {
 };
 
 // Global DOM element references
-let screens, startGameBtn, startWithCountryBtn, backToTitleBtn, confirmInvestmentsBtn,
+let screens, startGameBtn, startWithCountryBtn, confirmInvestmentsBtn,
     confirmPoliciesBtn, proceedToEventsBtn, eventContinueBtn, playAgainBtn,
     countrySelection, investmentsContainer, policiesContainer, currentYear,
     currentTurn, budgetValue, approvalValue, gridValue, emissionsValue,
@@ -2263,7 +1800,6 @@ function init() {
     // Buttons
     startGameBtn = document.getElementById('start-game-btn');
     startWithCountryBtn = document.getElementById('start-with-country-btn');
-    backToTitleBtn = document.getElementById('back-to-title-btn');
     confirmInvestmentsBtn = document.getElementById('confirm-investments-btn');
     confirmPoliciesBtn = document.getElementById('confirm-policies-btn');
     proceedToEventsBtn = document.getElementById('proceed-to-events-btn');
@@ -2300,27 +1836,29 @@ function setupEventListeners() {
         showScreen('country');
     });
     
-    backToTitleBtn.addEventListener('click', () => {
-        showScreen('title');
-    });
-    
     startWithCountryBtn.addEventListener('click', () => {
         if (gameState.selectedCountry) {
             initializeGameWithCountry(gameState.selectedCountry);
+            // Permanently remove the start button
+            startWithCountryBtn.remove();
             showScreen('game');
         }
     });
     
     confirmInvestmentsBtn.addEventListener('click', () => {
         if (gameState.selectedInvestments.length > 0) {
-            document.querySelector('.tab[data-tab="policies"]').click();
+            // Switch to policies tab using Bootstrap's tab API
+            const policiesTab = document.getElementById('policies-tab-btn');
+            new bootstrap.Tab(policiesTab).show();
         } else {
             showNotification('Select at least one investment to continue');
         }
     });
     
     confirmPoliciesBtn.addEventListener('click', () => {
-        document.querySelector('.tab[data-tab="summary"]').click();
+        // Switch to summary tab using Bootstrap's tab API
+        const summaryTab = document.getElementById('summary-tab-btn');
+        new bootstrap.Tab(summaryTab).show();
         updateSummary();
     });
     
@@ -2342,7 +1880,8 @@ function setupEventListeners() {
             gameState.selectedPolicies = [];
             
             // Reset tabs to investments
-            document.querySelector('.tab[data-tab="investments"]').click();
+            const investmentsTab = document.getElementById('investments-tab-btn');
+            new bootstrap.Tab(investmentsTab).show();
             
             showScreen('game');
         } else {
@@ -2355,19 +1894,6 @@ function setupEventListeners() {
     playAgainBtn.addEventListener('click', () => {
         resetGame();
         showScreen('title');
-    });
-    
-    // Tab functionality
-    document.querySelectorAll('.tab').forEach(tab => {
-        tab.addEventListener('click', () => {
-            // Deactivate all tabs
-            document.querySelectorAll('.tab').forEach(t => t.classList.remove('active'));
-            document.querySelectorAll('.tab-content').forEach(c => c.classList.remove('active'));
-            
-            // Activate clicked tab
-            tab.classList.add('active');
-            document.getElementById(`${tab.dataset.tab}-tab`).classList.add('active');
-        });
     });
 }
 
@@ -2408,6 +1934,7 @@ function loadCountrySelection() {
             countryCard.classList.add('selected');
             gameState.selectedCountry = country.id;
             startWithCountryBtn.disabled = false;
+            startWithCountryBtn.style.display = 'inline-block'; // Show the button when a country is selected
             
             // Apply country theme
             document.body.className = '';
