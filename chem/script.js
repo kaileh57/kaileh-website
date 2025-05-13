@@ -2337,46 +2337,54 @@ function setupEventListeners() {
         updateSummary();
     });
     
-    proceedToEventsBtn.addEventListener('click', async () => { // Made async for transition
-        await animatedTurnTransition(async () => { // Wrap core logic in transition
-            processEndOfTurn();
-            showScreen('events');
+    proceedToEventsBtn.addEventListener('click', () => {
+        // console.log("Proceed to events clicked");
+        animatedTurnTransition(() => {
+            processEndOfTurn(); // Apply investment and policy effects
             generateRandomEvent();
+            showScreen('events-screen');
+            eventContinueBtn.style.display = 'none'; // Hide continue button initially
         });
     });
     
-    eventContinueBtn.addEventListener('click', async () => { // Made async for transition
-        if (gameState.turn < 5) {
-            await animatedTurnTransition(() => {
-                gameState.turn++;
-                updateTurnDisplay();
-                loadInvestmentOptions();
-                loadPolicyOptions();
-                
+    eventContinueBtn.addEventListener('click', () => {
+        animatedTurnTransition(async () => {
+            gameState.turn++;
+            // console.log(`Advancing to turn ${gameState.turn}`);
+
+            if (gameState.turn > 5) { // Max turns
+                showScreen('game-over-screen');
+                calculateFinalScore();
+            } else {
                 // Reset selections for new turn
                 gameState.selectedInvestments = [];
                 gameState.selectedPolicies = [];
                 
-                // Reset tabs to investments
-                const investmentsTab = document.getElementById('investments-tab-btn');
-                new bootstrap.Tab(investmentsTab).show();
+                // Reset available budget to total budget at the start of a new turn's investment phase
+                gameState.availableBudget = gameState.budget; 
+
+                updateTurnDisplay();
+                loadInvestmentOptions(); 
+                loadPolicyOptions();   
+                updateResourceDisplay(); 
+                updateTechLevelDisplay(); 
+
+                // Ensure the correct tab is active (e.g., investments)
+                const investmentsTabBtn = document.getElementById('investments-tab-btn');
+                if (investmentsTabBtn) {
+                    new bootstrap.Tab(investmentsTabBtn).show();
+                }
                 
-                showScreen('game');
-            });
-        } else {
-            // Game over
-            await animatedTurnTransition(() => { // Transition to game over screen
-                calculateFinalScore();
-                showScreen('gameOver');
-            });
-        }
+                showScreen('game-screen');
+            }
+            eventContinueBtn.style.display = 'none'; // Hide after use
+            // Clear event container for next turn
+            if(eventContainer) eventContainer.innerHTML = ''; 
+        });
     });
     
-    playAgainBtn.addEventListener('click', async () => { // Made async for transition
-        await animatedTurnTransition(() => {
-            resetGame();
-            showScreen('title');
-        });
+    playAgainBtn.addEventListener('click', () => {
+        // ... existing code ...
     });
 
     // Add ripple effect to all buttons with class .btn or tag button
