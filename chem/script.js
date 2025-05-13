@@ -2305,6 +2305,13 @@ function init() {
     notification = document.getElementById('notification');
     loadingOverlay = document.querySelector('.loading-overlay');
 
+    // Create and append transition overlay
+    const transitionOverlayDiv = document.createElement('div');
+    transitionOverlayDiv.id = 'transition-overlay';
+    transitionOverlayDiv.className = 'transition-overlay';
+    document.body.appendChild(transitionOverlayDiv);
+    // No need to assign to global variable if only used in one function, but fine for now
+
     // loadCountrySelection(); // Removed as country selection is disabled
     setupEventListeners();
 }
@@ -2343,38 +2350,56 @@ function setupEventListeners() {
         updateSummary();
     });
     
-    proceedToEventsBtn.addEventListener('click', () => {
-        processEndOfTurn();
-        showScreen('events');
-        generateRandomEvent();
+    proceedToEventsBtn.addEventListener('click', async () => { // Made async for transition
+        await animatedTurnTransition(async () => { // Wrap core logic in transition
+            processEndOfTurn();
+            showScreen('events');
+            generateRandomEvent();
+        });
     });
     
-    eventContinueBtn.addEventListener('click', () => {
+    eventContinueBtn.addEventListener('click', async () => { // Made async for transition
         if (gameState.turn < 5) {
-            gameState.turn++;
-            updateTurnDisplay();
-            loadInvestmentOptions();
-            loadPolicyOptions();
-            
-            // Reset selections for new turn
-            gameState.selectedInvestments = [];
-            gameState.selectedPolicies = [];
-            
-            // Reset tabs to investments
-            const investmentsTab = document.getElementById('investments-tab-btn');
-            new bootstrap.Tab(investmentsTab).show();
-            
-            showScreen('game');
+            await animatedTurnTransition(() => {
+                gameState.turn++;
+                updateTurnDisplay();
+                loadInvestmentOptions();
+                loadPolicyOptions();
+                
+                // Reset selections for new turn
+                gameState.selectedInvestments = [];
+                gameState.selectedPolicies = [];
+                
+                // Reset tabs to investments
+                const investmentsTab = document.getElementById('investments-tab-btn');
+                new bootstrap.Tab(investmentsTab).show();
+                
+                showScreen('game');
+            });
         } else {
             // Game over
-            calculateFinalScore();
-            showScreen('gameOver');
+            await animatedTurnTransition(() => { // Transition to game over screen
+                calculateFinalScore();
+                showScreen('gameOver');
+            });
         }
     });
     
-    playAgainBtn.addEventListener('click', () => {
-        resetGame();
-        showScreen('title');
+    playAgainBtn.addEventListener('click', async () => { // Made async for transition
+        await animatedTurnTransition(() => {
+            resetGame();
+            showScreen('title');
+        });
+    });
+
+    // Add ripple effect to all buttons with class .btn or tag button
+    // Note: This is a simplified version. For dynamically added buttons, event delegation is better.
+    document.querySelectorAll('button, .btn').forEach(button => {
+        button.addEventListener('mousedown', function(e) {
+            // Ripple handled by CSS :active::after, but we can ensure the ::after element exists if needed
+            // or trigger class-based ripples if preferred over :active state for more control.
+            // For now, relying on CSS :active::after as defined in styles.css
+        });
     });
 }
 
@@ -2556,9 +2581,10 @@ function loadInvestmentOptions() {
             }
         });
         
-        card.querySelector('.select-investment').addEventListener('click', () => {
+        card.querySelector('.select-investment').addEventListener('click', (event) => { // Pass event
             const cost = parseInt(card.querySelector('.investment-slider').value);
             const slider = card.querySelector('.investment-slider'); // Get the slider
+            const button = event.currentTarget; // Get the button clicked
 
             if (cost <= gameState.availableBudget || card.classList.contains('selected')) {
                 if (card.classList.contains('selected')) {
@@ -2570,6 +2596,8 @@ function loadInvestmentOptions() {
                         gameState.availableBudget += gameState.selectedInvestments[index].cost;
                         gameState.selectedInvestments.splice(index, 1);
                     }
+                    // Animate deselection (optional, could be neutral or specific color)
+                    animateDecisionImpact(button, 'neutral'); 
                 } else {
                     // Select
                     card.classList.add('selected');
@@ -2589,13 +2617,18 @@ function loadInvestmentOptions() {
                     
                     gameState.selectedInvestments.push(selectedInvestment);
                     gameState.availableBudget -= cost;
+                     // Animate selection (positive impact visually)
+                    animateDecisionImpact(button, 'positive');
                 }
                 
                 // Update budget display
-                budgetAvailable.textContent = `Available: $${gameState.availableBudget}B`;
-                investmentsBudgetDisplay.textContent = `$${gameState.availableBudget}B`;
+                // budgetAvailable.textContent = `Available: $${gameState.availableBudget}B`; // updated in updateResourceDisplay
+                // investmentsBudgetDisplay.textContent = `$${gameState.availableBudget}B`; // updated in updateResourceDisplay
+                updateResourceDisplay(); // Update budget display via main function
+
             } else {
-                showNotification('Not enough budget available');
+                showNotification('Not enough budget available', 'warning'); // Use notification type
+                animateDecisionImpact(button, 'negative'); // Animate failed selection
             }
         });
         
@@ -2652,9 +2685,11 @@ function loadPolicyOptions() {
             </div>
         `;
         
-        card.querySelector('.select-policy').addEventListener('click', () => {
+        card.querySelector('.select-policy').addEventListener('click', (event) => { // Pass event
+            const button = event.currentTarget; // Get button
             if (policy.cost && policy.cost > gameState.availableBudget && !card.classList.contains('selected')) {
-                showNotification('Not enough budget available');
+                showNotification('Not enough budget available', 'warning');
+                animateDecisionImpact(button, 'negative'); // Animate failure
                 return;
             }
             
@@ -2668,22 +2703,26 @@ function loadPolicyOptions() {
                     }
                     gameState.selectedPolicies.splice(index, 1);
                 }
+                animateDecisionImpact(button, 'neutral'); // Animate deselection
             } else {
                 // Select
-                if (gameState.selectedPolicies.length < 2) {
+                if (gameState.selectedPolicies.length < 2) { // Limit to 2 policies
                     card.classList.add('selected');
                     gameState.selectedPolicies.push(policy);
                     if (policy.cost) {
                         gameState.availableBudget -= policy.cost;
                     }
+                    animateDecisionImpact(button, 'positive'); // Animate selection
                 } else {
-                    showNotification('You can select a maximum of 2 policies');
+                    showNotification('You can select a maximum of 2 policies', 'warning');
+                    animateDecisionImpact(button, 'negative'); // Animate failure (limit reached)
                 }
             }
             
             // Update budget display
-            budgetAvailable.textContent = `Available: $${gameState.availableBudget}B`;
-            investmentsBudgetDisplay.textContent = `$${gameState.availableBudget}B`;
+            // budgetAvailable.textContent = `Available: $${gameState.availableBudget}B`; // Updated in updateResourceDisplay
+            // investmentsBudgetDisplay.textContent = `$${gameState.availableBudget}B`; // Updated in updateResourceDisplay
+            updateResourceDisplay(); // Update budget via main function
         });
         
         policiesContainer.appendChild(card);
@@ -2699,50 +2738,133 @@ function updateTurnDisplay() {
         4: "2040-2045",
         5: "2045-2050"
     };
+    const totalTurns = 5;
     
     currentYear.textContent = years[gameState.turn];
     currentTurn.textContent = gameState.turn;
     
-    // Update progress track
+    // Update progress track fill
+    const progressFill = document.querySelector('.progress-track-fill');
+    if (progressFill) {
+        // Calculate width based on the *start* of the current turn
+        const progressPercent = ((gameState.turn - 1) / (totalTurns - 1)) * 100;
+        progressFill.style.width = `${progressPercent}%`;
+    } else {
+         // Create the fill element if it doesn't exist
+         const track = document.querySelector('.progress-track');
+         if (track) {
+             const fillElement = document.createElement('div');
+             fillElement.className = 'progress-track-fill';
+             track.appendChild(fillElement); // Or prepend if needed for layering
+             const progressPercent = ((gameState.turn - 1) / (totalTurns - 1)) * 100;
+             fillElement.style.width = `${progressPercent}%`;
+         }
+    }
+
+    // Update progress steps
     document.querySelectorAll('.progress-step').forEach(step => {
         step.classList.remove('active', 'completed');
+        // Remove pulse animation explicitly before potentially re-adding
+        step.style.animation = 'none'; 
+        // Force reflow to reset animation state if needed
+        void step.offsetWidth; 
         
         const stepNum = parseInt(step.dataset.step);
-        if (stepNum === gameState.turn) {
-            step.classList.add('active');
-        } else if (stepNum < gameState.turn) {
+        if (stepNum < gameState.turn) {
             step.classList.add('completed');
+        } else if (stepNum === gameState.turn) {
+            step.classList.add('active');
+             // Re-apply animation if it's the active step
+            step.style.animation = ''; // Use CSS defined animation
         }
     });
 }
 
 // Update resource display
 function updateResourceDisplay() {
-    budgetValue.textContent = `$${gameState.budget}B`;
-    approvalValue.textContent = `${gameState.publicApproval}%`;
-    gridValue.textContent = `${gameState.gridStability}%`;
-    emissionsValue.textContent = `${gameState.emissions}%`;
+    const resources = [
+        { value: gameState.budget, bar: budgetBar, display: budgetValue, name: 'Budget' },
+        { value: gameState.publicApproval, bar: approvalBar, display: approvalValue, name: 'Approval' },
+        { value: gameState.gridStability, bar: gridBar, display: gridValue, name: 'Grid' },
+        { value: gameState.emissions, bar: emissionsBar, display: emissionsValue, name: 'Emissions' }
+    ];
+
+    resources.forEach(res => {
+        const prevValue = parseFloat(res.bar.style.width) || 0; // Get previous numeric value
+        const newValue = Math.max(0, Math.min(res.value, 100)); // Clamp between 0 and 100 for bar
+        
+        // Animate number change
+        // --- Fix for NaN issue --- 
+        let startValueText = (res.display.textContent || '0').replace(/[^\d.-]/g, ''); // Remove non-numeric chars except . and -
+        let startValue = parseFloat(startValueText);
+        if (isNaN(startValue)) { // Fallback if parsing still fails
+            startValue = 0; // Or perhaps res.value if we want it to snap initially?
+        }
+        // --- End Fix ---
+        animatedCounter(res.display, startValue, res.value, res.name === 'Budget' ? 'B' : '%');
+
+        res.bar.style.width = newValue + '%';
+        // Add animation class
+        if (newValue > prevValue) {
+            res.bar.classList.add('increasing');
+            res.bar.classList.remove('decreasing');
+        } else if (newValue < prevValue) {
+            res.bar.classList.add('decreasing');
+            res.bar.classList.remove('increasing');
+        }
+        // Remove class after animation
+        setTimeout(() => {
+            res.bar.classList.remove('increasing', 'decreasing');
+        }, 600); // Match CSS animation duration
+    });
+
+    if(investmentsBudgetDisplay) {
+        investmentsBudgetDisplay.textContent = `Budget for Investments: $${gameState.availableBudget.toFixed(1)}B`;
+    }
+}
+
+function animatedCounter(element, start, end, suffix = '') {
+    // --- Fix for NaN issue --- 
+    if (isNaN(start)) start = 0; // Default start to 0 if NaN
+    if (isNaN(end)) end = 0;   // Default end to 0 if NaN
+    // Ensure integer values if no decimals needed
+    start = Math.round(start);
+    end = Math.round(end);
+    // --- End Fix ---
+
+    const duration = 500; // ms
+    const range = end - start;
     
-    budgetBar.style.width = `${(gameState.budget / 200) * 100}%`;
-    approvalBar.style.width = `${gameState.publicApproval}%`;
-    gridBar.style.width = `${gameState.gridStability}%`;
-    emissionsBar.style.width = `${gameState.emissions}%`;
+    // If no change, set text and return
+    if (range === 0) {
+        element.textContent = `${end.toFixed(0)}${suffix}`;
+        return;
+    }
     
-    budgetAvailable.textContent = `Available: $${gameState.availableBudget}B`;
-    investmentsBudgetDisplay.textContent = `$${gameState.availableBudget}B`;
-    
-    // Update tech levels
-    document.getElementById('tech-solar-value').textContent = `${gameState.techLevels.solar}%`;
-    document.getElementById('tech-wind-value').textContent = `${gameState.techLevels.wind}%`;
-    document.getElementById('tech-storage-value').textContent = `${gameState.techLevels.storage}%`;
-    document.getElementById('tech-nuclear-value').textContent = `${gameState.techLevels.nuclear}%`;
-    document.getElementById('tech-grid-value').textContent = `${gameState.techLevels.grid}%`;
-    
-    document.getElementById('tech-solar-bar').style.width = `${gameState.techLevels.solar}%`;
-    document.getElementById('tech-wind-bar').style.width = `${gameState.techLevels.wind}%`;
-    document.getElementById('tech-storage-bar').style.width = `${gameState.techLevels.storage}%`;
-    document.getElementById('tech-nuclear-bar').style.width = `${gameState.techLevels.nuclear}%`;
-    document.getElementById('tech-grid-bar').style.width = `${gameState.techLevels.grid}%`;
+    // If range is large, snap to end value to avoid excessive steps
+    if (Math.abs(range) > 500) { 
+        element.textContent = `${end.toFixed(0)}${suffix}`;
+        return;
+    }
+
+    // --- Revert to precise step logic --- 
+    let current = start;
+    const increment = end > start ? 1 : -1;
+    // Calculate time per step, ensuring it's at least 1ms
+    const stepTime = Math.max(1, Math.floor(duration / Math.abs(range))); 
+
+    const timer = setInterval(() => {
+        current += increment;
+        element.textContent = `${current.toFixed(0)}${suffix}`;
+        
+        // Check if the target is reached or passed
+        if ((increment > 0 && current >= end) || (increment < 0 && current <= end)) {
+            clearInterval(timer);
+            // Explicitly set the final value to ensure accuracy
+            element.textContent = `${end.toFixed(0)}${suffix}`; 
+        }
+    }, stepTime);
+    // --- End Revert ---
 }
 
 // Update the turn summary
@@ -2833,28 +2955,45 @@ function processEndOfTurn() {
 
 // Apply an effect to the game state
 function applyEffect(key, value) {
-    switch (key) {
-        case 'budget':
-            gameState.budget += value;
-            gameState.availableBudget += value;
-            break;
-        case 'publicApproval':
-            gameState.publicApproval = Math.max(0, Math.min(100, gameState.publicApproval + value));
-            break;
-        case 'gridStability':
-            gameState.gridStability = Math.max(0, Math.min(100, gameState.gridStability + value));
-            break;
-        case 'emissions':
-            gameState.emissions = Math.max(0, gameState.emissions + value);
-            break;
-        default:
-            // For tech levels
-            if (key.startsWith('tech')) {
-                const techKey = key.replace('tech', '').toLowerCase();
-                if (gameState.techLevels[techKey]) {
-                    gameState.techLevels[techKey] = Math.min(100, gameState.techLevels[techKey] + value);
+    const originalValue = gameState[key];
+    let changed = false;
+
+    if (typeof gameState[key] === 'number') {
+        gameState[key] += value;
+        if (key === 'budget') gameState.availableBudget += value; // Also update available budget
+        changed = true;
+    } else if (typeof gameState[key] === 'object' && gameState[key] !== null) {
+        // This is for tech levels, assuming 'value' is an object like { techName: increaseAmount }
+        for (const tech in value) {
+            if (gameState[key].hasOwnProperty(tech)) {
+                const techItemContainer = document.querySelector(`.tech-item[data-tech-id="${tech}"]`);
+                const techBar = techItemContainer ? techItemContainer.querySelector('.tech-bar') : null;
+                const oldTechValue = gameState[key][tech];
+
+                gameState[key][tech] += value[tech];
+                gameState[key][tech] = Math.max(0, Math.min(100, gameState[key][tech])); // Clamp 0-100
+                changed = true;
+
+                if (techBar && gameState[key][tech] > oldTechValue) {
+                    techBar.classList.add('increasing');
+                    setTimeout(() => techBar.classList.remove('increasing'), 1500); // Match shimmer animation
+
+                    // Basic breakthrough condition (e.g., every 25 points or reaching 100)
+                    if ((Math.floor(gameState[key][tech] / 25) > Math.floor(oldTechValue / 25)) || (gameState[key][tech] === 100 && oldTechValue < 100)) {
+                        const breakthroughEl = techItemContainer.querySelector('.tech-breakthrough');
+                        if (breakthroughEl) {
+                            breakthroughEl.classList.add('show');
+                            setTimeout(() => breakthroughEl.classList.remove('show'), 800); // Match breakthrough animation
+                        }
+                    }
                 }
             }
+        }
+    } else {
+        console.warn(`Cannot apply effect to ${key}: not a number or recognized object.`);
+    }
+    if (changed) {
+        updateResourceDisplay(); // Update all displays if any game state changed
     }
 }
 
@@ -2904,13 +3043,15 @@ function generateRandomEvent() {
     
     // Add event listeners to response options
     document.querySelectorAll('.response-option').forEach(option => {
-        option.addEventListener('click', () => {
+        option.addEventListener('click', (event) => { // Pass event
+            const responseCard = event.currentTarget; // Get the clicked card
             const responseIndex = parseInt(option.dataset.index);
             const selectedResponse = randomEvent.responses[responseIndex];
             
             // Check if enough budget is available
             if (selectedResponse.cost && selectedResponse.cost > gameState.availableBudget) {
-                showNotification('Not enough budget available for this response');
+                showNotification('Not enough budget available for this response', 'warning');
+                 animateDecisionImpact(responseCard, 'negative'); // Animate failure
                 return;
             }
             
@@ -2925,6 +3066,9 @@ function generateRandomEvent() {
                     applyEffect(key, value);
                 }
             }
+
+             // Animate the chosen response card
+             animateDecisionImpact(responseCard, 'positive'); 
             
             // Add to event history
             gameState.eventHistory.push({
@@ -3060,10 +3204,30 @@ function evaluateSpecialGoal(country) {
 }
 
 // Show notification
-function showNotification(message) {
+function showNotification(message, type = 'success') { // Added type for styling
     notification.textContent = message;
-    notification.classList.add('show');
-    
+    notification.className = 'notification alert'; // Reset classes
+
+    // Add type-specific class for styling (e.g., alert-success, alert-warning, alert-danger from Bootstrap)
+    // And new gradient classes
+    switch (type) {
+        case 'success':
+            notification.classList.add('alert-success', 'success-gradient');
+            break;
+        case 'warning':
+            notification.classList.add('alert-warning', 'warning-gradient');
+            break;
+        case 'danger':
+            notification.classList.add('alert-danger', 'danger-gradient');
+            break;
+        default:
+            notification.classList.add('alert-info'); // Default to info if type is unknown
+            break;
+    }
+
+    notification.classList.add('show'); // Trigger show animation
+
+    // Hide after 3 seconds
     setTimeout(() => {
         notification.classList.remove('show');
     }, 3000);
@@ -3099,6 +3263,33 @@ function resetGame() {
     document.body.className = '';
 }
 
+// New function for animated turn transitions
+async function animatedTurnTransition(actionCallback) {
+    const overlay = document.getElementById('transition-overlay');
+    if (!overlay) {
+        console.error('Transition overlay not found!');
+        if (actionCallback) await actionCallback(); // Still execute action if overlay is missing
+        return;
+    }
+
+    overlay.classList.add('active');
+
+    // Wait for the overlay to become visible (match CSS transition duration)
+    await new Promise(resolve => setTimeout(resolve, 400)); 
+
+    if (actionCallback) {
+        await actionCallback(); // Execute the core action (e.g., changing turn, screen)
+    }
+
+    // Wait a bit more if needed, or directly start fading out
+    // await new Promise(resolve => setTimeout(resolve, 100)); // Optional small delay
+
+    overlay.classList.remove('active');
+
+    // Wait for the overlay to hide
+    await new Promise(resolve => setTimeout(resolve, 400));
+}
+
 // Initialize the game when the page loads
 document.addEventListener('DOMContentLoaded', init);
 
@@ -3106,3 +3297,26 @@ document.addEventListener('DOMContentLoaded', init);
 Element.prototype.contains = function(text) {
     return this.textContent.includes(text);
 };
+
+// New function for decision impact animation
+function animateDecisionImpact(element, type = 'neutral') {
+    // Ensure the element is positioned relatively or absolutely for the effect positioning
+    const currentPosition = window.getComputedStyle(element).position;
+    if (currentPosition === 'static') {
+        element.style.position = 'relative'; 
+    }
+
+    const impactVisual = document.createElement('div');
+    impactVisual.className = `decision-impact ${type}`; // Apply type for color
+
+    element.appendChild(impactVisual);
+
+    // Remove the element after the animation completes (match CSS duration)
+    setTimeout(() => {
+        impactVisual.remove();
+        // Optional: Reset position if we changed it, though usually unnecessary
+        // if (element.style.position === 'relative') {
+        //    element.style.position = ''; 
+        // }
+    }, 1000); // Match impact-ripple animation duration
+}

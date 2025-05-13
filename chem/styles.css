@@ -716,3 +716,305 @@ button.danger:hover {
 .badge-very.high {
     background-color: #9C27B0;
 }
+
+/* Start - Added Animation CSS */
+
+/* 1. Resource Bar Animations */
+@keyframes pulse {
+  0% { transform: scale(1); box-shadow: 0 0 0 0 rgba(0, 0, 0, 0.3); }
+  50% { transform: scale(1.03); box-shadow: 0 0 5px 2px rgba(0, 0, 0, 0.1); }
+  100% { transform: scale(1); box-shadow: 0 0 0 0 rgba(0, 0, 0, 0); }
+}
+
+@keyframes shake {
+  0% { transform: translateX(0); }
+  25% { transform: translateX(-3px); }
+  50% { transform: translateX(3px); }
+  75% { transform: translateX(-3px); }
+  100% { transform: translateX(0); }
+}
+
+.resource-bar-fill.increasing {
+  animation: pulse 0.6s ease-out;
+}
+
+.resource-bar-fill.decreasing {
+  animation: shake 0.4s ease-in-out;
+}
+
+/* 2. Button Animations */
+button, .btn { /* Apply to Bootstrap buttons too */
+  position: relative;
+  overflow: hidden;
+  transition: background-color 0.3s, transform 0.2s, box-shadow 0.2s !important; /* Ensure transitions work */
+}
+
+button:hover, .btn:hover {
+  transform: translateY(-2px);
+  box-shadow: 0 4px 8px rgba(0,0,0,0.15);
+}
+
+button:active, .btn:active {
+  transform: translateY(1px);
+  box-shadow: 0 2px 4px rgba(0,0,0,0.1);
+}
+
+/* Ripple effect */
+button::after, .btn::after {
+  content: '';
+  position: absolute;
+  top: 50%;
+  left: 50%;
+  width: 5px;
+  height: 5px;
+  background: rgba(255,255,255,0.4);
+  border-radius: 100%;
+  transform: scale(0) translate(-50%, -50%); /* Center the ripple */
+  transform-origin: center;
+  opacity: 0;
+  pointer-events: none;
+}
+
+button:active::after, .btn:active::after {
+  animation: ripple 0.6s ease-out;
+}
+
+@keyframes ripple {
+  0% {
+    transform: scale(0) translate(-50%, -50%);
+    opacity: 0.5;
+  }
+  100% {
+    transform: scale(40) translate(-50%, -50%);
+    opacity: 0;
+  }
+}
+
+/* 3. Turn Transition */
+.transition-overlay {
+  position: fixed;
+  top: 0;
+  left: 0;
+  width: 100%;
+  height: 100%;
+  background-color: rgba(33, 37, 41, 0); /* Use var(--dark) color */
+  z-index: 10000; /* Higher than notifications */
+  transition: background-color 0.4s ease-in-out;
+  pointer-events: none;
+  display: none; /* Hidden by default */
+  opacity: 0;
+  transition: opacity 0.4s ease-in-out;
+}
+
+.transition-overlay.active {
+  display: block;
+  opacity: 1;
+  background-color: rgba(33, 37, 41, 0.8); /* Dark semi-transparent */
+}
+
+/* 4. Notification Animations */
+.notification {
+  transform: translateX(110%); /* Start off-screen */
+  transition: transform 0.4s cubic-bezier(0.68, -0.55, 0.27, 1.55); /* Add bounce */
+  opacity: 0;
+  transition: opacity 0.3s ease-out, transform 0.4s cubic-bezier(0.68, -0.55, 0.27, 1.55);
+}
+
+.notification.show {
+  transform: translateX(0);
+  opacity: 1;
+}
+
+/* Optional gradient backgrounds - applied via JS */
+@keyframes gradient-shift {
+  0% { background-position: 0% 50%; }
+  50% { background-position: 100% 50%; }
+  100% { background-position: 0% 50%; }
+}
+
+.notification.success-gradient {
+  background: linear-gradient(45deg, #57cc99, #80ed99);
+  background-size: 200% 200%;
+  animation: gradient-shift 4s ease infinite;
+  color: var(--dark);
+}
+
+.notification.warning-gradient {
+  background: linear-gradient(45deg, #f4a261, #ffca3a);
+  background-size: 200% 200%;
+  animation: gradient-shift 4s ease infinite;
+  color: var(--dark);
+}
+
+.notification.danger-gradient {
+  background: linear-gradient(45deg, #e76f51, #ef476f);
+  background-size: 200% 200%;
+  animation: gradient-shift 4s ease infinite;
+  color: white;
+}
+
+/* 5. Tech Progress Animations */
+.tech-item { /* Added container */
+    position: relative; /* Needed for breakthrough positioning */
+}
+
+.tech-bar {
+  position: relative; /* Needed for shimmer */
+  transition: width 0.8s cubic-bezier(0.34, 1.56, 0.64, 1); /* Smooth ease-out */
+}
+
+.tech-bar::before { /* Shimmer effect */
+  content: '';
+  position: absolute;
+  top: 0;
+  left: 0;
+  width: 100%;
+  height: 100%;
+  background: linear-gradient(90deg, transparent, rgba(255,255,255,0.3), transparent);
+  transform: translateX(-100%);
+  opacity: 0;
+}
+
+.tech-bar.increasing::before {
+  opacity: 1;
+  animation: shimmer 1.5s ease-out;
+}
+
+@keyframes shimmer {
+  100% { transform: translateX(100%); opacity: 0; }
+}
+
+.tech-breakthrough { /* Particle effect for breakthroughs */
+  position: absolute;
+  top: -5px; /* Position above the bar */
+  right: -5px;
+  width: 20px;
+  height: 20px;
+  background: radial-gradient(circle, rgba(255,215,0,1) 0%, rgba(255,215,0,0) 70%); /* Gold color */
+  border-radius: 50%;
+  opacity: 0;
+  transform: scale(0);
+  pointer-events: none;
+}
+
+.tech-breakthrough.show {
+  animation: breakthrough 0.8s ease-out forwards;
+}
+
+@keyframes breakthrough {
+  0% {
+    opacity: 0;
+    transform: scale(0);
+  }
+  50% {
+    opacity: 1;
+    transform: scale(1.5);
+  }
+  100% {
+    opacity: 0;
+    transform: scale(2.5);
+  }
+}
+
+/* End - Added Animation CSS */
+
+/* Start - Added Decision Impact & Progression CSS */
+
+/* 6. Decision Impact Visualizations */
+.decision-impact {
+  position: absolute;
+  top: 50%;
+  left: 50%;
+  width: 10px;
+  height: 10px;
+  border-radius: 50%;
+  transform: translate(-50%, -50%);
+  animation: impact-ripple 1s ease-out forwards; /* Use forwards to keep final state if needed */
+  pointer-events: none;
+  z-index: 10; /* Ensure it's visible */
+}
+
+/* Color based on context - apply via JS */
+.decision-impact.positive {
+  background-color: rgba(87, 204, 153, 0.8); /* Success color */
+}
+
+.decision-impact.negative {
+  background-color: rgba(231, 111, 81, 0.8); /* Danger color */
+}
+
+.decision-impact.neutral {
+  background-color: rgba(244, 162, 97, 0.8); /* Warning color */
+}
+
+@keyframes impact-ripple {
+  0% {
+    transform: translate(-50%, -50%) scale(0);
+    opacity: 0.8;
+  }
+  100% {
+    transform: translate(-50%, -50%) scale(15); /* Smaller scale than original plan for subtlety */
+    opacity: 0;
+  }
+}
+
+/* 9. Game Progression Indicators */
+.progress-track-container { /* Assuming this existing container holds the track */
+    position: relative; 
+    margin: 20px 0; /* Adjusted margin */
+}
+
+/* Assuming .progress-track exists and holds .progress-step */
+.progress-track::before { /* Existing line style */
+    content: '';
+    position: absolute;
+    top: 15px; 
+    left: 15px; 
+    right: 15px; 
+    height: 4px;
+    background-color: var(--light-gray); 
+    z-index: 1;
+}
+
+.progress-track-fill { /* Animated progress fill */
+    content: '';
+    position: absolute;
+    top: 15px; 
+    left: 15px; 
+    height: 4px;
+    background-color: var(--primary); /* Use primary theme color */
+    width: 0%; /* Initial width */
+    z-index: 1; /* Same level as the base track line */
+    transition: width 1s ease-in-out;
+}
+
+/* Style existing steps */
+.progress-step {
+    /* existing styles... */
+    transition: background-color 0.5s ease, transform 0.5s ease, box-shadow 0.5s ease;
+}
+
+.progress-step.completed {
+    background-color: var(--primary); /* Use theme color for completed */
+    color: white;
+    transform: scale(1.1);
+}
+
+.progress-step.active {
+    background-color: var(--accent); /* Use accent color for active */
+    color: var(--dark);
+    transform: scale(1.2);
+    box-shadow: 0 0 0 5px rgba(var(--accent-rgb, 242, 201, 76), 0.3); /* Add glow - needs --accent-rgb */
+}
+
+@keyframes milestone-pulse {
+    0% { box-shadow: 0 0 0 0 rgba(var(--accent-rgb, 242, 201, 76), 0.4); }
+    70% { box-shadow: 0 0 0 10px rgba(var(--accent-rgb, 242, 201, 76), 0); }
+    100% { box-shadow: 0 0 0 0 rgba(var(--accent-rgb, 242, 201, 76), 0); }
+}
+
+.progress-step.active {
+    animation: milestone-pulse 1.5s infinite;
+}
+
+/* End - Added Decision Impact & Progression CSS */
