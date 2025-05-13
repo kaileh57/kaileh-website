@@ -193,7 +193,289 @@ const gameData = {
                     }
                 }
             ],
-            "turn2": [], "turn3": [], "turn4": [], "turn5": []
+            "turn2": [
+                {
+                    id: "usa_offshore_wind_t2",
+                    name: "Offshore Wind Projects",
+                    description: "Develop wind farms in coastal waters with stronger, more consistent wind resources.",
+                    minCost: 25,
+                    maxCost: 60,
+                    risk: "Medium",
+                    longTerm: "Creates significant renewable capacity with higher capacity factors than onshore wind.",
+                    effects: {
+                        emissions: cost => -Math.floor(cost / 3),
+                        techWind: cost => Math.floor(cost / 4),
+                        gridStability: cost => Math.floor(cost / 10)
+                    }
+                },
+                {
+                    id: "usa_nuclear_small_modular_t2",
+                    name: "Small Modular Reactors",
+                    description: "Invest in next-generation nuclear technology with improved safety and flexibility.",
+                    minCost: 30,
+                    maxCost: 70,
+                    risk: "High",
+                    longTerm: "Provides reliable zero-carbon baseload power with reduced project risk.",
+                    effects: {
+                        emissions: cost => -Math.floor(cost / 2),
+                        techNuclear: cost => Math.floor(cost / 4),
+                        gridStability: cost => Math.floor(cost / 6),
+                        publicApproval: -5
+                    }
+                },
+                {
+                    id: "usa_grid_interconnection_t2",
+                    name: "Regional Grid Interconnection",
+                    description: "Strengthen connections between regional power grids to improve stability and renewable integration.",
+                    minCost: 15,
+                    maxCost: 45,
+                    risk: "Medium",
+                    longTerm: "Enables efficient power sharing across regions with different renewable resources.",
+                    effects: {
+                        gridStability: cost => Math.floor(cost / 3),
+                        techGrid: cost => Math.floor(cost / 6),
+                        emissions: cost => -Math.floor(cost / 8)
+                    }
+                },
+                {
+                    id: "usa_industrial_efficiency_t2",
+                    name: "Industrial Energy Efficiency Program",
+                    description: "Fund upgrades to improve energy efficiency in manufacturing and industrial processes.",
+                    minCost: 10,
+                    maxCost: 30,
+                    risk: "Low",
+                    longTerm: "Reduces energy consumption in the industrial sector while maintaining productivity.",
+                    effects: {
+                        emissions: cost => -Math.floor(cost / 5),
+                        budget: cost => Math.floor(cost / 15),
+                        publicApproval: 5
+                    }
+                },
+                {
+                    id: "usa_building_retrofit_t2",
+                    name: "National Building Retrofit Initiative",
+                    description: "Launch a program to improve energy efficiency in existing buildings across the country.",
+                    minCost: 15,
+                    maxCost: 40,
+                    risk: "Low",
+                    longTerm: "Reduces energy consumption in the buildings sector and creates jobs.",
+                    effects: {
+                        emissions: cost => -Math.floor(cost / 6),
+                        publicApproval: cost => Math.floor(cost / 8),
+                        budget: cost => -Math.floor(cost / 20)
+                    }
+                }
+            ],
+            "turn3": [
+                {
+                    id: "usa_carbon_capture_pilot_t3",
+                    name: "Carbon Capture Demonstration Projects",
+                    description: "Fund demonstration projects for carbon capture technology at power plants and industrial facilities.",
+                    minCost: 20,
+                    maxCost: 50,
+                    risk: "High",
+                    longTerm: "Develops technology to decarbonize fossil fuel use and hard-to-abate sectors.",
+                    effects: {
+                        emissions: cost => -Math.floor(cost / 6),
+                        techGrid: cost => Math.floor(cost / 10),
+                        publicApproval: -5
+                    }
+                },
+                {
+                    id: "usa_long_duration_storage_t3",
+                    name: "Long-Duration Energy Storage",
+                    description: "Invest in storage technologies capable of storing energy for days to weeks.",
+                    minCost: 15,
+                    maxCost: 45,
+                    risk: "Medium",
+                    longTerm: "Enables much higher renewable energy penetration and seasonal balancing.",
+                    effects: {
+                        gridStability: cost => Math.floor(cost / 3),
+                        techStorage: cost => Math.floor(cost / 4),
+                        emissions: cost => -Math.floor(cost / 9)
+                    }
+                },
+                {
+                    id: "usa_ev_charging_t3",
+                    name: "National EV Charging Network",
+                    description: "Build out a comprehensive national network of electric vehicle charging stations.",
+                    minCost: 15,
+                    maxCost: 40,
+                    risk: "Low",
+                    longTerm: "Accelerates electric vehicle adoption by addressing range anxiety.",
+                    effects: {
+                        emissions: cost => -Math.floor(cost / 7),
+                        publicApproval: cost => Math.floor(cost / 8),
+                        techGrid: cost => Math.floor(cost / 15)
+                    }
+                },
+                {
+                    id: "usa_geothermal_enhanced_t3",
+                    name: "Enhanced Geothermal Systems",
+                    description: "Develop next-generation geothermal power that can work in more locations.",
+                    minCost: 20,
+                    maxCost: 55,
+                    risk: "High",
+                    longTerm: "Creates a new source of reliable, dispatchable clean energy.",
+                    effects: {
+                        emissions: cost => -Math.floor(cost / 6),
+                        gridStability: cost => Math.floor(cost / 5)
+                    }
+                },
+                {
+                    id: "usa_green_hydrogen_t3",
+                    name: "Green Hydrogen Initiative",
+                    description: "Invest in hydrogen production from renewable electricity for industrial use and energy storage.",
+                    minCost: 25,
+                    maxCost: 65,
+                    risk: "High",
+                    longTerm: "Enables decarbonization of sectors challenging to electrify directly.",
+                    effects: {
+                        emissions: cost => -Math.floor(cost / 9),
+                        techStorage: cost => Math.floor(cost / 6)
+                    }
+                }
+            ],
+            "turn4": [
+                {
+                    id: "usa_direct_air_capture_t4",
+                    name: "Direct Air Capture Network",
+                    description: "Deploy facilities that remove carbon dioxide directly from the atmosphere.",
+                    minCost: 30,
+                    maxCost: 70,
+                    risk: "Very High",
+                    longTerm: "Can achieve negative emissions at scale if successful.",
+                    effects: {
+                        emissions: cost => -Math.floor(cost / 4),
+                        publicApproval: 5
+                    }
+                },
+                {
+                    id: "usa_advanced_nuclear_deployment_t4",
+                    name: "Advanced Nuclear Deployment",
+                    description: "Construct a fleet of advanced nuclear reactors with enhanced safety features.",
+                    minCost: 40,
+                    maxCost: 90,
+                    risk: "Medium",
+                    longTerm: "Provides substantial zero-carbon baseload electricity.",
+                    effects: {
+                        emissions: cost => -Math.floor(cost / 3),
+                        gridStability: cost => Math.floor(cost / 4),
+                        techNuclear: cost => Math.floor(cost / 6),
+                        publicApproval: -10
+                    }
+                },
+                {
+                    id: "usa_offshore_grid_t4",
+                    name: "Offshore Transmission Grid",
+                    description: "Build an integrated transmission network connecting offshore wind projects.",
+                    minCost: 25,
+                    maxCost: 60,
+                    risk: "Medium",
+                    longTerm: "Enables efficient connection of multiple offshore renewable projects.",
+                    effects: {
+                        gridStability: cost => Math.floor(cost / 5),
+                        techGrid: cost => Math.floor(cost / 6),
+                        emissions: cost => -Math.floor(cost / 7)
+                    }
+                },
+                {
+                    id: "usa_industrial_electrification_t4",
+                    name: "Industrial Electrification Program",
+                    description: "Support conversion of industrial processes from fossil fuels to electricity.",
+                    minCost: 20,
+                    maxCost: 50,
+                    risk: "Medium",
+                    longTerm: "Reduces emissions from industrial processes previously dependent on fossil fuels.",
+                    effects: {
+                        emissions: cost => -Math.floor(cost / 5),
+                        gridStability: cost => -Math.floor(cost / 10)
+                    }
+                },
+                {
+                    id: "usa_climate_resilient_infrastructure_t4",
+                    name: "Climate-Resilient Energy Infrastructure",
+                    description: "Upgrade energy infrastructure to withstand extreme weather and climate impacts.",
+                    minCost: 25,
+                    maxCost: 60,
+                    risk: "Low",
+                    longTerm: "Prevents service disruptions and damage from increasing climate impacts.",
+                    effects: {
+                        gridStability: cost => Math.floor(cost / 3),
+                        publicApproval: cost => Math.floor(cost / 10)
+                    }
+                }
+            ],
+            "turn5": [
+                {
+                    id: "usa_fusion_research_t5",
+                    name: "Fusion Energy Commercialization",
+                    description: "Accelerate the path to commercial fusion energy through public-private partnerships.",
+                    minCost: 40,
+                    maxCost: 100,
+                    risk: "Very High",
+                    longTerm: "Could provide virtually unlimited clean energy in the future.",
+                    effects: {
+                        techNuclear: cost => Math.floor(cost / 3),
+                        publicApproval: 10
+                    }
+                },
+                {
+                    id: "usa_smart_city_integration_t5",
+                    name: "Smart City Energy Integration",
+                    description: "Implement comprehensive smart grid systems in major urban centers.",
+                    minCost: 30,
+                    maxCost: 70,
+                    risk: "Medium",
+                    longTerm: "Creates highly efficient urban energy systems with demand flexibility.",
+                    effects: {
+                        gridStability: cost => Math.floor(cost / 3),
+                        techGrid: cost => Math.floor(cost / 4),
+                        emissions: cost => -Math.floor(cost / 8)
+                    }
+                },
+                {
+                    id: "usa_superconducting_transmission_t5",
+                    name: "Superconducting Transmission Lines",
+                    description: "Deploy next-generation transmission technology for efficient long-distance power delivery.",
+                    minCost: 35,
+                    maxCost: 80,
+                    risk: "High",
+                    longTerm: "Significantly reduces transmission losses and increases capacity.",
+                    effects: {
+                        gridStability: cost => Math.floor(cost / 3),
+                        techGrid: cost => Math.floor(cost / 3),
+                        emissions: cost => -Math.floor(cost / 12)
+                    }
+                },
+                {
+                    id: "usa_energy_independence_t5",
+                    name: "Complete Energy Independence",
+                    description: "Achieve 100% domestic clean energy production with storage and grid integration.",
+                    minCost: 50,
+                    maxCost: 100,
+                    risk: "High",
+                    longTerm: "Eliminates energy imports and enhances national security.",
+                    effects: {
+                        emissions: cost => -Math.floor(cost / 3),
+                        gridStability: cost => Math.floor(cost / 6),
+                        publicApproval: 15
+                    }
+                },
+                {
+                    id: "usa_carbon_removal_scale_t5",
+                    name: "Carbon Removal at Scale",
+                    description: "Deploy a national network of carbon dioxide removal systems using multiple technologies.",
+                    minCost: 40,
+                    maxCost: 90,
+                    risk: "High",
+                    longTerm: "Achieves negative emissions to address historical carbon pollution.",
+                    effects: {
+                        emissions: cost => -Math.floor(cost / 2),
+                        budget: cost => -Math.floor(cost / 9)
+                    }
+                }
+            ]
         },
         "china": {
             "turn1": [
@@ -992,33 +1274,231 @@ const gameData = {
         "usa": {
             "turn1": [
                 {
-                    id: "carbon-price",
+                    id: "carbon-pricing",
                     name: "Carbon Pricing Mechanism",
-                    description: "Implement a national carbon pricing system that puts a price on emissions across the economy.",
-                    cost: 2,
+                    description: "Establish a price on carbon emissions, either through a tax or a cap-and-trade system.",
+                    cost: 5, // Administrative cost
                     effects: {
                         emissions: -10,
+                        budget: 10,
+                        publicApproval: -8
+                    },
+                    risk: "High"
+                },
+                {
+                    id: "renewable-portfolio",
+                    name: "Renewable Portfolio Standard (RPS)",
+                    description: "Mandate that a certain percentage of electricity generation comes from renewable sources.",
+                    cost: 8,
+                    effects: {
+                        emissions: -8,
+                        gridStability: -5,
+                        publicApproval: 3
+                    },
+                    risk: "Medium"
+                },
+                // ADDED FROM USER PROMPT
+                {
+                    id: "tax-credits",
+                    name: "Clean Energy Tax Credits",
+                    description: "Extend and expand tax incentives for renewable energy, storage, and electric vehicles.",
+                    cost: 12,
+                    effects: {
+                        emissions: -8,
+                        budget: -5,
+                        publicApproval: 5
+                    },
+                    risk: "Low"
+                },
+                {
+                    id: "efficiency-standards",
+                    name: "Energy Efficiency Standards",
+                    description: "Implement comprehensive efficiency standards for appliances, buildings, and vehicles.",
+                    effects: {
+                        emissions: -7,
+                        publicApproval: -3
+                    },
+                    risk: "Medium"
+                }
+            ],
+            "turn2": [
+                {
+                    id: "clean-finance",
+                    name: "Clean Energy Infrastructure Finance",
+                    description: "Establish a government-backed entity to provide low-cost financing for clean energy projects.",
+                    cost: 15,
+                    effects: {
+                        emissions: -8,
+                        budget: -5,
+                        publicApproval: 3
+                    },
+                    risk: "Low"
+                },
+                {
+                    id: "ev-incentives",
+                    name: "Electric Vehicle Incentives",
+                    description: "Provide tax credits and rebates for electric vehicle purchases and charging infrastructure.",
+                    cost: 10,
+                    effects: {
+                        emissions: -5,
+                        publicApproval: 8
+                    },
+                    risk: "Low"
+                },
+                {
+                    id: "grid-modernization",
+                    name: "Grid Modernization Initiative",
+                    description: "Create a comprehensive program to upgrade and digitize the electric grid.",
+                    cost: 12,
+                    effects: {
+                        gridStability: 12,
+                        emissions: -3
+                    },
+                    risk: "Medium"
+                },
+                {
+                    id: "research-funding",
+                    name: "Clean Energy Research Funding",
+                    description: "Increase funding for basic and applied research in clean energy technologies.",
+                    cost: 8,
+                    effects: {
+                        publicApproval: 5
+                    },
+                    risk: "Medium"
+                }
+            ],
+            "turn3": [
+                {
+                    id: "carbon-border",
+                    name: "Carbon Border Adjustment",
+                    description: "Implement a carbon-based tariff on imports from countries without comparable climate policies.",
+                    effects: {
+                        emissions: -7,
                         budget: 8,
+                        publicApproval: -5
+                    },
+                    risk: "High"
+                },
+                {
+                    id: "just-transition",
+                    name: "Just Transition Program",
+                    description: "Provide support for workers and communities transitioning from fossil fuel industries.",
+                    cost: 15,
+                    effects: {
+                        publicApproval: 15
+                    },
+                    risk: "Low"
+                },
+                {
+                    id: "clean-procurement",
+                    name: "Federal Clean Procurement",
+                    description: "Require federal agencies to purchase clean energy and zero-emission vehicles.",
+                    cost: 5,
+                    effects: {
+                        emissions: -5,
+                        publicApproval: 3
+                    },
+                    risk: "Low"
+                },
+                {
+                    id: "transmission-permitting",
+                    name: "Transmission Permitting Reform",
+                    description: "Streamline the approval process for new transmission lines needed for renewable energy.",
+                    effects: {
+                        gridStability: 8,
+                        publicApproval: -3
+                    },
+                    risk: "Medium"
+                }
+            ],
+            "turn4": [
+                {
+                    id: "sectoral-standards",
+                    name: "Sectoral Emissions Standards",
+                    description: "Implement binding emissions reduction targets for each major economic sector.",
+                    effects: {
+                        emissions: -15,
+                        publicApproval: -8
+                    },
+                    risk: "High"
+                },
+                {
+                    id: "clean-fuels",
+                    name: "Clean Fuel Standard",
+                    description: "Require transportation fuels to reduce carbon intensity over time.",
+                    effects: {
+                        emissions: -10,
                         publicApproval: -5
                     },
                     risk: "Medium"
                 },
                 {
-                    id: "renewable-standard",
-                    name: "National Renewable Portfolio Standard",
-                    description: "Require utilities to source an increasing percentage of electricity from renewable sources.",
+                    id: "building-codes",
+                    name: "Zero-Carbon Building Codes",
+                    description: "Update national building codes to require zero-carbon new construction.",
                     effects: {
-                        emissions: -8,
-                        gridStability: -3,
-                        publicApproval: 5
+                        emissions: -7,
+                        publicApproval: -3
+                    },
+                    risk: "Medium"
+                },
+                {
+                    id: "community-energy",
+                    name: "Community Clean Energy Initiative",
+                    description: "Fund community-owned renewable energy projects with local benefits.",
+                    cost: 10,
+                    effects: {
+                        emissions: -3,
+                        publicApproval: 12
                     },
                     risk: "Low"
                 }
             ],
-            "turn2": [],
-            "turn3": [],
-            "turn4": [],
-            "turn5": []
+            "turn5": [
+                {
+                    id: "carbon-neutrality",
+                    name: "Economy-Wide Carbon Neutrality",
+                    description: "Establish a legally binding target for economy-wide carbon neutrality by 2050.",
+                    effects: {
+                        emissions: -20,
+                        publicApproval: -5
+                    },
+                    risk: "Medium"
+                },
+                {
+                    id: "climate-dividend",
+                    name: "Carbon Fee and Dividend",
+                    description: "Implement a carbon fee with revenues returned directly to citizens as dividends.",
+                    effects: {
+                        emissions: -15,
+                        publicApproval: 10,
+                        budget: 5
+                    },
+                    risk: "Medium"
+                },
+                {
+                    id: "climate-innovation",
+                    name: "Climate Innovation Moonshot",
+                    description: "Launch major research initiatives for breakthrough technologies in climate solutions.",
+                    cost: 20,
+                    effects: {
+                        emissions: -8,
+                        publicApproval: 8
+                    },
+                    risk: "High"
+                },
+                {
+                    id: "climate-resilience",
+                    name: "National Climate Resilience Plan",
+                    description: "Implement a comprehensive strategy to prepare infrastructure and communities for climate impacts.",
+                    cost: 15,
+                    effects: {
+                        gridStability: 10,
+                        publicApproval: 5
+                    },
+                    risk: "Low"
+                }
+            ]
         },
         "china": {
             "turn1": [
@@ -2078,11 +2558,13 @@ function loadInvestmentOptions() {
         
         card.querySelector('.select-investment').addEventListener('click', () => {
             const cost = parseInt(card.querySelector('.investment-slider').value);
-            
+            const slider = card.querySelector('.investment-slider'); // Get the slider
+
             if (cost <= gameState.availableBudget || card.classList.contains('selected')) {
                 if (card.classList.contains('selected')) {
                     // Deselect
                     card.classList.remove('selected');
+                    slider.disabled = false; // Enable slider
                     const index = gameState.selectedInvestments.findIndex(i => i.id === investment.id);
                     if (index !== -1) {
                         gameState.availableBudget += gameState.selectedInvestments[index].cost;
@@ -2091,6 +2573,7 @@ function loadInvestmentOptions() {
                 } else {
                     // Select
                     card.classList.add('selected');
+                    slider.disabled = true; // Disable slider
                     const selectedInvestment = {
                         ...investment,
                         cost: cost,
