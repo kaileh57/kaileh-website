@@ -725,3 +725,106 @@ input[type="range"] {
 .emissions-increased {
     color: var(--danger);
 }
+
+/* Technology Levels */
+.tech-levels {
+    margin: 10px 0 15px;
+    background-color: rgba(255, 255, 255, 0.1);
+    border-radius: 8px;
+    padding: 10px 15px;
+}
+
+.tech-level-title {
+    font-weight: bold;
+    margin-bottom: 5px;
+    color: #f0f0f0;
+}
+
+.tech-level-container {
+    display: flex;
+    justify-content: space-between;
+    flex-wrap: wrap;
+}
+
+.tech-item {
+    flex: 1;
+    min-width: 100px;
+    margin: 0 5px;
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+}
+
+.tech-name {
+    font-size: 0.9rem;
+    margin-bottom: 2px;
+}
+
+.tech-bar-container {
+    height: 6px;
+    width: 100%;
+    background-color: rgba(255, 255, 255, 0.2);
+    border-radius: 3px;
+    margin-bottom: 2px;
+    overflow: hidden;
+}
+
+.tech-bar {
+    height: 100%;
+    background-color: #4CAF50;
+    width: 60%;
+    transition: width 0.5s ease;
+}
+
+.tech-value {
+    font-size: 0.8rem;
+    color: rgba(255, 255, 255, 0.8);
+}
+
+/* Investment and Policy Effects */
+.investment-effects, .policy-effects {
+    margin-top: 10px;
+    font-size: 0.9rem;
+}
+
+.effect-item {
+    display: flex;
+    justify-content: space-between;
+    margin: 2px 0;
+}
+
+.effect-value.positive {
+    color: #4CAF50;
+}
+
+.effect-value.negative {
+    color: #f44336;
+}
+
+.effect-value.neutral {
+    color: #bbb;
+}
+
+/* Risk Badges */
+.badge {
+    font-size: 0.7rem;
+    padding: 2px 6px;
+    border-radius: 10px;
+    color: white;
+}
+
+.badge-low {
+    background-color: #4CAF50;
+}
+
+.badge-medium {
+    background-color: #FF9800;
+}
+
+.badge-high {
+    background-color: #f44336;
+}
+
+.badge-very.high {
+    background-color: #9C27B0;
+}

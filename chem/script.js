@@ -124,965 +124,789 @@ const gameData = {
     ],
     investments: {
         "usa": {
-            "turn1": [], "turn2": [], "turn3": [], "turn4": [], "turn5": []
-        },
-        "china": {
-            "turn1": [], "turn2": [], "turn3": [], "turn4": [], "turn5": []
-        },
-        "india": {
-            "turn1": [], "turn2": [], "turn3": [], "turn4": [], "turn5": []
-        },
-        "germany": {
-            "turn1": [], "turn2": [], "turn3": [], "turn4": [], "turn5": []
-        },
-        "brazil": {
-            "turn1": [], "turn2": [], "turn3": [], "turn4": [], "turn5": []
-        }
-    },
-    
-    // Policies for each country
-    policies: {
-        usa: {
-            turn1: [
+            "turn1": [
                 {
-                    id: "clean-energy-standard",
-                    name: "Federal Clean Energy Standard",
-                    description: "Establish a national clean energy standard requiring utilities to increase clean energy in their portfolios.",
-                    effects: {
-                        publicApproval: -5,
-                        emissions: -10
-                    },
-                    unlocks: "Additional renewable investments",
-                    risk: "Low"
-                },
-                {
-                    id: "carbon-pricing",
-                    name: "Carbon Pricing Framework",
-                    description: "Implement a carbon price across the economy to create market incentives for emissions reduction.",
-                    effects: {
-                        publicApproval: -10,
-                        budget: 15,
-                        emissions: -3
-                    },
-                    risk: "High"
-                },
-                {
-                    id: "state-federal",
-                    name: "State-Federal Climate Partnership",
-                    description: "Create a coordinated approach between federal and state governments to implement climate policies.",
-                    cost: 10,
-                    effects: {
-                        publicApproval: 10
-                    },
-                    risk: "Low"
-                },
-                {
-                    id: "tax-credits",
-                    name: "Clean Energy Tax Credits Extension",
-                    description: "Extend and expand tax credits for renewable energy, energy storage, and electric vehicles.",
-                    cost: 15,
-                    effects: {
-                        emissions: -5
-                    },
-                    risk: "Low"
-                }
-            ],
-            turn2: [
-                {
-                    id: "clean-finance",
-                    name: "Clean Energy Infrastructure Finance Corporation",
-                    description: "Establish a government-backed entity to provide low-cost financing for clean energy projects.",
-                    cost: 30,
-                    effects: {
-                        emissions: -7,
-                        budget: -5
-                    },
-                    risk: "Medium"
-                },
-                {
-                    id: "industrial-roadmap",
-                    name: "Industrial Decarbonization Roadmap",
-                    description: "Develop a comprehensive plan for decarbonizing hard-to-abate industrial sectors.",
-                    cost: 5,
-                    effects: {
-                        emissions: -3
-                    },
-                    risk: "Low"
-                },
-                {
-                    id: "climate-security",
-                    name: "Climate National Security Directive",
-                    description: "Designate climate change as a national security priority, directing military installations to adopt clean energy.",
-                    cost: 10,
-                    effects: {
-                        gridStability: 5,
-                        emissions: -2
-                    },
-                    risk: "Low"
-                },
-                {
-                    id: "ev-acceleration",
-                    name: "EV Market Acceleration",
-                    description: "Implement a suite of policies to accelerate electric vehicle adoption, including incentives and charging infrastructure.",
-                    cost: 20,
-                    effects: {
-                        emissions: -5,
-                        publicApproval: 5
-                    },
-                    risk: "Medium"
-                }
-            ],
-            turn3: [
-                {
-                    id: "export-initiative",
-                    name: "Clean Energy Export Initiative",
-                    description: "Create a coordinated program to promote U.S. clean energy technology exports worldwide.",
-                    cost: 15,
-                    effects: {
-                        budget: 10
-                    },
-                    risk: "Medium"
-                },
-                {
-                    id: "transition-authority",
-                    name: "National Energy Transition Authority",
-                    description: "Establish a dedicated agency to coordinate all aspects of the clean energy transition.",
-                    cost: 10,
-                    effects: {
-                        emissions: -5,
-                        gridStability: 5
-                    },
-                    risk: "Low"
-                },
-                {
-                    id: "fossil-transition",
-                    name: "Fossil Fuel Community Transition Fund",
-                    description: "Provide economic support and diversification for regions historically dependent on fossil fuel industries.",
-                    cost: 20,
-                    effects: {
-                        publicApproval: 15
-                    },
-                    risk: "Low"
-                },
-                {
-                    id: "carbon-border",
-                    name: "Carbon Border Adjustment Mechanism",
-                    description: "Implement a carbon-based tariff on imports from countries without comparable climate policies.",
-                    cost: 5,
-                    effects: {
-                        emissions: -3,
-                        publicApproval: -5
-                    },
-                    risk: "High"
-                }
-            ],
-            turn4: [
-                {
-                    id: "zero-electricity",
-                    name: "Zero-Carbon Electricity Standard",
-                    description: "Mandate 100% zero-carbon electricity by 2045 with binding interim targets.",
-                    effects: {
-                        publicApproval: -5,
-                        emissions: -15
-                    },
-                    risk: "Medium"
-                },
-                {
-                    id: "climate-bank",
-                    name: "National Climate Bank",
-                    description: "Establish a public financial institution dedicated to leveraging private investment in climate solutions.",
-                    cost: 50,
-                    effects: {
-                        emissions: -10,
-                        budget: -5
-                    },
-                    risk: "Low"
-                },
-                {
-                    id: "energy-access",
-                    name: "Universal Clean Energy Access Program",
-                    description: "Ensure all communities have access to affordable clean energy, focusing on underserved populations.",
-                    cost: 15,
-                    effects: {
-                        publicApproval: 20
-                    },
-                    risk: "Low"
-                },
-                {
-                    id: "moonshot",
-                    name: "Scientific Moonshot Initiatives",
-                    description: "Launch ambitious research programs to achieve breakthrough technologies in clean energy.",
-                    cost: 20,
-                    effects: {
-                        publicApproval: 5
-                    },
-                    risk: "Very High"
-                }
-            ],
-            turn5: [
-                {
-                    id: "carbon-neutrality",
-                    name: "Economy-Wide Carbon Neutrality Target",
-                    description: "Enact legislation establishing a legally binding economy-wide carbon neutrality target by 2050.",
-                    effects: {
-                        publicApproval: -10,
-                        emissions: -20
-                    },
-                    risk: "Medium"
-                },
-                {
-                    id: "global-alliance",
-                    name: "Global Clean Technology Alliance",
-                    description: "Form an international alliance focused on accelerating clean technology development and deployment.",
-                    cost: 10,
-                    effects: {
-                        budget: 5,
-                        emissions: -5
-                    },
-                    risk: "Low"
-                },
-                {
-                    id: "climate-dividend",
-                    name: "Climate Dividend Program",
-                    description: "Return carbon tax revenues directly to citizens as regular dividend payments.",
-                    effects: {
-                        publicApproval: 25
-                    },
-                    risk: "Low"
-                },
-                {
-                    id: "adaptation-plan",
-                    name: "National Climate Adaptation Plan",
-                    description: "Implement a comprehensive strategy to prepare communities and infrastructure for climate impacts.",
-                    cost: 25,
-                    effects: {
-                        gridStability: 10,
-                        publicApproval: 5
-                    },
-                    risk: "Low"
-                }
-            ]
-        },
-        
-        china: {
-            turn1: [
-                {
-                    id: "five-year-plan",
-                    name: "14th Five-Year Plan Clean Energy Targets",
-                    description: "Incorporate ambitious clean energy and emissions targets into the national five-year plan.",
-                    cost: 10,
-                    effects: {
-                        emissions: -5
-                    },
-                    risk: "Low"
-                },
-                {
-                    id: "renewable-standard",
-                    name: "Renewable Portfolio Standard",
-                    description: "Implement mandatory renewable energy targets for power companies across provinces.",
-                    cost: 5,
-                    effects: {
-                        emissions: -8
-                    },
-                    risk: "Medium"
-                },
-                {
-                    id: "carbon-trading",
-                    name: "Carbon Trading System Expansion",
-                    description: "Expand and strengthen the national emissions trading system to cover more sectors and increase prices.",
-                    cost: 3,
-                    effects: {
-                        budget: 5,
-                        emissions: -5
-                    },
-                    risk: "Medium"
-                },
-                {
-                    id: "materials-security",
-                    name: "Critical Materials Security Initiative",
-                    description: "Secure supply chains for rare earth elements and other critical materials needed for clean technology.",
-                    cost: 15,
-                    effects: {
-                        budget: 3
-                    },
-                    risk: "Medium"
-                }
-            ],
-            turn2: [
-                {
-                    id: "china_wind_power_expansion_t2",
-                    name: "Large-Scale Wind Power Expansion",
-                    description: "Aggressively expand onshore and offshore wind capacity.",
-                    minCost: 30,
-                    maxCost: 70,
+                    id: "solar-expansion",
+                    name: "Solar Energy Expansion",
+                    description: "Invest in utility-scale and distributed solar energy installations across high-potential regions.",
+                    minCost: 5,
+                    maxCost: 25,
                     risk: "Low",
-                    longTerm: "Significant CO2 reduction and wind tech improvement.",
+                    longTerm: "Increases solar capacity and reduces emissions",
                     effects: {
-                        emissions: cost => -Math.floor(cost / 3),
-                        techWind: cost => Math.floor(cost / 5)
+                        emissions: (cost) => -Math.floor(cost * 0.4),
+                        techSolar: (cost) => Math.floor(cost * 0.2)
                     }
                 },
                 {
-                    id: "china_ev_infrastructure_t2",
-                    name: "Electric Vehicle Charging Infrastructure",
-                    description: "Rapidly build out a national EV charging network.",
-                    minCost: 15,
-                    maxCost: 40,
+                    id: "wind-program",
+                    name: "Wind Power Program",
+                    description: "Fund the development of onshore and offshore wind projects with focus on high-capacity regions.",
+                    minCost: 5,
+                    maxCost: 25,
                     risk: "Low",
-                    longTerm: "Accelerates EV adoption, reducing transport emissions.",
+                    longTerm: "Increases wind capacity and reduces emissions",
                     effects: {
-                        emissions: cost => -Math.floor(cost / 7), // Transport sector
-                        publicApproval: 5
+                        emissions: (cost) => -Math.floor(cost * 0.4),
+                        techWind: (cost) => Math.floor(cost * 0.2),
+                        gridStability: (cost) => Math.floor(cost * 0.1)
                     }
                 },
                 {
-                    id: "china_concentrated_solar_t2",
-                    name: "Concentrated Solar Power Base",
-                    description: "Develop large-scale solar thermal power plants with energy storage capabilities.",
-                    minCost: 20,
-                    maxCost: 50,
+                    id: "battery-storage",
+                    name: "Grid-Scale Battery Storage",
+                    description: "Develop large-scale battery storage projects to support renewable integration and grid stability.",
+                    minCost: 10,
+                    maxCost: 30,
                     risk: "Medium",
-                    longTerm: "Provides dispatchable solar power for day and night operation.",
+                    longTerm: "Improves grid stability and enables higher renewable penetration",
                     effects: {
-                        emissions: cost => -Math.floor(cost / 5),
-                        gridStability: cost => Math.floor(cost / 10) + 5, // Dispatchable solar
-                        techSolar: cost => Math.floor(cost / 6)
+                        gridStability: (cost) => Math.floor(cost * 0.4),
+                        techStorage: (cost) => Math.floor(cost * 0.3)
                     }
                 },
                 {
-                    id: "china_advanced_nuclear_t2",
-                    name: "Advanced Nuclear Fleet",
-                    description: "Construct new generation nuclear plants for clean baseload power.",
-                    minCost: 40,
-                    maxCost: 90,
-                    risk: "Medium",
-                    longTerm: "Provides massive low-carbon baseload electricity.",
-                    effects: {
-                        emissions: cost => -Math.floor(cost / 3),
-                        gridStability: cost => Math.floor(cost / 6) + 5,
-                        techNuclear: cost => Math.floor(cost / 7)
-                    }
-                }
-            ],
-            turn3: [
-                {
-                    id: "china_green_hydrogen_t3",
-                    name: "Green Hydrogen Production Pilot",
-                    description: "Invest in facilities to produce hydrogen using renewable energy.",
-                    minCost: 20,
-                    maxCost: 50,
-                    risk: "High",
-                    longTerm: "Potential for decarbonizing industry and transport.",
-                    effects: {
-                        emissions: cost => -Math.floor(cost / 8) // Future potential
-                    }
-                },
-                {
-                    id: "china_smart_grid_ai_t3",
-                    name: "Smart Grid Artificial Intelligence",
-                    description: "Implement AI-powered grid management to optimize renewable energy integration.",
+                    id: "nuclear-modernize",
+                    name: "Nuclear Plant Modernization",
+                    description: "Upgrade existing nuclear plants for extended operation with improved safety and efficiency.",
                     minCost: 15,
                     maxCost: 35,
                     risk: "Medium",
-                    longTerm: "Enables higher renewable energy penetration and grid efficiency.",
+                    longTerm: "Extends clean baseload power capacity and improves safety",
                     effects: {
-                        gridStability: cost => Math.floor(cost / 3) + 5,
-                        techGrid: cost => Math.floor(cost / 4),
-                        emissions: cost => -Math.floor(cost / 9) // Indirect effect through efficiency
+                        gridStability: (cost) => Math.floor(cost * 0.3),
+                        emissions: (cost) => -Math.floor(cost * 0.2),
+                        techNuclear: (cost) => Math.floor(cost * 0.15)
                     }
                 },
                 {
-                    id: "china_floating_solar_t3",
-                    name: "Floating Solar Arrays",
-                    description: "Deploy large-scale solar installations on reservoirs and lakes.",
-                    minCost: 20, 
-                    maxCost: 45,
+                    id: "grid-modernize",
+                    name: "Grid Modernization Initiative",
+                    description: "Update transmission and distribution infrastructure with smart grid capabilities.",
+                    minCost: 10,
+                    maxCost: 40,
                     risk: "Medium",
-                    longTerm: "Expands solar capacity without using land resources.",
+                    longTerm: "Enables higher renewable integration and improves resilience",
                     effects: {
-                        emissions: cost => -Math.floor(cost / 4),
-                        techSolar: cost => Math.floor(cost / 6)
-                    }
-                },
-                {
-                    id: "china_energy_storage_manufacturing_t3",
-                    name: "Advanced Energy Storage Manufacturing",
-                    description: "Expand production of next-generation battery technologies.",
-                    minCost: 30,
-                    maxCost: 65,
-                    risk: "Medium",
-                    longTerm: "Global leadership in energy storage technology and exports.",
-                    effects: {
-                        techStorage: cost => Math.floor(cost / 3),
-                        budget: cost => Math.floor(cost / 6), // Export revenue
-                        gridStability: cost => Math.floor(cost / 10) // Indirect stability benefit
+                        gridStability: (cost) => Math.floor(cost * 0.5),
+                        techGrid: (cost) => Math.floor(cost * 0.25)
                     }
                 }
             ],
-            turn4: [
-                {
-                    id: "china_advanced_nuclear_t4",
-                    name: "Deploy Advanced Nuclear Reactors",
-                    description: "Construct new generation nuclear plants for baseload power.",
-                    minCost: 40,
-                    maxCost: 100,
-                    risk: "Medium",
-                    longTerm: "Large scale low-carbon electricity.",
-                    effects: {
-                        emissions: cost => -Math.floor(cost / 2),
-                        techNuclear: cost => Math.floor(cost / 6),
-                        gridStability: cost => Math.floor(cost / 10),
-                        publicApproval: -10
-                    }
-                },
-                {
-                    id: "china_carbon_capture_industrial_t4",
-                    name: "Carbon Capture Industrial Clusters",
-                    description: "Deploy carbon capture technologies in industrial zones with high emissions concentration.",
-                    minCost: 35,
-                    maxCost: 75,
-                    risk: "Medium",
-                    longTerm: "Decarbonizes heavy industry while maintaining production.",
-                    effects: {
-                        emissions: cost => -Math.floor(cost / 3),
-                        publicApproval: 5, // Addresses visible pollution
-                        techGrid: cost => Math.floor(cost / 10) // Integration technologies
-                    }
-                },
-                {
-                    id: "china_national_energy_storage_t4",
-                    name: "National Energy Storage Network",
-                    description: "Deploy a coordinated nationwide network of various energy storage technologies.",
-                    minCost: 30,
-                    maxCost: 60,
-                    risk: "Medium",
-                    longTerm: "Enables very high renewable energy penetration and grid stability.",
-                    effects: {
-                        gridStability: cost => Math.floor(cost / 3) + 5,
-                        techStorage: cost => Math.floor(cost / 5),
-                        emissions: cost => -Math.floor(cost / 6) // Enables more renewables
-                    }
-                }
-            ],
-            turn5: [
-                {
-                    id: "china_smart_cities_t5",
-                    name: "Smart Cities Energy Integration",
-                    description: "Implement city-wide smart grid and energy efficiency systems.",
-                    minCost: 25,
-                    maxCost: 60,
-                    risk: "Medium",
-                    longTerm: "Highly efficient urban energy use.",
-                    effects: {
-                        emissions: cost => -Math.floor(cost / 5),
-                        gridStability: cost => Math.floor(cost / 8),
-                        techGrid: cost => Math.floor(cost / 6),
-                        publicApproval: 5
-                    }
-                },
-                {
-                    id: "china_breakthrough_energy_research_t5",
-                    name: "Breakthrough Energy Research Park",
-                    description: "Create a massive research complex focused on next-generation energy technologies.",
-                    minCost: 40,
-                    maxCost: 100,
-                    risk: "Very High",
-                    longTerm: "Potential for revolutionary clean energy breakthroughs.",
-                    effects: {
-                        techSolar: cost => Math.floor(cost / 10) + 5,
-                        techWind: cost => Math.floor(cost / 10) + 5,
-                        techStorage: cost => Math.floor(cost / 10) + 5,
-                        techNuclear: cost => Math.floor(cost / 10) + 5,
-                        techGrid: cost => Math.floor(cost / 10) + 5
-                    }
-                },
-                {
-                    id: "china_global_clean_energy_infrastructure_t5",
-                    name: "Global Clean Energy Infrastructure",
-                    description: "Invest in clean energy projects worldwide to secure influence and export markets.",
-                    minCost: 50,
-                    maxCost: 120,
-                    risk: "Medium",
-                    longTerm: "Global leadership in clean energy exports and technology standards.",
-                    effects: {
-                        budget: cost => Math.floor(cost / 3), // Export revenue
-                        publicApproval: 10, // National pride
-                        emissions: cost => -Math.floor(cost / 8) // Global emission reductions
-                    }
-                },
-                {
-                    id: "china_carbon_removal_infrastructure_t5",
-                    name: "Carbon Dioxide Removal Infrastructure",
-                    description: "Build large-scale direct air capture facilities and enhanced carbon sinks.",
-                    minCost: 30,
-                    maxCost: 80,
-                    risk: "High",
-                    longTerm: "Potential for negative emissions and climate restoration.",
-                    effects: {
-                        emissions: cost => -Math.floor(cost / 3), // Direct reduction
-                        publicApproval: 5, // Climate leadership
-                        techGrid: cost => Math.floor(cost / 10) // System integration
-                    }
-                }
-            ]
+            "turn2": [], "turn3": [], "turn4": [], "turn5": []
         },
-        india: {
-            turn1: [
+        "china": {
+            "turn1": [
                 {
-                    id: "climate-finance",
-                    name: "International Climate Finance Framework",
-                    description: "Establish mechanisms to attract and effectively utilize international climate funding.",
-                    cost: 1,
-                    effects: {
-                        budget: 20
-                    },
-                    risk: "Low"
-                },
-                {
-                    id: "renewable-obligations",
-                    name: "Renewable Purchase Obligations",
-                    description: "Strengthen and enforce renewable energy purchase requirements for utilities.",
-                    cost: 2,
-                    effects: {
-                        emissions: -5
-                    },
-                    risk: "Medium"
-                },
-                {
-                    id: "efficiency-standards",
-                    name: "Energy Efficiency Standards",
-                    description: "Implement comprehensive efficiency standards for appliances, buildings, and industry.",
-                    cost: 3,
-                    effects: {
-                        emissions: -3
-                    },
-                    risk: "Low"
-                },
-                {
-                    id: "coal-cess",
-                    name: "Clean Energy Cess on Coal",
-                    description: "Increase the tax on coal to fund clean energy development.",
-                    effects: {
-                        publicApproval: -5,
-                        budget: 5
-                    },
-                    risk: "Medium"
-                },
-                {
-                    id: "india_solar_irrigation_t1",
-                    name: "Solar Powered Irrigation Pumps",
-                    description: "Replace diesel pumps with solar for agricultural use.",
+                    id: "solar-manufacturing",
+                    name: "Solar Manufacturing Expansion",
+                    description: "Expand production capacity for solar panels to achieve global scale advantages.",
                     minCost: 10,
                     maxCost: 30,
                     risk: "Low",
-                    longTerm: "Reduces agricultural emissions and improves farmer income.",
+                    longTerm: "Dominates global solar manufacturing and reduces costs",
                     effects: {
-                        emissions: cost => -Math.floor(cost / 5),
-                        publicApproval: cost => Math.floor(cost / 7) + 3,
-                        techSolar: cost => Math.floor(cost / 8)
+                        techSolar: (cost) => Math.floor(cost * 0.3),
+                        budget: (cost) => Math.floor(cost * 0.2)
                     }
                 },
                 {
-                    id: "india_grid_strengthening_t1",
-                    name: "Grid Strengthening Project",
-                    description: "Upgrade transmission infrastructure to reduce losses and improve reliability.",
-                    minCost: 7,
-                    maxCost: 18,
+                    id: "wind-turbine",
+                    name: "Wind Turbine Manufacturing",
+                    description: "Develop domestic production capabilities for advanced wind turbines.",
+                    minCost: 8,
+                    maxCost: 25,
+                    risk: "Low",
+                    longTerm: "Creates export industry for wind technologies",
+                    effects: {
+                        techWind: (cost) => Math.floor(cost * 0.3),
+                        budget: (cost) => Math.floor(cost * 0.2)
+                    }
+                },
+                {
+                    id: "battery-production",
+                    name: "Battery Gigafactory Program",
+                    description: "Build multiple large-scale battery production facilities using standardized designs.",
+                    minCost: 15,
+                    maxCost: 35,
                     risk: "Medium",
-                    longTerm: "Essential foundation for renewable integration.",
+                    longTerm: "Secures battery supply chain and reduces costs",
                     effects: {
-                        gridStability: cost => Math.floor(cost / 2),
-                        techGrid: cost => Math.floor(cost / 6)
+                        techStorage: (cost) => Math.floor(cost * 0.3),
+                        budget: (cost) => Math.floor(cost * 0.2)
                     }
                 },
                 {
-                    id: "india_solar_manufacturing_t1",
-                    name: "Solar Manufacturing Initiative",
-                    description: "Develop domestic solar panel manufacturing capabilities.",
-                    minCost: 5,
-                    maxCost: 15,
+                    id: "nuclear-expansion",
+                    name: "Nuclear Fleet Expansion",
+                    description: "Accelerate construction of planned nuclear plants with standardized designs.",
+                    minCost: 20,
+                    maxCost: 50,
                     risk: "Medium",
-                    longTerm: "Reduces solar costs and ensures supply chain security.",
+                    longTerm: "Provides reliable clean baseload power",
                     effects: {
-                        techSolar: cost => Math.floor(cost / 3),
-                        budget: cost => -Math.floor(cost / 4), // Short-term cost
-                        publicApproval: 5 // Creates jobs
+                        emissions: (cost) => -Math.floor(cost * 0.3),
+                        gridStability: (cost) => Math.floor(cost * 0.3),
+                        techNuclear: (cost) => Math.floor(cost * 0.2)
                     }
                 },
                 {
-                    id: "india_rural_microgrid_t1",
-                    name: "Rural Microgrid Program",
-                    description: "Establish renewable-based microgrids for energy access in remote villages.",
+                    id: "ultra-high-voltage",
+                    name: "Ultra-High Voltage Transmission",
+                    description: "Expand UHV grid connecting resource-rich western regions with eastern demand centers.",
+                    minCost: 15,
+                    maxCost: 40,
+                    risk: "Medium",
+                    longTerm: "Enables efficient long-distance energy transmission",
+                    effects: {
+                        gridStability: (cost) => Math.floor(cost * 0.4),
+                        techGrid: (cost) => Math.floor(cost * 0.3)
+                    }
+                }
+            ],
+            "turn2": [], "turn3": [], "turn4": [], "turn5": []
+        },
+        "india": {
+            "turn1": [
+                {
+                    id: "solar-village",
+                    name: "Solar Village Program",
+                    description: "Deploy solar microgrids to electrify rural villages with renewable energy.",
                     minCost: 5,
                     maxCost: 15,
                     risk: "Low",
-                    longTerm: "Provides clean energy access to underserved communities.",
+                    longTerm: "Provides clean energy access to rural populations",
                     effects: {
-                        publicApproval: cost => Math.floor(cost / 3) + 5,
-                        emissions: cost => -Math.floor(cost / 10)
+                        publicApproval: (cost) => Math.floor(cost * 0.7),
+                        emissions: (cost) => -Math.floor(cost * 0.2)
                     }
                 },
                 {
-                    id: "india_wind_energy_corridor_t2",
-                    name: "Wind Energy Corridors",
-                    description: "Develop high-potential wind regions with dedicated transmission.",
+                    id: "solar-parks",
+                    name: "Utility-Scale Solar Parks",
+                    description: "Develop large solar parks in high-insolation regions with simplified land acquisition.",
+                    minCost: 8,
+                    maxCost: 20,
+                    risk: "Low",
+                    longTerm: "Creates large-scale affordable renewable capacity",
+                    effects: {
+                        emissions: (cost) => -Math.floor(cost * 0.4),
+                        techSolar: (cost) => Math.floor(cost * 0.2)
+                    }
+                },
+                {
+                    id: "wind-coastal",
+                    name: "Coastal Wind Corridor",
+                    description: "Develop wind energy corridors in high-potential coastal regions.",
+                    minCost: 5,
+                    maxCost: 15,
+                    risk: "Low",
+                    longTerm: "Establishes reliable renewable energy source",
+                    effects: {
+                        emissions: (cost) => -Math.floor(cost * 0.3),
+                        techWind: (cost) => Math.floor(cost * 0.2)
+                    }
+                },
+                {
+                    id: "hydro-pumped",
+                    name: "Pumped Hydro Storage",
+                    description: "Develop pumped hydro storage facilities to balance renewable generation.",
+                    minCost: 7,
+                    maxCost: 18,
+                    risk: "Medium",
+                    longTerm: "Provides grid stabilization for renewable integration",
+                    effects: {
+                        gridStability: (cost) => Math.floor(cost * 0.5),
+                        techStorage: (cost) => Math.floor(cost * 0.2)
+                    }
+                },
+                {
+                    id: "green-corridor",
+                    name: "Green Energy Corridor",
+                    description: "Build transmission infrastructure dedicated to evacuating renewable energy.",
+                    minCost: 6,
+                    maxCost: 18,
+                    risk: "Medium",
+                    longTerm: "Enhances grid capacity for renewable energy",
+                    effects: {
+                        gridStability: (cost) => Math.floor(cost * 0.4),
+                        techGrid: (cost) => Math.floor(cost * 0.2)
+                    }
+                }
+            ],
+            "turn2": [
+                {
+                    id: "solar-manufacturing",
+                    name: "Solar Manufacturing Program",
+                    description: "Develop domestic manufacturing capabilities for solar equipment.",
+                    minCost: 8,
+                    maxCost: 20,
+                    risk: "Medium",
+                    longTerm: "Creates domestic supply chain and reduces import dependency",
+                    effects: {
+                        techSolar: (cost) => Math.floor(cost * 0.3),
+                        budget: (cost) => Math.floor(cost * 0.1),
+                        publicApproval: (cost) => Math.floor(cost * 0.2)
+                    }
+                },
+                {
+                    id: "rooftop-solar",
+                    name: "Rooftop Solar Initiative",
+                    description: "Accelerate deployment of rooftop solar systems across urban areas.",
+                    minCost: 5,
+                    maxCost: 15,
+                    risk: "Low",
+                    longTerm: "Distributes generation capacity and reduces transmission needs",
+                    effects: {
+                        emissions: (cost) => -Math.floor(cost * 0.3),
+                        publicApproval: (cost) => Math.floor(cost * 0.2)
+                    }
+                },
+                {
+                    id: "battery-manufacturing",
+                    name: "Battery Manufacturing Initiative",
+                    description: "Develop domestic battery production capabilities.",
+                    minCost: 8,
+                    maxCost: 22,
+                    risk: "Medium",
+                    longTerm: "Creates critical component for clean energy transition",
+                    effects: {
+                        techStorage: (cost) => Math.floor(cost * 0.3),
+                        budget: (cost) => Math.floor(cost * 0.1)
+                    }
+                },
+                {
+                    id: "small-hydro",
+                    name: "Small Hydropower Program",
+                    description: "Develop small, environmentally-friendly hydropower projects across river systems.",
+                    minCost: 5,
+                    maxCost: 15,
+                    risk: "Medium",
+                    longTerm: "Provides reliable renewable generation with storage capacity",
+                    effects: {
+                        emissions: (cost) => -Math.floor(cost * 0.2),
+                        gridStability: (cost) => Math.floor(cost * 0.3)
+                    }
+                },
+                {
+                    id: "smart-grid-initiative",
+                    name: "Smart Grid Technology Initiative",
+                    description: "Implement digital grid management technologies in major urban centers.",
+                    minCost: 6,
+                    maxCost: 18,
+                    risk: "Medium",
+                    longTerm: "Improves grid efficiency and reliability",
+                    effects: {
+                        gridStability: (cost) => Math.floor(cost * 0.4),
+                        techGrid: (cost) => Math.floor(cost * 0.3)
+                    }
+                }
+            ],
+            "turn3": [], "turn4": [], "turn5": []
+        },
+        "germany": {
+            "turn1": [
+                {
+                    id: "offshore-wind",
+                    name: "North Sea Wind Expansion",
+                    description: "Accelerate development of offshore wind farms in the North Sea.",
+                    minCost: 15,
+                    maxCost: 35,
+                    risk: "Medium",
+                    longTerm: "Creates reliable, high-capacity renewable energy source",
+                    effects: {
+                        emissions: (cost) => -Math.floor(cost * 0.4),
+                        techWind: (cost) => Math.floor(cost * 0.2)
+                    }
+                },
+                {
+                    id: "solar-acceleration",
+                    name: "Solar Deployment Acceleration",
+                    description: "Streamline permitting and increase incentives for solar PV deployment.",
+                    minCost: 10,
+                    maxCost: 25,
+                    risk: "Low",
+                    longTerm: "Distributes renewable capacity across the country",
+                    effects: {
+                        emissions: (cost) => -Math.floor(cost * 0.3),
+                        techSolar: (cost) => Math.floor(cost * 0.1)
+                    }
+                },
+                {
+                    id: "grid-expansion",
+                    name: "North-South Grid Expansion",
+                    description: "Accelerate construction of transmission lines connecting northern wind to southern demand.",
+                    minCost: 15,
+                    maxCost: 40,
+                    risk: "High",
+                    longTerm: "Reduces curtailment and enables higher renewable penetration",
+                    effects: {
+                        gridStability: (cost) => Math.floor(cost * 0.5),
+                        techGrid: (cost) => Math.floor(cost * 0.2)
+                    }
+                },
+                {
+                    id: "industrial-efficiency",
+                    name: "Industrial Energy Efficiency",
+                    description: "Fund implementation of energy efficiency technologies in industrial processes.",
+                    minCost: 8,
+                    maxCost: 20,
+                    risk: "Low",
+                    longTerm: "Reduces industrial energy demand",
+                    effects: {
+                        emissions: (cost) => -Math.floor(cost * 0.2),
+                        publicApproval: (cost) => Math.floor(cost * 0.2)
+                    }
+                },
+                {
+                    id: "battery-storage",
+                    name: "Battery Storage Deployment",
+                    description: "Deploy grid-scale battery storage systems to support renewable integration.",
+                    minCost: 12,
+                    maxCost: 30,
+                    risk: "Medium",
+                    longTerm: "Provides short-duration balancing for variable renewables",
+                    effects: {
+                        gridStability: (cost) => Math.floor(cost * 0.4),
+                        techStorage: (cost) => Math.floor(cost * 0.2)
+                    }
+                }
+            ],
+            "turn2": [
+                {
+                    id: "floating-wind",
+                    name: "Floating Wind Technology",
+                    description: "Develop and deploy floating wind turbine technology for deeper waters.",
+                    minCost: 15,
+                    maxCost: 35,
+                    risk: "High",
+                    longTerm: "Enables offshore wind in deeper Baltic Sea regions",
+                    effects: {
+                        techWind: (cost) => Math.floor(cost * 0.3),
+                        emissions: (cost) => -Math.floor(cost * 0.2)
+                    }
+                },
+                {
+                    id: "building-retrofit",
+                    name: "National Building Retrofit Program",
+                    description: "Implement comprehensive energy efficiency retrofits for existing buildings.",
+                    minCost: 15,
+                    maxCost: 40,
+                    risk: "Medium",
+                    longTerm: "Significantly reduces energy demand from building sector",
+                    effects: {
+                        emissions: (cost) => -Math.floor(cost * 0.3),
+                        publicApproval: (cost) => Math.floor(cost * 0.2)
+                    }
+                },
+                {
+                    id: "hydrogen-pilot",
+                    name: "Green Hydrogen Pilot Program",
+                    description: "Develop electrolysis facilities powered by renewable energy for industrial applications.",
+                    minCost: 15,
+                    maxCost: 35,
+                    risk: "High",
+                    longTerm: "Creates pathway for decarbonizing heavy industry",
+                    effects: {
+                        techStorage: (cost) => Math.floor(cost * 0.2),
+                        emissions: (cost) => -Math.floor(cost * 0.1)
+                    }
+                },
+                {
+                    id: "heat-pumps",
+                    name: "Heat Pump Transformation",
+                    description: "Accelerate deployment of electric heat pumps for space heating across residential and commercial sectors.",
+                    minCost: 12,
+                    maxCost: 30,
+                    risk: "Medium",
+                    longTerm: "Electrifies heating sector and reduces gas dependence",
+                    effects: {
+                        emissions: (cost) => -Math.floor(cost * 0.3),
+                        publicApproval: (cost) => Math.floor(cost * 0.1)
+                    }
+                },
+                {
+                    id: "smart-grid",
+                    name: "Smart Grid Initiative",
+                    description: "Implement digital grid management technologies to optimize system operation.",
                     minCost: 10,
                     maxCost: 25,
                     risk: "Medium",
-                    longTerm: "Diversifies renewable mix with complementary generation profile to solar.",
+                    longTerm: "Improves grid flexibility and enables higher renewable share",
                     effects: {
-                        emissions: cost => -Math.floor(cost / 5),
-                        techWind: cost => Math.floor(cost / 6)
+                        gridStability: (cost) => Math.floor(cost * 0.4),
+                        techGrid: (cost) => Math.floor(cost * 0.3)
+                    }
+                }
+            ],
+            "turn3": [
+                {
+                    id: "offshore-capacity",
+                    name: "Massive Offshore Wind Capacity",
+                    description: "Rapidly scale up offshore wind farms in North and Baltic Seas.",
+                    minCost: 25,
+                    maxCost: 50,
+                    risk: "Medium",
+                    longTerm: "Establishes wind as primary electricity source",
+                    effects: {
+                        emissions: (cost) => -Math.floor(cost * 0.5),
+                        techWind: (cost) => Math.floor(cost * 0.2)
                     }
                 },
                 {
-                    id: "usa_nuclear_small_modular_t2",
-                    name: "Invest in Small Modular Reactors (SMRs)",
-                    description: "Pilot program for advanced, safer nuclear reactors.",
-                    minCost: 30,
-                    maxCost: 70,
-                    risk: "High",
-                    longTerm: "Potential for large-scale, low-carbon baseload power.",
-                    effects: {
-                        emissions: cost => -Math.floor(cost / 2),
-                        publicApproval: cost => -Math.floor(cost / 10), // Nuclear often has approval challenges
-                        techNuclear: cost => Math.floor(cost / 5),
-                        gridStability: cost => Math.floor(cost/7)
-                    }
-                }
-            ],
-            turn2: [
-                {
-                    id: "usa_carbon_capture_pilot_t3",
-                    name: "Carbon Capture Utilization & Storage (CCUS) Pilot",
-                    description: "Invest in CCUS technology for industrial sectors.",
+                    id: "industrial-hydrogen",
+                    name: "Industrial Hydrogen Transformation",
+                    description: "Scale up green hydrogen production for steel, chemicals, and other industries.",
                     minCost: 20,
-                    maxCost: 50,
-                    risk: "Very High",
-                    longTerm: "Potential to decarbonize hard-to-abate sectors.",
+                    maxCost: 45,
+                    risk: "High",
+                    longTerm: "Decarbonizes hard-to-abate industrial sectors",
                     effects: {
-                        emissions: cost => -Math.floor(cost / 6),
-                        publicApproval: -5
+                        emissions: (cost) => -Math.floor(cost * 0.3),
+                        techStorage: (cost) => Math.floor(cost * 0.2)
                     }
-                }
-            ],
-            turn3: [
+                },
                 {
-                    id: "usa_direct_air_capture_t4",
-                    name: "Direct Air Capture (DAC) Research",
-                    description: "Fund research into technologies that remove CO2 directly from the atmosphere.",
+                    id: "power-to-x",
+                    name: "Power-to-X Demonstration",
+                    description: "Develop facilities to convert renewable electricity to synthetic fuels and chemicals.",
+                    minCost: 15,
+                    maxCost: 35,
+                    risk: "High",
+                    longTerm: "Creates pathway for aviation, shipping, and chemical feedstocks",
+                    effects: {
+                        techStorage: (cost) => Math.floor(cost * 0.3),
+                        emissions: (cost) => -Math.floor(cost * 0.1)
+                    }
+                },
+                {
+                    id: "eu-supergrid",
+                    name: "European Supergrid Connections",
+                    description: "Enhance cross-border transmission capacity with neighboring countries.",
+                    minCost: 20,
+                    maxCost: 45,
+                    risk: "Medium",
+                    longTerm: "Enables electricity trading and balancing across Europe",
+                    effects: {
+                        gridStability: (cost) => Math.floor(cost * 0.5),
+                        techGrid: (cost) => Math.floor(cost * 0.2)
+                    }
+                },
+                {
+                    id: "seasonal-storage",
+                    name: "Seasonal Energy Storage Program",
+                    description: "Develop large-scale storage solutions for inter-seasonal energy balancing.",
                     minCost: 15,
                     maxCost: 40,
-                    risk: "Very High",
-                    longTerm: "Could provide negative emissions if successful and scalable.",
+                    risk: "High",
+                    longTerm: "Enables very high renewable penetration despite seasonal variations",
                     effects: {
-                        emissions: cost => -Math.floor(cost / 10) // Represents future potential
+                        gridStability: (cost) => Math.floor(cost * 0.4),
+                        techStorage: (cost) => Math.floor(cost * 0.3)
                     }
                 }
             ],
-            turn4: [
+            "turn4": [
                 {
-                    id: "usa_fusion_research_t5",
-                    name: "Fusion Energy Research Initiative",
-                    description: "Long-term investment in the quest for fusion power.",
-                    minCost: 30,
-                    maxCost: 80,
-                    risk: "Very High",
-                    longTerm: "Game-changing clean energy source if achieved.",
+                    id: "wind-leadership",
+                    name: "Global Wind Technology Leadership",
+                    description: "Establish position as leading developer and exporter of advanced wind energy technology.",
+                    minCost: 15,
+                    maxCost: 35,
+                    risk: "Medium",
+                    longTerm: "Creates export industry and technology advantage",
                     effects: {
-                        // No immediate emission effect, this is for the far future
-                        publicApproval: 5 // Visionary project
+                        techWind: (cost) => Math.floor(cost * 0.3),
+                        budget: (cost) => Math.floor(cost * 0.2)
+                    }
+                },
+                {
+                    id: "hydrogen-infrastructure",
+                    name: "Hydrogen Infrastructure Network",
+                    description: "Build comprehensive hydrogen production, storage, and distribution infrastructure.",
+                    minCost: 25,
+                    maxCost: 55,
+                    risk: "High",
+                    longTerm: "Creates foundation for hydrogen economy",
+                    effects: {
+                        techStorage: (cost) => Math.floor(cost * 0.3),
+                        emissions: (cost) => -Math.floor(cost * 0.3)
+                    }
+                },
+                {
+                    id: "industrial-transformation",
+                    name: "Zero-Carbon Industry Transformation",
+                    description: "Transform traditional industrial centers to zero-carbon production processes.",
+                    minCost: 30,
+                    maxCost: 60,
+                    risk: "Very High",
+                    longTerm: "Maintains industrial strength while eliminating emissions",
+                    effects: {
+                        emissions: (cost) => -Math.floor(cost * 0.4),
+                        budget: (cost) => -Math.floor(cost * 0.1),
+                        publicApproval: (cost) => Math.floor(cost * 0.1)
+                    }
+                },
+                {
+                    id: "energy-positive",
+                    name: "Energy-Positive Buildings",
+                    description: "Deploy buildings that generate more energy than they consume.",
+                    minCost: 15,
+                    maxCost: 35,
+                    risk: "Medium",
+                    longTerm: "Transforms buildings from consumers to producers of energy",
+                    effects: {
+                        emissions: (cost) => -Math.floor(cost * 0.2),
+                        techSolar: (cost) => Math.floor(cost * 0.2),
+                        publicApproval: (cost) => Math.floor(cost * 0.1)
+                    }
+                },
+                {
+                    id: "digital-energy",
+                    name: "Digital Energy Infrastructure",
+                    description: "Deploy AI-driven energy management systems with comprehensive data integration.",
+                    minCost: 15,
+                    maxCost: 35,
+                    risk: "Medium",
+                    longTerm: "Creates world's most efficient energy system operation",
+                    effects: {
+                        gridStability: (cost) => Math.floor(cost * 0.5),
+                        techGrid: (cost) => Math.floor(cost * 0.3)
+                    }
+                }
+            ],
+            "turn5": [
+                {
+                    id: "renewable-export",
+                    name: "Renewable Energy Export Hub",
+                    description: "Develop capacity to export renewable energy to neighboring countries.",
+                    minCost: 25,
+                    maxCost: 50,
+                    risk: "Medium",
+                    longTerm: "Transforms into net energy exporter",
+                    effects: {
+                        budget: (cost) => Math.floor(cost * 0.3),
+                        emissions: (cost) => -Math.floor(cost * 0.3)
+                    }
+                },
+                {
+                    id: "clean-manufacturing",
+                    name: "Clean Manufacturing Leadership",
+                    description: "Establish global leadership in clean manufacturing processes and technology.",
+                    minCost: 20,
+                    maxCost: 45,
+                    risk: "High",
+                    longTerm: "Creates export advantage in clean industrial technology",
+                    effects: {
+                        budget: (cost) => Math.floor(cost * 0.3),
+                        emissions: (cost) => -Math.floor(cost * 0.2)
+                    }
+                },
+                {
+                    id: "circular-economy",
+                    name: "Circular Economy Implementation",
+                    description: "Transform economy to circularity principles with full resource cycling.",
+                    minCost: 20,
+                    maxCost: 40,
+                    risk: "Medium",
+                    longTerm: "Minimizes resource extraction and waste",
+                    effects: {
+                        emissions: (cost) => -Math.floor(cost * 0.3),
+                        publicApproval: (cost) => Math.floor(cost * 0.2)
+                    }
+                },
+                {
+                    id: "fusion-contribution",
+                    name: "International Fusion Project",
+                    description: "Contribute to international fusion energy research and development.",
+                    minCost: 15,
+                    maxCost: 35,
+                    risk: "Very High",
+                    longTerm: "Positions for future fusion energy leadership",
+                    effects: {
+                        techNuclear: (cost) => Math.floor(cost * 0.4)
+                    }
+                },
+                {
+                    id: "energy-autonomy",
+                    name: "Complete Energy Autonomy",
+                    description: "Achieve 100% domestic renewable energy supply with storage and system integration.",
+                    minCost: 30,
+                    maxCost: 60,
+                    risk: "High",
+                    longTerm: "Eliminates energy import dependency",
+                    effects: {
+                        emissions: (cost) => -Math.floor(cost * 0.4),
+                        gridStability: (cost) => Math.floor(cost * 0.3),
+                        publicApproval: (cost) => Math.floor(cost * 0.2)
                     }
                 }
             ]
         },
-        china: {
-            turn1: [
+        "brazil": {
+            "turn1": [
                 {
-                    id: "china_solar_manufacturing_t1",
-                    name: "Expand Solar Panel Manufacturing",
-                    description: "Increase domestic production capacity for solar panels.",
-                    minCost: 20,
-                    maxCost: 50,
-                    risk: "Low",
-                    longTerm: "Strengthens global solar supply chain leadership and boosts solar tech.",
-                    effects: {
-                        budget: cost => Math.floor(cost / 10), // Exports can generate revenue
-                        emissions: cost => -Math.floor(cost / 6),
-                        techSolar: cost => Math.floor(cost / 4)
-                    }
-                },
-                {
-                    id: "china_long_distance_transmission_t1",
-                    name: "UHV Transmission Lines",
-                    description: "Build ultra-high-voltage lines to transmit renewable energy from remote areas.",
-                    minCost: 25,
-                    maxCost: 60,
-                    risk: "Medium",
-                    longTerm: "Enables massive renewable integration and improves grid tech.",
-                    effects: {
-                        gridStability: cost => Math.floor(cost / 4),
-                        techGrid: cost => Math.floor(cost / 5),
-                        emissions: cost => -Math.floor(cost/7)
-                    }
-                },
-                {
-                    id: "china_battery_gigafactories_t1",
-                    name: "Advanced Battery Gigafactories",
-                    description: "Create massive battery manufacturing facilities for energy storage and EVs.",
-                    minCost: 25,
-                    maxCost: 60,
-                    risk: "Medium",
-                    longTerm: "Energy storage market leadership and export revenue.",
-                    effects: {
-                        techStorage: cost => Math.floor(cost / 4),
-                        budget: cost => Math.floor(cost / 12), // Export revenue
-                        emissions: cost => -Math.floor(cost / 10) // Enables future renewable integration
-                    }
-                },
-                {
-                    id: "china_ev_manufacturing_t1",
-                    name: "EV Manufacturing Ecosystem",
-                    description: "Develop large-scale electric vehicle manufacturing infrastructure.",
-                    minCost: 30,
-                    maxCost: 70,
-                    risk: "Low",
-                    longTerm: "Global EV market leadership and transport emission reduction.",
-                    effects: {
-                        emissions: cost => -Math.floor(cost / 8), // Transport sector emissions
-                        budget: cost => Math.floor(cost / 7), // Export revenue
-                        publicApproval: 5 // Popular industrial policy
-                    }
-                },
-                {
-                    id: "china_coal_efficiency_t1",
-                    name: "Coal Plant Efficiency & Controls",
-                    description: "Upgrade existing coal plants with efficiency improvements and pollution controls.",
-                    minCost: 20,
-                    maxCost: 40,
-                    risk: "Low",
-                    longTerm: "Reduces emissions while extending plant life with reduced pollution.",
-                    effects: {
-                        emissions: cost => -Math.floor(cost / 5),
-                        gridStability: cost => Math.floor(cost / 8),
-                        publicApproval: 5 // Addresses visible air pollution
-                    }
-                }
-            ],
-            turn2: [
-                {
-                    id: "china_wind_power_expansion_t2",
-                    name: "Large-Scale Wind Power Expansion",
-                    description: "Aggressively expand onshore and offshore wind capacity.",
-                    minCost: 30,
-                    maxCost: 70,
-                    risk: "Low",
-                    longTerm: "Significant CO2 reduction and wind tech improvement.",
-                    effects: {
-                        emissions: cost => -Math.floor(cost / 3),
-                        techWind: cost => Math.floor(cost / 5)
-                    }
-                },
-                {
-                    id: "china_ev_infrastructure_t2",
-                    name: "Electric Vehicle Charging Infrastructure",
-                    description: "Rapidly build out a national EV charging network.",
-                    minCost: 15,
-                    maxCost: 40,
-                    risk: "Low",
-                    longTerm: "Accelerates EV adoption, reducing transport emissions.",
-                    effects: {
-                        emissions: cost => -Math.floor(cost / 7), // Transport sector
-                        publicApproval: 5
-                    }
-                },
-                {
-                    id: "china_concentrated_solar_t2",
-                    name: "Concentrated Solar Power Base",
-                    description: "Develop large-scale solar thermal power plants with energy storage capabilities.",
-                    minCost: 20,
-                    maxCost: 50,
-                    risk: "Medium",
-                    longTerm: "Provides dispatchable solar power for day and night operation.",
-                    effects: {
-                        emissions: cost => -Math.floor(cost / 5),
-                        gridStability: cost => Math.floor(cost / 10) + 5, // Dispatchable solar
-                        techSolar: cost => Math.floor(cost / 6)
-                    }
-                },
-                {
-                    id: "china_advanced_nuclear_t2",
-                    name: "Advanced Nuclear Fleet",
-                    description: "Construct new generation nuclear plants for clean baseload power.",
-                    minCost: 40,
-                    maxCost: 90,
-                    risk: "Medium",
-                    longTerm: "Provides massive low-carbon baseload electricity.",
-                    effects: {
-                        emissions: cost => -Math.floor(cost / 3),
-                        gridStability: cost => Math.floor(cost / 6) + 5,
-                        techNuclear: cost => Math.floor(cost / 7)
-                    }
-                }
-            ],
-            turn3: [
-                {
-                    id: "china_green_hydrogen_t3",
-                    name: "Green Hydrogen Production Pilot",
-                    description: "Invest in facilities to produce hydrogen using renewable energy.",
-                    minCost: 20,
-                    maxCost: 50,
+                    id: "amazon-protection",
+                    name: "Amazon Protection Initiative",
+                    description: "Strengthen monitoring and enforcement to prevent illegal deforestation.",
+                    minCost: 5,
+                    maxCost: 15,
                     risk: "High",
-                    longTerm: "Potential for decarbonizing industry and transport.",
+                    longTerm: "Preserves world's largest carbon sink and biodiversity reserve",
                     effects: {
-                        emissions: cost => -Math.floor(cost / 8) // Future potential
+                        emissions: (cost) => -Math.floor(cost * 0.6),
+                        publicApproval: (cost) => -Math.floor(cost * 0.1)
                     }
                 },
                 {
-                    id: "china_smart_grid_ai_t3",
-                    name: "Smart Grid Artificial Intelligence",
-                    description: "Implement AI-powered grid management to optimize renewable energy integration.",
-                    minCost: 15,
-                    maxCost: 35,
-                    risk: "Medium",
-                    longTerm: "Enables higher renewable energy penetration and grid efficiency.",
+                    id: "hydro-modernization",
+                    name: "Hydropower Modernization",
+                    description: "Upgrade existing hydroelectric facilities for higher efficiency and output.",
+                    minCost: 8,
+                    maxCost: 20,
+                    risk: "Low",
+                    longTerm: "Enhances existing clean energy resources",
                     effects: {
-                        gridStability: cost => Math.floor(cost / 3) + 5,
-                        techGrid: cost => Math.floor(cost / 4),
-                        emissions: cost => -Math.floor(cost / 9) // Indirect effect through efficiency
+                        gridStability: (cost) => Math.floor(cost * 0.4),
+                        emissions: (cost) => -Math.floor(cost * 0.1)
                     }
                 },
                 {
-                    id: "china_floating_solar_t3",
-                    name: "Floating Solar Arrays",
-                    description: "Deploy large-scale solar installations on reservoirs and lakes.",
-                    minCost: 20, 
-                    maxCost: 45,
-                    risk: "Medium",
-                    longTerm: "Expands solar capacity without using land resources.",
+                    id: "solar-northeast",
+                    name: "Northeast Solar Program",
+                    description: "Develop utility-scale solar in the high-insolation northeastern region.",
+                    minCost: 5,
+                    maxCost: 15,
+                    risk: "Low",
+                    longTerm: "Creates renewable capacity in less-developed region",
                     effects: {
-                        emissions: cost => -Math.floor(cost / 4),
-                        techSolar: cost => Math.floor(cost / 6)
+                        emissions: (cost) => -Math.floor(cost * 0.3),
+                        techSolar: (cost) => Math.floor(cost * 0.2),
+                        publicApproval: (cost) => Math.floor(cost * 0.2)
                     }
                 },
                 {
-                    id: "china_energy_storage_manufacturing_t3",
-                    name: "Advanced Energy Storage Manufacturing",
-                    description: "Expand production of next-generation battery technologies.",
-                    minCost: 30,
-                    maxCost: 65,
+                    id: "biofuel-expansion",
+                    name: "Advanced Biofuel Expansion",
+                    description: "Expand production of sustainable biofuels from agricultural waste and non-food crops.",
+                    minCost: 5,
+                    maxCost: 15,
                     risk: "Medium",
-                    longTerm: "Global leadership in energy storage technology and exports.",
+                    longTerm: "Strengthens leadership in bioenergy",
                     effects: {
-                        techStorage: cost => Math.floor(cost / 3),
-                        budget: cost => Math.floor(cost / 6), // Export revenue
-                        gridStability: cost => Math.floor(cost / 10) // Indirect stability benefit
+                        emissions: (cost) => -Math.floor(cost * 0.2),
+                        publicApproval: (cost) => Math.floor(cost * 0.2)
+                    }
+                },
+                {
+                    id: "transmission-expansion",
+                    name: "Transmission System Expansion",
+                    description: "Strengthen the national grid with new transmission lines connecting renewable resources.",
+                    minCost: 7,
+                    maxCost: 18,
+                    risk: "Medium",
+                    longTerm: "Enables integration of new renewable resources",
+                    effects: {
+                        gridStability: (cost) => Math.floor(cost * 0.4),
+                        techGrid: (cost) => Math.floor(cost * 0.2)
                     }
                 }
             ],
-            turn4: [
+            "turn2": [
                 {
-                    id: "china_advanced_nuclear_t4",
-                    name: "Deploy Advanced Nuclear Reactors",
-                    description: "Construct new generation nuclear plants for baseload power.",
-                    minCost: 40,
-                    maxCost: 100,
+                    id: "sustainable-forestry",
+                    name: "Sustainable Forestry Management",
+                    description: "Implement sustainable forestry practices that preserve carbon stocks while allowing economic activity.",
+                    minCost: 8,
+                    maxCost: 20,
                     risk: "Medium",
-                    longTerm: "Large scale low-carbon electricity.",
+                    longTerm: "Balances forest preservation with economic needs",
                     effects: {
-                        emissions: cost => -Math.floor(cost / 2),
-                        techNuclear: cost => Math.floor(cost / 6),
-                        gridStability: cost => Math.floor(cost / 10),
-                        publicApproval: -10
+                        emissions: (cost) => -Math.floor(cost * 0.4),
+                        publicApproval: (cost) => Math.floor(cost * 0.2),
+                        budget: (cost) => Math.floor(cost * 0.1)
                     }
                 },
                 {
-                    id: "china_carbon_capture_industrial_t4",
-                    name: "Carbon Capture Industrial Clusters",
-                    description: "Deploy carbon capture technologies in industrial zones with high emissions concentration.",
+                    id: "wind-northeast",
+                    name: "Northeast Wind Corridor",
+                    description: "Develop wind energy corridors in high-potential northeastern coastal regions.",
+                    minCost: 7,
+                    maxCost: 18,
+                    risk: "Low",
+                    longTerm: "Creates significant renewable capacity",
+                    effects: {
+                        emissions: (cost) => -Math.floor(cost * 0.3),
+                        techWind: (cost) => Math.floor(cost * 0.2)
+                    }
+                },
+                {
+                    id: "solar-manufacturing",
+                    name: "Solar Manufacturing Initiative",
+                    description: "Develop domestic solar equipment manufacturing capabilities.",
+                    minCost: 8,
+                    maxCost: 20,
+                    risk: "Medium",
+                    longTerm: "Creates jobs and reduces import dependency",
+                    effects: {
+                        techSolar: (cost) => Math.floor(cost * 0.2),
+                        budget: (cost) => Math.floor(cost * 0.1),
+                        publicApproval: (cost) => Math.floor(cost * 0.2)
+                    }
+                },
+                {
+                    id: "airborne-wind",
+                    name: "Airborne Wind Energy Systems",
+                    description: "Deploy networks of high-altitude wind energy systems to capture jet stream winds.",
+                    minCost: 30,
+                    maxCost: 60,
+                    risk: "Very High",
+                    longTerm: "Accesses much stronger and consistent wind resources",
+                    effects: {
+                        techWind: (cost) => Math.floor(cost * 0.4),
+                        emissions: (cost) => -Math.floor(cost * 0.3)
+                    }
+                },
+                {
+                    id: "hydrogen-infrastructure",
+                    name: "Hydrogen Energy Infrastructure",
+                    description: "Build nationwide hydrogen production, storage, and distribution infrastructure.",
                     minCost: 35,
-                    maxCost: 75,
-                    risk: "Medium",
-                    longTerm: "Decarbonizes heavy industry while maintaining production.",
+                    maxCost: 70,
+                    risk: "High",
+                    longTerm: "Creates flexible energy carrier for storage and sector integration",
                     effects: {
-                        emissions: cost => -Math.floor(cost / 3),
-                        publicApproval: 5, // Addresses visible pollution
-                        techGrid: cost => Math.floor(cost / 10) // Integration technologies
+                        techStorage: (cost) => Math.floor(cost * 0.4),
+                        emissions: (cost) => -Math.floor(cost * 0.3),
+                        gridStability: (cost) => Math.floor(cost * 0.2)
                     }
                 },
                 {
-                    id: "china_national_energy_storage_t4",
-                    name: "National Energy Storage Network",
-                    description: "Deploy a coordinated nationwide network of various energy storage technologies.",
-                    minCost: 30,
-                    maxCost: 60,
-                    risk: "Medium",
-                    longTerm: "Enables very high renewable energy penetration and grid stability.",
-                    effects: {
-                        gridStability: cost => Math.floor(cost / 3) + 5,
-                        techStorage: cost => Math.floor(cost / 5),
-                        emissions: cost => -Math.floor(cost / 6) // Enables more renewables
-                    }
-                }
-            ],
-            turn5: [
-                {
-                    id: "china_smart_cities_t5",
-                    name: "Smart Cities Energy Integration",
-                    description: "Implement city-wide smart grid and energy efficiency systems.",
-                    minCost: 25,
-                    maxCost: 60,
-                    risk: "Medium",
-                    longTerm: "Highly efficient urban energy use.",
-                    effects: {
-                        emissions: cost => -Math.floor(cost / 5),
-                        gridStability: cost => Math.floor(cost / 8),
-                        techGrid: cost => Math.floor(cost / 6),
-                        publicApproval: 5
-                    }
-                },
-                {
-                    id: "china_breakthrough_energy_research_t5",
-                    name: "Breakthrough Energy Research Park",
-                    description: "Create a massive research complex focused on next-generation energy technologies.",
-                    minCost: 40,
+                    id: "fusion-prototype",
+                    name: "Fusion Energy Prototype",
+                    description: "Fund construction of first commercial-scale fusion energy prototype plant.",
+                    minCost: 50,
                     maxCost: 100,
                     risk: "Very High",
-                    longTerm: "Potential for revolutionary clean energy breakthroughs.",
+                    longTerm: "Potential for unlimited clean energy with minimal waste",
                     effects: {
-                        techSolar: cost => Math.floor(cost / 10) + 5,
-                        techWind: cost => Math.floor(cost / 10) + 5,
-                        techStorage: cost => Math.floor(cost / 10) + 5,
-                        techNuclear: cost => Math.floor(cost / 10) + 5,
-                        techGrid: cost => Math.floor(cost / 10) + 5
+                        techNuclear: (cost) => Math.floor(cost * 0.6),
+                        publicApproval: (cost) => Math.floor(cost * 0.1)
                     }
                 },
                 {
-                    id: "china_global_clean_energy_infrastructure_t5",
-                    name: "Global Clean Energy Infrastructure",
-                    description: "Invest in clean energy projects worldwide to secure influence and export markets.",
-                    minCost: 50,
-                    maxCost: 120,
-                    risk: "Medium",
-                    longTerm: "Global leadership in clean energy exports and technology standards.",
-                    effects: {
-                        budget: cost => Math.floor(cost / 3), // Export revenue
-                        publicApproval: 10, // National pride
-                        emissions: cost => -Math.floor(cost / 8) // Global emission reductions
-                    }
-                },
-                {
-                    id: "china_carbon_removal_infrastructure_t5",
-                    name: "Carbon Dioxide Removal Infrastructure",
-                    description: "Build large-scale direct air capture facilities and enhanced carbon sinks.",
-                    minCost: 30,
+                    id: "continental-supergrid",
+                    name: "Continental Supergrid",
+                    description: "Create an integrated energy system connecting the entire continent with neighboring nations.",
+                    minCost: 40,
                     maxCost: 80,
                     risk: "High",
-                    longTerm: "Potential for negative emissions and climate restoration.",
+                    longTerm: "Enables continent-scale energy optimization and trading",
                     effects: {
-                        emissions: cost => -Math.floor(cost / 3), // Direct reduction
-                        publicApproval: 5, // Climate leadership
-                        techGrid: cost => Math.floor(cost / 10) // System integration
+                        gridStability: (cost) => Math.floor(cost * 0.5),
+                        emissions: (cost) => -Math.floor(cost * 0.3),
+                        techGrid: (cost) => Math.floor(cost * 0.4),
+                        budget: (cost) => Math.floor(cost * 0.1)
                     }
                 }
             ]
@@ -1779,6 +1603,625 @@ const gameData = {
                 ]
             }
         ]
+    },
+    
+    // Policies for each country
+    policies: {
+        usa: {
+            turn1: [
+                {
+                    id: "clean-energy-standard",
+                    name: "Federal Clean Energy Standard",
+                    description: "Establish a national clean energy standard requiring utilities to increase clean energy in their portfolios.",
+                    effects: {
+                        publicApproval: -5,
+                        emissions: -10
+                    },
+                    risk: "Low"
+                },
+                {
+                    id: "carbon-pricing",
+                    name: "Carbon Pricing Framework",
+                    description: "Implement a carbon price across the economy to create market incentives for emissions reduction.",
+                    effects: {
+                        publicApproval: -10,
+                        budget: 15,
+                        emissions: -3
+                    },
+                    risk: "High"
+                },
+                {
+                    id: "state-federal",
+                    name: "State-Federal Climate Partnership",
+                    description: "Create a coordinated approach between federal and state governments to implement climate policies.",
+                    cost: 10,
+                    effects: {
+                        publicApproval: 10
+                    },
+                    risk: "Low"
+                },
+                {
+                    id: "tax-credits",
+                    name: "Clean Energy Tax Credits Extension",
+                    description: "Extend and expand tax credits for renewable energy, energy storage, and electric vehicles.",
+                    cost: 15,
+                    effects: {
+                        emissions: -5
+                    },
+                    risk: "Low"
+                }
+            ],
+            turn2: [
+                {
+                    id: "clean-finance",
+                    name: "Clean Energy Infrastructure Finance Corporation",
+                    description: "Establish a government-backed entity to provide low-cost financing for clean energy projects.",
+                    cost: 30,
+                    effects: {
+                        emissions: -7,
+                        budget: -5
+                    },
+                    risk: "Medium"
+                },
+                {
+                    id: "industrial-roadmap",
+                    name: "Industrial Decarbonization Roadmap",
+                    description: "Develop a comprehensive plan for decarbonizing hard-to-abate industrial sectors.",
+                    cost: 5,
+                    effects: {
+                        emissions: -3
+                    },
+                    risk: "Low"
+                },
+                {
+                    id: "climate-security",
+                    name: "Climate National Security Directive",
+                    description: "Designate climate change as a national security priority, directing military installations to adopt clean energy.",
+                    cost: 10,
+                    effects: {
+                        gridStability: 5,
+                        emissions: -2
+                    },
+                    risk: "Low"
+                }
+            ],
+            turn3: [
+                {
+                    id: "export-initiative",
+                    name: "Clean Energy Export Initiative",
+                    description: "Create a coordinated program to promote U.S. clean energy technology exports worldwide.",
+                    cost: 15,
+                    effects: {
+                        budget: 10
+                    },
+                    risk: "Medium"
+                },
+                {
+                    id: "transition-authority",
+                    name: "National Energy Transition Authority",
+                    description: "Establish a dedicated agency to coordinate all aspects of the clean energy transition.",
+                    cost: 10,
+                    effects: {
+                        emissions: -5,
+                        gridStability: 5
+                    },
+                    risk: "Low"
+                }
+            ],
+            turn4: [
+                {
+                    id: "zero-electricity",
+                    name: "Zero-Carbon Electricity Standard",
+                    description: "Mandate 100% zero-carbon electricity by 2045 with binding interim targets.",
+                    effects: {
+                        publicApproval: -5,
+                        emissions: -15
+                    },
+                    risk: "Medium"
+                },
+                {
+                    id: "climate-bank",
+                    name: "National Climate Bank",
+                    description: "Establish a public financial institution dedicated to leveraging private investment in climate solutions.",
+                    cost: 50,
+                    effects: {
+                        emissions: -10,
+                        budget: -5
+                    },
+                    risk: "Low"
+                }
+            ],
+            turn5: [
+                {
+                    id: "carbon-neutrality",
+                    name: "Economy-Wide Carbon Neutrality Target",
+                    description: "Enact legislation establishing a legally binding economy-wide carbon neutrality target by 2050.",
+                    effects: {
+                        publicApproval: -10,
+                        emissions: -20
+                    },
+                    risk: "Medium"
+                },
+                {
+                    id: "global-alliance",
+                    name: "Global Clean Technology Alliance",
+                    description: "Form an international alliance focused on accelerating clean technology development and deployment.",
+                    cost: 10,
+                    effects: {
+                        budget: 5,
+                        emissions: -5
+                    },
+                    risk: "Low"
+                }
+            ]
+        },
+        china: {
+            turn1: [
+                {
+                    id: "five-year-plan",
+                    name: "14th Five-Year Plan Clean Energy Targets",
+                    description: "Incorporate ambitious clean energy and emissions targets into the national five-year plan.",
+                    cost: 10,
+                    effects: {
+                        emissions: -5
+                    },
+                    risk: "Low"
+                },
+                {
+                    id: "renewable-standard",
+                    name: "Renewable Portfolio Standard",
+                    description: "Implement mandatory renewable energy targets for power companies across provinces.",
+                    cost: 5,
+                    effects: {
+                        emissions: -8
+                    },
+                    risk: "Medium"
+                }
+            ],
+            turn2: [
+                {
+                    id: "coal-retirement",
+                    name: "Coal Capacity Retirement Schedule",
+                    description: "Establish a binding timetable for retiring coal plants, starting with the oldest and least efficient.",
+                    effects: {
+                        publicApproval: -5,
+                        emissions: -15
+                    },
+                    cost: 10,
+                    risk: "Medium"
+                },
+                {
+                    id: "electrification",
+                    name: "Electrification First Directive",
+                    description: "Direct all sectors to prioritize electrification as the primary decarbonization strategy.",
+                    cost: 5,
+                    effects: {
+                        emissions: -7
+                    },
+                    risk: "Low"
+                }
+            ],
+            turn3: [
+                {
+                    id: "five-year-plan-15",
+                    name: "15th Five-Year Plan Decarbonization Targets",
+                    description: "Set ambitious economy-wide decarbonization targets in the national five-year plan.",
+                    cost: 10,
+                    effects: {
+                        emissions: -10
+                    },
+                    risk: "Low"
+                },
+                {
+                    id: "carbon-intensity",
+                    name: "Regional Carbon Intensity Targets",
+                    description: "Assign differentiated carbon reduction targets to provinces based on development level and resources.",
+                    cost: 5,
+                    effects: {
+                        emissions: -10
+                    },
+                    risk: "Medium"
+                }
+            ],
+            turn4: [
+                {
+                    id: "carbon-neutrality",
+                    name: "Carbon Neutrality Implementation Plan",
+                    description: "Develop detailed sectoral plans to achieve the national carbon neutrality goal.",
+                    cost: 20,
+                    effects: {
+                        emissions: -15
+                    },
+                    risk: "Medium"
+                },
+                {
+                    id: "global-south",
+                    name: "Global South Clean Energy Partnerships",
+                    description: "Form partnerships with developing nations to finance and build clean energy infrastructure.",
+                    cost: 30,
+                    effects: {
+                        budget: 30
+                    },
+                    risk: "Medium"
+                }
+            ],
+            turn5: [
+                {
+                    id: "carbon-neutrality-achieve",
+                    name: "Carbon Neutrality Achievement Plan",
+                    description: "Finalize and implement the comprehensive strategy to achieve carbon neutrality.",
+                    cost: 30,
+                    effects: {
+                        emissions: -20
+                    },
+                    risk: "Low"
+                },
+                {
+                    id: "climate-leadership",
+                    name: "International Climate Leadership Initiative",
+                    description: "Position China as the global leader in climate action and clean technology.",
+                    cost: 20,
+                    effects: {
+                        budget: 20,
+                        publicApproval: 10
+                    },
+                    risk: "Low"
+                }
+            ]
+        },
+        india: {
+            turn1: [
+                {
+                    id: "climate-finance",
+                    name: "International Climate Finance Framework",
+                    description: "Establish mechanisms to attract and effectively utilize international climate funding.",
+                    cost: 1,
+                    effects: {
+                        budget: 20
+                    },
+                    risk: "Low"
+                },
+                {
+                    id: "renewable-obligations",
+                    name: "Renewable Purchase Obligations",
+                    description: "Strengthen and enforce renewable energy purchase requirements for utilities.",
+                    cost: 2,
+                    effects: {
+                        emissions: -5
+                    },
+                    risk: "Medium"
+                }
+            ],
+            turn2: [
+                {
+                    id: "hydrogen-mission",
+                    name: "Green Hydrogen Mission",
+                    description: "Launch a national mission to develop hydrogen production, storage, and utilization capabilities.",
+                    cost: 5,
+                    effects: {
+                        emissions: -2
+                    },
+                    risk: "Medium"
+                },
+                {
+                    id: "green-corridor",
+                    name: "Green Energy Corridor Policy",
+                    description: "Develop dedicated transmission infrastructure for renewable energy evacuation.",
+                    cost: 3,
+                    effects: {
+                        gridStability: 7
+                    },
+                    risk: "Low"
+                }
+            ],
+            turn3: [
+                {
+                    id: "carbon-market",
+                    name: "Carbon Market Implementation",
+                    description: "Establish a domestic carbon market with gradually increasing prices.",
+                    cost: 3,
+                    effects: {
+                        emissions: -5,
+                        budget: 3
+                    },
+                    risk: "Medium"
+                },
+                {
+                    id: "energy-equity",
+                    name: "Clean Energy Equity Program",
+                    description: "Ensure clean energy benefits reach all segments of society, especially rural and low-income.",
+                    cost: 7,
+                    effects: {
+                        publicApproval: 15
+                    },
+                    risk: "Low"
+                }
+            ],
+            turn4: [
+                {
+                    id: "climate-resilience",
+                    name: "Climate Resilience Framework",
+                    description: "Develop a comprehensive approach to climate adaptation across vulnerable sectors.",
+                    cost: 10,
+                    effects: {
+                        publicApproval: 10
+                    },
+                    risk: "Low"
+                },
+                {
+                    id: "tech-export",
+                    name: "Clean Technology Export Strategy",
+                    description: "Develop India as an exporter of affordable clean technologies to other developing countries.",
+                    cost: 5,
+                    effects: {
+                        budget: 10
+                    },
+                    risk: "Medium"
+                }
+            ],
+            turn5: [
+                {
+                    id: "net-zero",
+                    name: "Net-Zero Economy Roadmap",
+                    description: "Develop a comprehensive, sector-by-sector plan for achieving net-zero emissions.",
+                    cost: 5,
+                    effects: {
+                        emissions: -15
+                    },
+                    risk: "Medium"
+                },
+                {
+                    id: "climate-leadership",
+                    name: "Global Climate Leadership Initiative",
+                    description: "Position India as a leader in sustainable development and climate solutions.",
+                    cost: 3,
+                    effects: {
+                        budget: 5,
+                        publicApproval: 10
+                    },
+                    risk: "Low"
+                }
+            ]
+        },
+        germany: {
+            turn1: [
+                {
+                    id: "coal-exit",
+                    name: "Coal Exit Acceleration",
+                    description: "Accelerate the phase-out of coal power with increased compensation for affected regions.",
+                    cost: 15,
+                    effects: {
+                        emissions: -10,
+                        publicApproval: -5
+                    },
+                    risk: "Medium"
+                },
+                {
+                    id: "carbon-floor",
+                    name: "Carbon Price Floor",
+                    description: "Establish a minimum carbon price that increases predictably over time.",
+                    effects: {
+                        publicApproval: -5,
+                        budget: 10,
+                        emissions: -5
+                    },
+                    risk: "Medium"
+                }
+            ],
+            turn2: [
+                {
+                    id: "hydrogen-strategy",
+                    name: "National Hydrogen Strategy",
+                    description: "Develop a comprehensive strategy for hydrogen production, transport, and use across sectors.",
+                    cost: 5,
+                    effects: {
+                        emissions: -5
+                    },
+                    risk: "Medium"
+                },
+                {
+                    id: "industrial-roadmaps",
+                    name: "Industrial Transformation Roadmaps",
+                    description: "Develop detailed decarbonization plans for each major industrial sector.",
+                    cost: 3,
+                    effects: {
+                        emissions: -7
+                    },
+                    risk: "Low"
+                }
+            ],
+            turn3: [
+                {
+                    id: "border-adjustment",
+                    name: "Carbon Border Adjustment Mechanism",
+                    description: "Implement a carbon-based tariff on imports from countries without comparable climate policies.",
+                    cost: 3,
+                    effects: {
+                        budget: 5,
+                        emissions: -3
+                    },
+                    risk: "Medium"
+                },
+                {
+                    id: "climate-finance",
+                    name: "Climate Finance Initiative",
+                    description: "Mobilize private capital for clean energy projects through innovative financial instruments.",
+                    cost: 8,
+                    effects: {
+                        emissions: -5
+                    },
+                    risk: "Low"
+                }
+            ],
+            turn4: [
+                {
+                    id: "certification",
+                    name: "Zero-Carbon Industry Certification",
+                    description: "Develop certification standards for zero-carbon industrial products to create market premium.",
+                    cost: 2,
+                    effects: {
+                        emissions: -7,
+                        budget: 3
+                    },
+                    risk: "Low"
+                },
+                {
+                    id: "adaptation-strategy",
+                    name: "Climate Adaptation Strategy",
+                    description: "Develop comprehensive plans to prepare infrastructure and communities for unavoidable climate impacts.",
+                    cost: 10,
+                    effects: {
+                        publicApproval: 10,
+                        gridStability: 5
+                    },
+                    risk: "Low"
+                }
+            ],
+            turn5: [
+                {
+                    id: "prosperity-plan",
+                    name: "Climate Prosperity Plan",
+                    description: "Develop an integrated approach to climate action that enhances economic competitiveness.",
+                    cost: 5,
+                    effects: {
+                        publicApproval: 10,
+                        emissions: -5,
+                        budget: 5
+                    },
+                    risk: "Low"
+                },
+                {
+                    id: "industrial-leadership",
+                    name: "Industrial Leadership Compact",
+                    description: "Form a pact with industry to maintain global leadership in clean manufacturing.",
+                    cost: 8,
+                    effects: {
+                        emissions: -10,
+                        budget: 10
+                    },
+                    risk: "Medium"
+                }
+            ]
+        },
+        brazil: {
+            turn1: [
+                {
+                    id: "zero-deforestation",
+                    name: "Zero Deforestation Policy",
+                    description: "Implement strict enforcement against illegal deforestation with international monitoring.",
+                    effects: {
+                        publicApproval: -5,
+                        emissions: -15
+                    },
+                    cost: 5,
+                    risk: "High"
+                },
+                {
+                    id: "renewable-auction",
+                    name: "Renewable Energy Auction Program",
+                    description: "Expand competitive auctions for renewable energy projects with long-term contracts.",
+                    cost: 3,
+                    effects: {
+                        emissions: -5
+                    },
+                    risk: "Low"
+                }
+            ],
+            turn2: [
+                {
+                    id: "forest-conservation",
+                    name: "Forest Conservation Payment Program",
+                    description: "Pay forest communities and landowners for maintaining forest cover and ecosystem services.",
+                    cost: 10,
+                    effects: {
+                        emissions: -15,
+                        publicApproval: 5
+                    },
+                    risk: "Medium"
+                },
+                {
+                    id: "biofuel-mandate",
+                    name: "Biofuel Mandate Expansion",
+                    description: "Increase required biofuel blending percentages for transportation fuels.",
+                    cost: 4,
+                    effects: {
+                        emissions: -10,
+                        publicApproval: 5
+                    },
+                    risk: "Low"
+                }
+            ],
+            turn3: [
+                {
+                    id: "bioeconomy-strategy",
+                    name: "Bioeconomy Strategy",
+                    description: "Develop high-value products from biodiversity and forest resources without deforestation.",
+                    cost: 5,
+                    effects: {
+                        emissions: -5,
+                        budget: 7
+                    },
+                    risk: "Medium"
+                },
+                {
+                    id: "carbon-pricing",
+                    name: "Carbon Pricing System",
+                    description: "Implement a national carbon price that increases predictably over time.",
+                    effects: {
+                        publicApproval: -5,
+                        budget: 8,
+                        emissions: -7
+                    },
+                    risk: "Medium"
+                }
+            ],
+            turn4: [
+                {
+                    id: "circular-economy",
+                    name: "Circular Economy Framework",
+                    description: "Implement comprehensive regulations to minimize waste and maximize resource efficiency.",
+                    cost: 4,
+                    effects: {
+                        emissions: -5
+                    },
+                    risk: "Low"
+                },
+                {
+                    id: "amazon-protection",
+                    name: "Amazon Permanent Protection Act",
+                    description: "Establish permanent legal protection for the Amazon with indigenous rights recognition.",
+                    effects: {
+                        publicApproval: -10,
+                        emissions: -25
+                    },
+                    risk: "High"
+                }
+            ],
+            turn5: [
+                {
+                    id: "regenerative-economy",
+                    name: "Regenerative Economy Framework",
+                    description: "Transform the economy to restore natural systems while providing prosperity.",
+                    cost: 5,
+                    effects: {
+                        emissions: -15,
+                        publicApproval: 10
+                    },
+                    risk: "Medium"
+                },
+                {
+                    id: "south-alliance",
+                    name: "Global South Climate Leadership Alliance",
+                    description: "Lead a coalition of developing nations to advance climate solutions appropriate for the Global South.",
+                    cost: 3,
+                    effects: {
+                        budget: 10,
+                        publicApproval: 5
+                    },
+                    risk: "Low"
+                }
+            ]
+        }
     }
 };
 
@@ -1794,6 +2237,7 @@ let gameState = {
     selectedInvestments: [],
     selectedPolicies: [],
     eventHistory: [],
+    seenEvents: [],
     availableBudget: 0
 };
 
@@ -1990,6 +2434,7 @@ function initializeGameWithCountry(countryId) {
         selectedInvestments: [],
         selectedPolicies: [],
         eventHistory: [],
+        seenEvents: [],
         availableBudget: country.startingBudget
     };
     
@@ -2007,59 +2452,17 @@ function loadInvestmentOptions() {
     const countryId = gameState.selectedCountry;
     const turn = gameState.turn;
     
-    let investmentOptions = []; // Default to empty
-
-    // Map country IDs to their respective global investment objects from investment_options.js
-    // Assumes investment_options.js is loaded and these variables are global (e.g., window.chinaInvestments).
-    const externalSourcesMap = {
-        "china": "chinaInvestments",
-        "india": "indiaInvestments",
-        "germany": "germanyInvestments",
-        "brazil": "brazilInvestments"
-    };
-
-    const externalObjectName = externalSourcesMap[countryId];
-
-    if (externalObjectName && typeof window[externalObjectName] !== 'undefined') {
-        const sourceObject = window[externalObjectName];
-        // Data in investment_options.js uses keys like "turn1_additions"
-        investmentOptions = sourceObject[`turn${turn}_additions`] || [];
-        if (investmentOptions.length === 0) {
-            console.warn(`No investments found in ${externalObjectName} for turn ${turn} (using 'turn${turn}_additions'). Source might be empty for this turn.`);
-        }
-    } else if (countryId === "usa") {
-        // For USA, use the original gameData.investments structure.
-        // Note: gameData.investments.usa.turnX are currently all empty arrays in script.js.
-        if (gameData.investments[countryId] && gameData.investments[countryId][`turn${turn}`]) {
-            investmentOptions = gameData.investments[countryId][`turn${turn}`];
-        } else {
-            console.warn(`Investment data structure in gameData.investments not found for ${countryId}, turn ${turn}.`);
-            investmentOptions = []; // Ensure it's an array
-        }
-        // Add a specific warning if USA investments are being fetched and are empty.
-        if (investmentOptions.length === 0) { // Check after potential assignment
-             console.warn(`USA investments for turn ${turn} are empty or not found in gameData.investments.`);
-        }
-    } else {
-        // This branch handles:
-        // 1. Countries in externalSourcesMap (China, India, Germany, Brazil) but their corresponding global object (e.g., chinaInvestments) was not found.
-        // 2. Theoretically, any other country not 'usa' and not in externalSourcesMap.
-        if (externalObjectName) { // It was a known non-USA country, but its data source was missing
-             console.warn(`External investment source '${externalObjectName}' for country ${countryId} was not found (e.g., investment_options.js might not be loaded or the object is not global). Defaulting to empty investments for turn ${turn}.`);
-        } else { // Country is not USA and not in the map
-             console.warn(`Country ${countryId} is not configured for standard investment loading (not 'usa' and not in externalSourcesMap). Defaulting to empty investments for turn ${turn}.`);
-        }
-        investmentOptions = [];
+    // Check if investments exist for this country and turn
+    if (!gameData.investments || !gameData.investments[countryId] || !gameData.investments[countryId][`turn${turn}`]) {
+        console.log(`No investments found for ${countryId}, turn ${turn}`);
+        investmentsContainer.innerHTML = '<p>No investment options available for this turn.</p>';
+        return;
     }
+    
+    const investmentOptions = gameData.investments[countryId][`turn${turn}`];
     
     investmentsContainer.innerHTML = '';
     
-    // Ensure investmentOptions is an array before calling forEach, in case of unexpected issues.
-    if (!Array.isArray(investmentOptions)) {
-        console.error(`Critical: investmentOptions resolved to a non-array for ${countryId}, turn ${turn}:`, investmentOptions, `Falling back to empty array.`);
-        investmentOptions = [];
-    }
-
     investmentOptions.forEach(investment => {
         const card = document.createElement('div');
         card.className = 'investment-card';
@@ -2068,20 +2471,27 @@ function loadInvestmentOptions() {
         let effectsHtml = '';
         if (investment.effects) {
             effectsHtml = '<div class="investment-effects"><h4>Effects:</h4>';
-            if (investment.effectDescription) {
-                effectsHtml += `<div>${investment.effectDescription}</div>`;
-            } else {
-                for (const [key, value] of Object.entries(investment.effects)) {
-                    if (typeof value === 'function') {
-                        const midRangeValue = Math.floor((investment.minCost + investment.maxCost) / 2);
-                        const effectValue = value(midRangeValue);
-                        effectsHtml += `<div class="effect-item">
-                            <span>${key.replace(/([A-Z])/g, ' $1').replace(/^./, str => str.toUpperCase())}:</span>
-                            <span class="effect-value ${effectValue > 0 ? 'positive' : effectValue < 0 ? 'negative' : 'neutral'}">
-                                ${effectValue > 0 ? '+' : ''}${effectValue}${key === 'budget' ? 'B' : '%'}
-                            </span>
-                        </div>`;
+            for (const [key, value] of Object.entries(investment.effects)) {
+                if (typeof value === 'function') {
+                    const midRangeValue = Math.floor((investment.minCost + investment.maxCost) / 2);
+                    const effectValue = value(midRangeValue);
+                    
+                    let displayKey = key;
+                    if (key === 'budget') displayKey = 'Budget';
+                    else if (key === 'publicApproval') displayKey = 'Public Approval';
+                    else if (key === 'gridStability') displayKey = 'Grid Stability';
+                    else if (key === 'emissions') displayKey = 'Emissions';
+                    else if (key.startsWith('tech')) {
+                        const techName = key.replace('tech', '');
+                        displayKey = `${techName.charAt(0).toUpperCase() + techName.slice(1)} Technology`;
                     }
+                    
+                    effectsHtml += `<div class="effect-item">
+                        <span>${displayKey}:</span>
+                        <span class="effect-value ${effectValue > 0 ? (key === 'emissions' ? 'negative' : 'positive') : effectValue < 0 ? (key === 'emissions' ? 'positive' : 'negative') : 'neutral'}">
+                            ${effectValue > 0 ? '+' : ''}${effectValue}${key === 'budget' ? 'B' : '%'}
+                        </span>
+                    </div>`;
                 }
             }
             effectsHtml += '</div>';
@@ -2109,7 +2519,33 @@ function loadInvestmentOptions() {
         
         // Add event listeners
         card.querySelector('.investment-slider').addEventListener('input', (e) => {
-            card.querySelector('.cost-value').textContent = e.target.value;
+            const costValue = e.target.value;
+            card.querySelector('.cost-value').textContent = costValue;
+            
+            // Update displayed effects
+            for (const [key, value] of Object.entries(investment.effects)) {
+                if (typeof value === 'function') {
+                    const effectValue = value(parseInt(costValue));
+                    const effectName = key.replace(/([A-Z])/g, ' $1').replace(/^./, str => str.toUpperCase());
+                    
+                    // Find the correct effect item based on text content
+                    let effectSpan = null;
+                    const effectItems = card.querySelectorAll('.effect-item');
+                    effectItems.forEach(item => {
+                        const nameSpan = item.querySelector('span:first-child');
+                        if (nameSpan && nameSpan.textContent.trim() === effectName + ':') {
+                            effectSpan = item.querySelector('.effect-value');
+                        }
+                    });
+
+                    if (effectSpan) {
+                        effectSpan.textContent = `${effectValue > 0 ? '+' : ''}${effectValue}${key === 'budget' ? 'B' : '%'}`;
+                    } else {
+                        // Optional: Log if the element wasn't found, for debugging
+                        // console.warn(`Could not find effect display span for: ${effectName}`);
+                    }
+                }
+            }
         });
         
         card.querySelector('.select-investment').addEventListener('click', () => {
@@ -2127,10 +2563,20 @@ function loadInvestmentOptions() {
                 } else {
                     // Select
                     card.classList.add('selected');
-                    gameState.selectedInvestments.push({
+                    const selectedInvestment = {
                         ...investment,
-                        cost: cost
-                    });
+                        cost: cost,
+                        calculatedEffects: {}
+                    };
+                    
+                    // Calculate actual effects based on cost
+                    for (const [key, value] of Object.entries(investment.effects)) {
+                        if (typeof value === 'function') {
+                            selectedInvestment.calculatedEffects[key] = value(cost);
+                        }
+                    }
+                    
+                    gameState.selectedInvestments.push(selectedInvestment);
                     gameState.availableBudget -= cost;
                 }
                 
@@ -2154,6 +2600,13 @@ function loadInvestmentOptions() {
 function loadPolicyOptions() {
     const countryId = gameState.selectedCountry;
     const turn = gameState.turn;
+    
+    // Check if policies exist for this country and turn
+    if (!gameData.policies || !gameData.policies[countryId] || !gameData.policies[countryId][`turn${turn}`]) {
+        console.log(`No policies found for ${countryId}, turn ${turn}`);
+        policiesContainer.innerHTML = '<p>No policies available for this turn.</p>';
+        return;
+    }
     
     const policyOptions = gameData.policies[countryId][`turn${turn}`];
     
@@ -2266,6 +2719,19 @@ function updateResourceDisplay() {
     
     budgetAvailable.textContent = `Available: $${gameState.availableBudget}B`;
     investmentsBudgetDisplay.textContent = `$${gameState.availableBudget}B`;
+    
+    // Update tech levels
+    document.getElementById('tech-solar-value').textContent = `${gameState.techLevels.solar}%`;
+    document.getElementById('tech-wind-value').textContent = `${gameState.techLevels.wind}%`;
+    document.getElementById('tech-storage-value').textContent = `${gameState.techLevels.storage}%`;
+    document.getElementById('tech-nuclear-value').textContent = `${gameState.techLevels.nuclear}%`;
+    document.getElementById('tech-grid-value').textContent = `${gameState.techLevels.grid}%`;
+    
+    document.getElementById('tech-solar-bar').style.width = `${gameState.techLevels.solar}%`;
+    document.getElementById('tech-wind-bar').style.width = `${gameState.techLevels.wind}%`;
+    document.getElementById('tech-storage-bar').style.width = `${gameState.techLevels.storage}%`;
+    document.getElementById('tech-nuclear-bar').style.width = `${gameState.techLevels.nuclear}%`;
+    document.getElementById('tech-grid-bar').style.width = `${gameState.techLevels.grid}%`;
 }
 
 // Update the turn summary
@@ -2274,6 +2740,13 @@ function updateSummary() {
     document.getElementById('summary-approval').textContent = `${gameState.publicApproval}%`;
     document.getElementById('summary-grid').textContent = `${gameState.gridStability}%`;
     document.getElementById('summary-emissions').textContent = `${gameState.emissions}%`;
+    
+    // Update tech levels in summary
+    document.getElementById('summary-solar').textContent = `${gameState.techLevels.solar}%`;
+    document.getElementById('summary-wind').textContent = `${gameState.techLevels.wind}%`;
+    document.getElementById('summary-storage').textContent = `${gameState.techLevels.storage}%`;
+    document.getElementById('summary-nuclear').textContent = `${gameState.techLevels.nuclear}%`;
+    document.getElementById('summary-grid-tech').textContent = `${gameState.techLevels.grid}%`;
     
     const investmentsDiv = document.getElementById('summary-investments');
     investmentsDiv.innerHTML = '';
@@ -2317,46 +2790,28 @@ function processEndOfTurn() {
     setTimeout(() => {
         // Apply effects from investments
         gameState.selectedInvestments.forEach(investment => {
-            gameState.budget -= investment.cost; // Deduct actual cost from main budget
-            if (investment.effects) {
-                for (const [key, value] of Object.entries(investment.effects)) {
-                    if (typeof value === 'function') {
-                        const effectValue = value(investment.cost);
-                        applyEffect(key, effectValue);
-                    } else {
-                        applyEffect(key, value);
-                    }
+            if (investment.calculatedEffects) {
+                for (const [key, value] of Object.entries(investment.calculatedEffects)) {
+                    applyEffect(key, value);
                 }
             }
         });
-
+        
         // Apply effects from policies
         gameState.selectedPolicies.forEach(policy => {
-            if (policy.cost) {
-                gameState.budget -= policy.cost; // Deduct actual cost from main budget
-            }
             if (policy.effects) {
                 for (const [key, value] of Object.entries(policy.effects)) {
                     applyEffect(key, value);
                 }
             }
         });
-
-        // Convert leftover budget to public support
-        if (gameState.availableBudget > 0) {
-            const conversionRate = 0.1 + Math.random() * 0.2; // Random rate between 0.1 and 0.3
-            const approvalBonus = Math.floor(gameState.availableBudget * conversionRate);
-            if (approvalBonus > 0) {
-                applyEffect('publicApproval', approvalBonus);
-                showNotification(`Gained +${approvalBonus}% public approval from unspent budget!`);
-                console.log(`Converted $${gameState.availableBudget}B to +${approvalBonus}% public approval.`);
-            }
-            gameState.availableBudget = 0; // Reset leftover budget as it's been converted
-        }
-
+        
         // Economic growth factor (simple version)
-        const growthFactor = 1.05 + (Math.random() * 0.1); // 5-15% growth per turn
+        const growthFactor = 1.1;  // 10% growth per turn
         gameState.budget = Math.round(gameState.budget * growthFactor);
+        
+        // Reset available budget for next turn
+        gameState.availableBudget = gameState.budget;
         
         // Update display
         updateResourceDisplay();
@@ -2394,66 +2849,101 @@ function applyEffect(key, value) {
 
 // Generate a random event
 function generateRandomEvent() {
-    console.log("Attempting to generate random event. Current turn:", gameState.turn);
-    const countryId = gameState.selectedCountry.id;
-    const countryEvents = gameData.events[countryId] || [];
-    const globalEvents = gameData.events.global || [];
+    const eventCategories = Object.keys(gameData.events);
+    const randomCategory = eventCategories[Math.floor(Math.random() * eventCategories.length)];
+    const events = gameData.events[randomCategory];
+    const randomEvent = events[Math.floor(Math.random() * events.length)];
     
-    let availableEvents = [...countryEvents, ...globalEvents].filter(event => 
-        (!event.minTurn || gameState.turn >= event.minTurn) &&
-        (!event.maxTurn || gameState.turn <= event.maxTurn) &&
-        !gameState.seenEvents.includes(event.id) // Filter out seen events
-    );
-
-    console.log("Available events for this turn:", availableEvents.length, availableEvents.map(e => e.id));
-
-    if (availableEvents.length === 0) {
-        console.log("No available events for this turn or all unique events shown.");
-        // Optionally, show a generic message or skip event
-        document.getElementById('eventScreen').style.display = 'none'; 
-        return;
-    }
-
-    // Weighted random selection (optional, can be simplified to Math.random)
-    const totalWeight = availableEvents.reduce((sum, event) => sum + (event.weight || 1), 0);
-    let randomRoll = Math.random() * totalWeight;
-    let selectedEvent = null;
-
-    for (const event of availableEvents) {
-        randomRoll -= (event.weight || 1);
-        if (randomRoll <= 0) {
-            selectedEvent = event;
-            break;
+    // Store current event
+    gameState.currentEvent = randomEvent;
+    
+    // Apply immediate effects
+    if (randomEvent.effects) {
+        for (const [key, value] of Object.entries(randomEvent.effects)) {
+            applyEffect(key, value);
         }
     }
-
-    if (selectedEvent) {
-        console.log("Selected event:", selectedEvent.id, selectedEvent.name);
-        gameState.events.push({ turn: gameState.turn, event: selectedEvent });
-        gameState.seenEvents.push(selectedEvent.id); // Add to seen events
-
-        document.getElementById('eventTitle').textContent = selectedEvent.name;
-        document.getElementById('eventDescription').textContent = selectedEvent.description;
+    
+    // Display event
+    eventContainer.innerHTML = `
+        <div class="event-title">${randomEvent.name}</div>
+        <div class="event-description">${randomEvent.description}</div>
         
-        const responseOptionsContainer = document.getElementById('responseOptions');
-        responseOptionsContainer.innerHTML = ''; // Clear previous options
-
-        selectedEvent.responses.forEach(response => {
-            const optionElement = document.createElement('div');
-            optionElement.classList.add('response-option');
-            optionElement.innerHTML = `
-                <div class="response-title">${response.text}</div>
-                <div class="response-effects">${formatEffects(response.effects)}</div>
+        <div class="response-options">
+            <h3>How will you respond?</h3>
+            ${randomEvent.responses.map((response, index) => `
+                <div class="response-option" data-index="${index}">
+                    <div class="response-title">${response.name}</div>
+                    <div>${response.description}</div>
+                    <div class="card-footer">
+                        ${response.cost ? `<div>Cost: $${response.cost}B</div>` : ''}
+                        <div class="response-effects">
+                            ${Object.entries(response.effects || {}).map(([key, value]) => `
+                                <span class="${value > 0 ? (key === 'emissions' ? 'negative' : 'positive') : value < 0 ? (key === 'emissions' ? 'positive' : 'negative') : 'neutral'}">
+                                    ${key.replace(/([A-Z])/g, ' $1').replace(/^./, str => str.toUpperCase())}: 
+                                    ${value > 0 ? '+' : ''}${value}${key === 'budget' ? 'B' : '%'}
+                                </span>
+                            `).join(', ')}
+                        </div>
+                    </div>
+                </div>
+            `).join('')}
+        </div>
+    `;
+    
+    // Add event listeners to response options
+    document.querySelectorAll('.response-option').forEach(option => {
+        option.addEventListener('click', () => {
+            const responseIndex = parseInt(option.dataset.index);
+            const selectedResponse = randomEvent.responses[responseIndex];
+            
+            // Check if enough budget is available
+            if (selectedResponse.cost && selectedResponse.cost > gameState.availableBudget) {
+                showNotification('Not enough budget available for this response');
+                return;
+            }
+            
+            // Apply response effects
+            if (selectedResponse.cost) {
+                gameState.budget -= selectedResponse.cost;
+                gameState.availableBudget -= selectedResponse.cost;
+            }
+            
+            if (selectedResponse.effects) {
+                for (const [key, value] of Object.entries(selectedResponse.effects)) {
+                    applyEffect(key, value);
+                }
+            }
+            
+            // Add to event history
+            gameState.eventHistory.push({
+                event: randomEvent,
+                response: selectedResponse
+            });
+            
+            // Show result
+            eventContainer.innerHTML = `
+                <div class="event-title">${randomEvent.name}</div>
+                <div class="event-description">${randomEvent.description}</div>
+                
+                <div class="event-result">
+                    <h3>Your Response: ${selectedResponse.name}</h3>
+                    <p>${selectedResponse.description}</p>
+                    
+                    <div class="event-outcome">
+                        <h3>Outcome</h3>
+                        <p>You have managed the situation. The effects have been applied to your resources.</p>
+                    </div>
+                </div>
             `;
-            optionElement.onclick = () => handleEventResponse(response, selectedEvent);
-            responseOptionsContainer.appendChild(optionElement);
+            
+            // Update resource display
+            updateResourceDisplay();
+            
+            // Show continue button
+            eventContinueBtn.style.display = 'inline-block';
         });
-        
-        showScreen('eventScreen');
-    } else {
-        console.log("No event selected this turn despite available options. This might indicate an issue with weighting or selection logic.");
-        document.getElementById('eventScreen').style.display = 'none';
-    }
+    });
 }
 
 // Calculate final score
@@ -2591,6 +3081,7 @@ function resetGame() {
         selectedInvestments: [],
         selectedPolicies: [],
         eventHistory: [],
+        seenEvents: [],
         availableBudget: 0
     };
     
@@ -2599,3 +3090,8 @@ function resetGame() {
 
 // Initialize the game when the page loads
 document.addEventListener('DOMContentLoaded', init);
+
+// jQuery-like contains selector (needed for the effect update)
+Element.prototype.contains = function(text) {
+    return this.textContent.includes(text);
+};
