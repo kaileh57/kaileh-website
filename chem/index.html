@@ -1,0 +1,264 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Clean Energy Transition</title>
+    <link rel="stylesheet" href="styles.css">
+</head>
+<body>
+    <div class="loading-overlay">
+        <div class="loader"></div>
+    </div>
+
+    <div class="notification" id="notification"></div>
+
+    <div class="container">
+        <!-- Title Screen -->
+        <div class="screen active" id="title-screen">
+            <h1>Clean Energy Transition</h1>
+            <p class="text-center">Lead your nation through the challenges of transitioning to clean energy while balancing economic, social, and environmental priorities. Make strategic investments, enact powerful policies, and respond to unexpected events to achieve your climate goals by 2050.</p>
+            
+            <div style="text-align: center; margin: 30px 0;">
+                <button class="btn-large" id="start-game-btn">Start New Game</button>
+            </div>
+            
+            <div class="card">
+                <div class="card-title">How to Play</div>
+                <div class="card-content">
+                    <p>Clean Energy Transition is a strategic decision-making game where you take on the role of Energy Minister for a nation starting in 2025.</p>
+                    <p>Through a series of decisions over 5 turns (25 years), you must:</p>
+                    <ul style="margin-left: 20px; margin-bottom: 15px;">
+                        <li>Invest in clean energy technologies and infrastructure</li>
+                        <li>Implement policies that guide your nation's transition</li>
+                        <li>Respond to unexpected events and crises</li>
+                        <li>Balance your budget, public approval, grid stability, and emissions reduction goals</li>
+                    </ul>
+                    <p>Each nation has unique starting conditions, strengths, and challenges. Victory depends on meeting your climate commitments while maintaining a strong economy and public support.</p>
+                </div>
+            </div>
+        </div>
+
+        <!-- Country Selection Screen -->
+        <div class="screen" id="country-screen">
+            <h1>Select Your Nation</h1>
+            <p class="text-center">Choose the nation you wish to lead through the clean energy transition. Each has unique strengths, challenges, and starting conditions.</p>
+            
+            <div class="selection-grid" id="country-selection">
+                <!-- Countries will be populated by JavaScript -->
+            </div>
+            
+            <div style="text-align: center; margin-top: 30px;">
+                <button id="start-with-country-btn" disabled>Start with Selected Nation</button>
+                <button class="secondary" id="back-to-title-btn">Back</button>
+            </div>
+        </div>
+
+        <!-- Main Game Screen -->
+        <div class="screen" id="game-screen">
+            <div class="turn-info">
+                <div class="turn-year" id="current-year">2025-2030</div>
+                <div>Turn <span id="current-turn">1</span> of 5</div>
+            </div>
+            
+            <div class="progress-track">
+                <div class="progress-step active" data-step="1">
+                    1
+                    <div class="progress-label">2025-2030</div>
+                </div>
+                <div class="progress-step" data-step="2">
+                    2
+                    <div class="progress-label">2030-2035</div>
+                </div>
+                <div class="progress-step" data-step="3">
+                    3
+                    <div class="progress-label">2035-2040</div>
+                </div>
+                <div class="progress-step" data-step="4">
+                    4
+                    <div class="progress-label">2040-2045</div>
+                </div>
+                <div class="progress-step" data-step="5">
+                    5
+                    <div class="progress-label">2045-2050</div>
+                </div>
+            </div>
+            
+            <div class="resources">
+                <div class="resource">
+                    <div class="resource-label">
+                        <span>Budget</span>
+                        <span id="budget-value">$100B</span>
+                    </div>
+                    <div class="resource-bar">
+                        <div class="resource-bar-fill budget-bar-fill" id="budget-bar" style="width: 80%;"></div>
+                    </div>
+                    <div class="resource-value" id="budget-available">Available: $100B</div>
+                </div>
+                
+                <div class="resource">
+                    <div class="resource-label">
+                        <span>Public Approval</span>
+                        <span id="approval-value">65%</span>
+                    </div>
+                    <div class="resource-bar">
+                        <div class="resource-bar-fill approval-bar-fill" id="approval-bar" style="width: 65%;"></div>
+                    </div>
+                </div>
+                
+                <div class="resource">
+                    <div class="resource-label">
+                        <span>Grid Stability</span>
+                        <span id="grid-value">70%</span>
+                    </div>
+                    <div class="resource-bar">
+                        <div class="resource-bar-fill grid-bar-fill" id="grid-bar" style="width: 70%;"></div>
+                    </div>
+                </div>
+                
+                <div class="resource">
+                    <div class="resource-label">
+                        <span>Emissions</span>
+                        <span id="emissions-value">100%</span>
+                    </div>
+                    <div class="resource-bar">
+                        <div class="resource-bar-fill emissions-bar-fill" id="emissions-bar" style="width: 100%;"></div>
+                    </div>
+                </div>
+            </div>
+            
+            <div class="tabs">
+                <div class="tab active" data-tab="investments">Investments</div>
+                <div class="tab" data-tab="policies">Policies</div>
+                <div class="tab" data-tab="summary">Turn Summary</div>
+            </div>
+            
+            <div class="tab-content active" id="investments-tab">
+                <h2>Investment Options</h2>
+                <p>Select investments to fund during this period. Your remaining budget: <span id="investments-budget-display">$100B</span></p>
+                
+                <div id="investments-container">
+                    <!-- Investment options will be populated by JavaScript -->
+                </div>
+                
+                <div style="text-align: center; margin-top: 20px;">
+                    <button id="confirm-investments-btn">Confirm Investments and Continue</button>
+                </div>
+            </div>
+            
+            <div class="tab-content" id="policies-tab">
+                <h2>Policy Options</h2>
+                <p>Select up to two policies to implement during this period.</p>
+                
+                <div id="policies-container">
+                    <!-- Policy options will be populated by JavaScript -->
+                </div>
+                
+                <div style="text-align: center; margin-top: 20px;">
+                    <button id="confirm-policies-btn">Confirm Policies and Continue</button>
+                </div>
+            </div>
+            
+            <div class="tab-content" id="summary-tab">
+                <h2>Turn Summary</h2>
+                <p>Review your decisions and their effects before proceeding to events.</p>
+                
+                <div class="summary-card">
+                    <h3>Resources</h3>
+                    <div class="summary-row">
+                        <div>Budget:</div>
+                        <div id="summary-budget">$100B</div>
+                    </div>
+                    <div class="summary-row">
+                        <div>Public Approval:</div>
+                        <div id="summary-approval">65%</div>
+                    </div>
+                    <div class="summary-row">
+                        <div>Grid Stability:</div>
+                        <div id="summary-grid">70%</div>
+                    </div>
+                    <div class="summary-row">
+                        <div>Emissions:</div>
+                        <div id="summary-emissions">100%</div>
+                    </div>
+                </div>
+                
+                <div class="investment-summary">
+                    <h3>Investments</h3>
+                    <div id="summary-investments">
+                        <!-- Will be populated by JavaScript -->
+                    </div>
+                </div>
+                
+                <div class="policy-summary">
+                    <h3>Policies</h3>
+                    <div id="summary-policies">
+                        <!-- Will be populated by JavaScript -->
+                    </div>
+                </div>
+                
+                <div style="text-align: center; margin-top: 30px;">
+                    <button id="proceed-to-events-btn">Proceed to Events</button>
+                </div>
+            </div>
+        </div>
+
+        <!-- Events Screen -->
+        <div class="screen" id="events-screen">
+            <h1>Random Event</h1>
+            <p class="text-center">An unexpected situation requires your attention. How will you respond?</p>
+            
+            <div class="event-card" id="event-container">
+                <!-- Event content will be populated by JavaScript -->
+            </div>
+            
+            <div style="text-align: center; margin-top: 20px;">
+                <button id="event-continue-btn" style="display: none;">Continue to Next Turn</button>
+            </div>
+        </div>
+
+        <!-- Game Over Screen -->
+        <div class="screen" id="game-over-screen">
+            <div class="game-over-content">
+                <h1>2050: The Results Are In</h1>
+                <div id="victory-category"></div>
+                <div class="result-summary" id="result-summary"></div>
+                
+                <div class="result-details">
+                    <h2>Final Metrics</h2>
+                    <div class="score-item">
+                        <div class="score-label">Emissions Reduction:</div>
+                        <div class="score-value" id="final-emissions"></div>
+                    </div>
+                    <div class="score-item">
+                        <div class="score-label">Economic Health:</div>
+                        <div class="score-value" id="final-economy"></div>
+                    </div>
+                    <div class="score-item">
+                        <div class="score-label">Public Approval:</div>
+                        <div class="score-value" id="final-approval"></div>
+                    </div>
+                    <div class="score-item">
+                        <div class="score-label">Grid Stability:</div>
+                        <div class="score-value" id="final-grid"></div>
+                    </div>
+                    <div class="score-item">
+                        <div class="score-label">Special Goal:</div>
+                        <div class="score-value" id="final-special"></div>
+                    </div>
+                    <div class="score-item">
+                        <div class="score-label">Overall Score:</div>
+                        <div class="score-value" id="final-score"></div>
+                    </div>
+                </div>
+                
+                <div style="margin-top: 30px;">
+                    <button class="btn-large" id="play-again-btn">Play Again</button>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <script src="script.js"></script>
+</body>
+</html>
