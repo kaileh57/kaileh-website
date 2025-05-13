@@ -1,0 +1,165 @@
+/* Risk Assessment Styling */
+
+/* Container for risk assessment display */
+.risk-assessment {
+    margin: 10px 0;
+    padding: 8px;
+    border-radius: 5px;
+    background-color: rgba(0, 0, 0, 0.03);
+}
+
+/* Risk percentage display */
+.failure-chance {
+    font-size: 0.9rem;
+    font-weight: bold;
+    transition: color 0.3s ease;
+}
+
+/* Risk level colors */
+.failure-chance.text-success {
+    color: var(--success);
+}
+
+.failure-chance.text-warning {
+    color: var(--warning);
+}
+
+.failure-chance.text-danger {
+    color: var(--danger);
+}
+
+/* Risk progress bar container */
+.risk-progress {
+    height: 6px;
+    background-color: rgba(0, 0, 0, 0.1);
+    border-radius: 3px;
+    overflow: hidden;
+    margin-top: 5px;
+}
+
+/* Risk progress bar */
+.failure-risk-bar {
+    height: 100%;
+    transition: width 0.3s ease, background-color 0.3s ease;
+}
+
+/* Risk bar color states */
+.failure-risk-bar.bg-success {
+    background-color: var(--success);
+}
+
+.failure-risk-bar.bg-warning {
+    background-color: var(--warning);
+}
+
+.failure-risk-bar.bg-danger {
+    background-color: var(--danger);
+}
+
+/* Investment Results Section */
+.investment-results {
+    margin: 20px 0;
+}
+
+.investment-result {
+    padding: 12px;
+    margin-bottom: 10px;
+    border-radius: 5px;
+    display: flex;
+    align-items: center;
+}
+
+.investment-result.success {
+    background-color: rgba(87, 204, 153, 0.1);
+    border-left: 4px solid var(--success);
+}
+
+.investment-result.failure {
+    background-color: rgba(231, 111, 81, 0.1);
+    border-left: 4px solid var(--danger);
+}
+
+.result-icon {
+    margin-right: 15px;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    width: 32px;
+    height: 32px;
+    border-radius: 50%;
+}
+
+.result-icon.success {
+    background-color: var(--success);
+    color: white;
+}
+
+.result-icon.failure {
+    background-color: var(--danger);
+    color: white;
+}
+
+.result-details {
+    flex: 1;
+}
+
+.result-title {
+    font-weight: bold;
+    margin-bottom: 3px;
+}
+
+.result-subtitle {
+    font-size: 0.85rem;
+    color: var(--gray);
+}
+
+/* Risk Badge Enhancement */
+.badge-risk {
+    display: inline-flex;
+    align-items: center;
+    padding: 4px 8px;
+    border-radius: 12px;
+    font-size: 0.8rem;
+    font-weight: 600;
+}
+
+.badge-risk::before {
+    content: "";
+    display: inline-block;
+    width: 8px;
+    height: 8px;
+    border-radius: 50%;
+    margin-right: 5px;
+}
+
+.badge-risk.low {
+    background-color: rgba(87, 204, 153, 0.2);
+    color: var(--success);
+}
+.badge-risk.low::before {
+    background-color: var(--success);
+}
+
+.badge-risk.medium {
+    background-color: rgba(244, 162, 97, 0.2);
+    color: var(--warning);
+}
+.badge-risk.medium::before {
+    background-color: var(--warning);
+}
+
+.badge-risk.high {
+    background-color: rgba(231, 111, 81, 0.2);
+    color: var(--danger);
+}
+.badge-risk.high::before {
+    background-color: var(--danger);
+}
+
+.badge-risk.very-high {
+    background-color: rgba(33, 37, 41, 0.2);
+    color: var(--dark);
+}
+.badge-risk.very-high::before {
+    background-color: var(--dark);
+} 

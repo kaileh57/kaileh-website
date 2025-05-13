@@ -2243,20 +2243,7 @@ const gameData = {
 };
 
 // Game State
-let gameState = {
-    selectedCountry: null,
-    turn: 1,
-    budget: 0,
-    publicApproval: 0,
-    gridStability: 0,
-    emissions: 0,
-    techLevels: {},
-    selectedInvestments: [],
-    selectedPolicies: [],
-    eventHistory: [],
-    seenEvents: [],
-    availableBudget: 0
-};
+let gameState = {    selectedCountry: null,    turn: 1,    budget: 0,    publicApproval: 0,    gridStability: 0,    emissions: 0,    techLevels: {},    selectedInvestments: [],    selectedPolicies: [],    eventHistory: [],    seenEvents: [],    availableBudget: 0,    projectHistory: [] // Track project successes and failures};
 
 // Global DOM element references
 let screens, startGameBtn, startWithCountryBtn, confirmInvestmentsBtn,
@@ -2530,56 +2517,9 @@ function loadInvestmentOptions() {
             effectsHtml += '</div>';
         }
         
-        card.innerHTML = `
-            <div class="investment-header">
-                <div class="investment-title">${investment.name}</div>
-                <div class="badge badge-${investment.risk.toLowerCase()}">${investment.risk} Risk</div>
-            </div>
-            <div class="investment-description">${investment.description}</div>
-            <div class="investment-cost">
-                <span>Cost: $<span class="cost-value">${investment.minCost}</span>B</span>
-                <div class="slider-container">
-                    <input type="range" min="${investment.minCost}" max="${investment.maxCost}" value="${investment.minCost}" step="1" class="investment-slider">
-                </div>
-                <span>$${investment.maxCost}B</span>
-            </div>
-            ${effectsHtml}
-            <div class="investment-action">
-                <div class="long-term"><strong>Long-term:</strong> ${investment.longTerm}</div>
-                <button class="btn-small select-investment">Select</button>
-            </div>
-        `;
+                card.innerHTML = `            <div class="investment-header">                <div class="investment-title">${investment.name}</div>                <div class="badge badge-${investment.risk.toLowerCase()}">${investment.risk} Risk</div>            </div>            <div class="investment-description">${investment.description}</div>            <div class="investment-cost">                <span>Cost: $<span class="cost-value">${investment.minCost}</span>B</span>                <div class="slider-container">                    <input type="range" min="${investment.minCost}" max="${investment.maxCost}" value="${investment.minCost}" step="1" class="investment-slider">                </div>                <span>$${investment.maxCost}B</span>            </div>            ${effectsHtml}            <div class="risk-assessment">                <div><strong>Failure Risk:</strong> <span class="failure-chance">Calculating...</span></div>                <div class="progress" style="height: 5px;">                    <div class="progress-bar failure-risk-bar" role="progressbar"                          style="width: 0%;" aria-valuenow="0" aria-valuemin="0" aria-valuemax="100"></div>                </div>            </div>            <div class="investment-action">                <div class="long-term"><strong>Long-term:</strong> ${investment.longTerm}</div>                <button class="btn-small select-investment">Select</button>            </div>        `;
         
-        // Add event listeners
-        card.querySelector('.investment-slider').addEventListener('input', (e) => {
-            const costValue = e.target.value;
-            card.querySelector('.cost-value').textContent = costValue;
-            
-            // Update displayed effects
-            for (const [key, value] of Object.entries(investment.effects)) {
-                if (typeof value === 'function') {
-                    const effectValue = value(parseInt(costValue));
-                    const effectName = key.replace(/([A-Z])/g, ' $1').replace(/^./, str => str.toUpperCase());
-                    
-                    // Find the correct effect item based on text content
-                    let effectSpan = null;
-                    const effectItems = card.querySelectorAll('.effect-item');
-                    effectItems.forEach(item => {
-                        const nameSpan = item.querySelector('span:first-child');
-                        if (nameSpan && nameSpan.textContent.trim() === effectName + ':') {
-                            effectSpan = item.querySelector('.effect-value');
-                        }
-                    });
-
-                    if (effectSpan) {
-                        effectSpan.textContent = `${effectValue > 0 ? '+' : ''}${effectValue}${key === 'budget' ? 'B' : '%'}`;
-                    } else {
-                        // Optional: Log if the element wasn't found, for debugging
-                        // console.warn(`Could not find effect display span for: ${effectName}`);
-                    }
-                }
-            }
-        });
+                // Add event listeners        card.querySelector('.investment-slider').addEventListener('input', (e) => {            const costValue = e.target.value;            card.querySelector('.cost-value').textContent = costValue;                        // Update displayed effects            for (const [key, value] of Object.entries(investment.effects)) {                if (typeof value === 'function') {                    const effectValue = value(parseInt(costValue));                    const effectName = key.replace(/([A-Z])/g, ' $1').replace(/^./, str => str.toUpperCase());                                        // Find the correct effect item based on text content                    let effectSpan = null;                    const effectItems = card.querySelectorAll('.effect-item');                    effectItems.forEach(item => {                        const nameSpan = item.querySelector('span:first-child');                        if (nameSpan && nameSpan.textContent.trim() === effectName + ':') {                            effectSpan = item.querySelector('.effect-value');                        }                    });                    if (effectSpan) {                        effectSpan.textContent = `${effectValue > 0 ? '+' : ''}${effectValue}${key === 'budget' ? 'B' : '%'}`;                    } else {                        // Optional: Log if the element wasn't found, for debugging                        // console.warn(`Could not find effect display span for: ${effectName}`);                    }                }            }                        // Update failure risk display            const failureChance = calculateFailureChance(investment, parseInt(costValue));            const failurePercentage = Math.round(failureChance * 100);            const failureSpan = card.querySelector('.failure-chance');            const failureRiskBar = card.querySelector('.failure-risk-bar');                        if (failureSpan && failureRiskBar) {                failureSpan.textContent = `${failurePercentage}%`;                failureRiskBar.style.width = `${failurePercentage}%`;                                // Update color based on risk level                if (failurePercentage < 15) {                    failureRiskBar.className = 'progress-bar bg-success failure-risk-bar';                    failureSpan.className = 'failure-chance text-success';                } else if (failurePercentage < 35) {                    failureRiskBar.className = 'progress-bar bg-warning failure-risk-bar';                    failureSpan.className = 'failure-chance text-warning';                } else {                    failureRiskBar.className = 'progress-bar bg-danger failure-risk-bar';                    failureSpan.className = 'failure-chance text-danger';                }            }        });
         
         card.querySelector('.select-investment').addEventListener('click', (event) => { // Pass event
             const cost = parseInt(card.querySelector('.investment-slider').value);
@@ -2665,7 +2605,7 @@ function loadPolicyOptions() {
         for (const [key, value] of Object.entries(policy.effects)) {
             effectsHtml += `<div class="effect-item">
                 <span>${key.replace(/([A-Z])/g, ' $1').replace(/^./, str => str.toUpperCase())}:</span>
-                <span class="effect-value ${value > 0 ? 'positive' : value < 0 ? 'negative' : 'neutral'}">
+                <span class="effect-value ${value > 0 ? (key === 'emissions' ? 'negative' : 'positive') : value < 0 ? (key === 'emissions' ? 'positive' : 'negative') : 'neutral'}">
                     ${value > 0 ? '+' : ''}${value}${key === 'budget' ? 'B' : '%'}
                 </span>
             </div>`;
@@ -2916,42 +2856,7 @@ function updateSummary() {
     }
 }
 
-// Process end of turn
-function processEndOfTurn() {
-    showLoading();
-    
-    setTimeout(() => {
-        // Apply effects from investments
-        gameState.selectedInvestments.forEach(investment => {
-            if (investment.calculatedEffects) {
-                for (const [key, value] of Object.entries(investment.calculatedEffects)) {
-                    applyEffect(key, value);
-                }
-            }
-        });
-        
-        // Apply effects from policies
-        gameState.selectedPolicies.forEach(policy => {
-            if (policy.effects) {
-                for (const [key, value] of Object.entries(policy.effects)) {
-                    applyEffect(key, value);
-                }
-            }
-        });
-        
-        // Economic growth factor (simple version)
-        const growthFactor = 1.1;  // 10% growth per turn
-        gameState.budget = Math.round(gameState.budget * growthFactor);
-        
-        // Reset available budget for next turn
-        gameState.availableBudget = gameState.budget;
-        
-        // Update display
-        updateResourceDisplay();
-        
-        hideLoading();
-    }, 1000);  // Simulated processing time
-}
+// Process end of turnfunction processEndOfTurn() {    showLoading();        setTimeout(() => {        // Process investments with failure calculations        const investmentResults = [];                // Process each investment with potential for failure        gameState.selectedInvestments.forEach(investment => {            // Get the original investment options            const turn = `turn${gameState.turn}`;            const investmentOption = gameData.investments[gameState.selectedCountry][turn].find(                opt => opt.id === investment.id            );                        if (!investmentOption) {                console.warn(`Could not find original investment option for ${investment.id}`);                return;            }                        // Calculate failure chance            const failureChance = calculateFailureChance(investmentOption, investment.cost);            const success = Math.random() > failureChance;                        if (success) {                // Project succeeded - apply full effects                if (investment.calculatedEffects) {                    for (const [key, value] of Object.entries(investment.calculatedEffects)) {                        applyEffect(key, value);                    }                }                                investmentResults.push({                    name: investment.name,                    success: true,                    amount: investment.cost                });            } else {                // Project failed - partial benefits only                const recoveryRate = Math.random() * 0.3; // Recover 0-30% of benefits                                // Apply partial effects                if (investment.calculatedEffects) {                    for (const [key, value] of Object.entries(investment.calculatedEffects)) {                        const partialValue = Math.round(value * recoveryRate);                        applyEffect(key, partialValue);                    }                }                                investmentResults.push({                    name: investment.name,                    success: false,                    amount: investment.cost,                    recovered: Math.round(recoveryRate * 100)                });                                // Show failure notification                showNotification(`Project failed: ${investment.name}`, 'danger');            }                        // Record in project history            if (!gameState.projectHistory) gameState.projectHistory = [];            gameState.projectHistory.push({                name: investment.name,                turn: gameState.turn,                year: `${2025 + (gameState.turn-1)*5}-${2025 + gameState.turn*5}`,                success: success,                risk: investmentOption.risk,                amount: investment.cost            });        });                // Apply effects from policies        gameState.selectedPolicies.forEach(policy => {            if (policy.effects) {                for (const [key, value] of Object.entries(policy.effects)) {                    applyEffect(key, value);                }            }        });                // Economic growth factor (simple version)        const growthFactor = 1.1;  // 10% growth per turn        gameState.budget = Math.round(gameState.budget * growthFactor);                // Reset available budget for next turn        gameState.availableBudget = gameState.budget;                // Update display        updateResourceDisplay();                // Display investment results        displayInvestmentResults(investmentResults);                hideLoading();    }, 1000);  // Simulated processing time}
 
 // Apply an effect to the game state
 function applyEffect(key, value) {
@@ -3244,24 +3149,7 @@ function hideLoading() {
 }
 
 // Reset game
-function resetGame() {
-    gameState = {
-        selectedCountry: null,
-        turn: 1,
-        budget: 0,
-        publicApproval: 0,
-        gridStability: 0,
-        emissions: 0,
-        techLevels: {},
-        selectedInvestments: [],
-        selectedPolicies: [],
-        eventHistory: [],
-        seenEvents: [],
-        availableBudget: 0
-    };
-    
-    document.body.className = '';
-}
+function resetGame() {    gameState = {        selectedCountry: null,        turn: 1,        budget: 0,        publicApproval: 0,        gridStability: 0,        emissions: 0,        techLevels: {},        selectedInvestments: [],        selectedPolicies: [],        eventHistory: [],        seenEvents: [],        availableBudget: 0,        projectHistory: [] // Track project successes and failures    };        document.body.className = '';}
 
 // New function for animated turn transitions
 async function animatedTurnTransition(actionCallback) {
@@ -3290,33 +3178,6 @@ async function animatedTurnTransition(actionCallback) {
     await new Promise(resolve => setTimeout(resolve, 400));
 }
 
-// Initialize the game when the page loads
-document.addEventListener('DOMContentLoaded', init);
+// Initialize the game when the page loadsdocument.addEventListener('DOMContentLoaded', init);// jQuery-like contains selector (needed for the effect update)Element.prototype.contains = function(text) {    return this.textContent.includes(text);};// Failure Mechanics Functions/** * Calculate the probability of an investment project failing based on risk level, * allocated funding, and relevant technology levels */function calculateFailureChance(investment, allocatedAmount) {    // Base failure chance depends on risk level    const baseFailureChance = {        "Low": 0.10,        "Medium": 0.25,        "High": 0.40,        "Very High": 0.60    }[investment.risk] || 0.25;        // Spending more reduces failure chance (diminishing returns)    // Minimum effective spending ratio - below this doesn't reduce risk    const minSpendingRatio = 0.6;    const spendingRatio = Math.min(1, allocatedAmount / investment.maxCost);    const spendingMultiplier = spendingRatio < minSpendingRatio ?         1 : (1 - ((spendingRatio - minSpendingRatio) / (1 - minSpendingRatio)) * 0.7);        // Tech level reduces failure chance for related projects    // Determine which tech is most related based on effects    const relatedTech = determineRelatedTech(investment);    let techBonus = 0;        relatedTech.forEach(tech => {        if (gameState.techLevels[tech]) {            techBonus += (gameState.techLevels[tech] / 100) * 0.3;        }    });        // Average the tech bonus if multiple technologies are relevant    techBonus = techBonus / Math.max(1, relatedTech.length);        // Calculate final failure chance with a minimum floor of 5%    return Math.max(0.05, Math.min(0.95, baseFailureChance * spendingMultiplier * (1 - techBonus)));}/** * Determine which technologies are most related to an investment based on its effects */function determineRelatedTech(investment) {    const relatedTech = [];    const effects = investment.effects || {};        // Check effect keys that start with "tech" to determine related technologies    for (const key in effects) {        if (key.startsWith('tech') && typeof effects[key] === 'function') {            // Convert techSolar to solar, etc.            const tech = key.replace('tech', '').toLowerCase();            relatedTech.push(tech);        }    }        // If no direct tech effects, infer from other effects    if (relatedTech.length === 0) {        if (effects.emissions) relatedTech.push('solar', 'wind');        if (effects.gridStability) relatedTech.push('grid', 'storage');    }        return [...new Set(relatedTech)]; // Remove duplicates}/** * Helper function to get appropriate CSS class for risk levels */function getRiskColorClass(risk) {    switch(risk) {        case "Low": return "bg-success";        case "Medium": return "bg-warning";        case "High": return "bg-danger";        case "Very High": return "bg-dark";        default: return "bg-secondary";    }}/** * Display investment results with success/failure feedback */function displayInvestmentResults(results) {    // Create a container for results if it doesn't exist    let resultsContainer = document.getElementById('investment-results');    if (!resultsContainer) {        resultsContainer = document.createElement('div');        resultsContainer.id = 'investment-results';        resultsContainer.className = 'mt-4';                // Find the appropriate place to insert it (before the "proceed" button)        const summaryTab = document.getElementById('summary-tab-pane');        const proceedButton = document.getElementById('proceed-to-events-btn');        if (summaryTab && proceedButton) {            summaryTab.insertBefore(resultsContainer, proceedButton.parentElement);        } else {            console.error('Could not find summary tab or proceed button');            return;        }    }        // Clear previous results    resultsContainer.innerHTML = '<h4 class="mb-3">Investment Outcomes</h4>';        if (results.length === 0) {        resultsContainer.innerHTML += '<p class="text-muted">No investments were made this turn.</p>';        return;    }        // Create the results display    results.forEach(result => {        const resultElement = document.createElement('div');        resultElement.className = `alert ${result.success ? 'alert-success' : 'alert-danger'} mb-2`;                if (result.success) {            resultElement.innerHTML = `                <div class="d-flex">                    <div class="me-3"><i class="bi bi-check-circle-fill"></i></div>                    <div>                        <strong>${result.name}</strong>: Successfully implemented! ($${result.amount}B)                    </div>                </div>            `;        } else {            resultElement.innerHTML = `                <div class="d-flex">                    <div class="me-3"><i class="bi bi-x-circle-fill"></i></div>                    <div>                        <strong>${result.name}</strong>: PROJECT FAILED!                         <span class="d-block">$${result.amount}B spent, only ${result.recovered}% of expected benefits realized</span>                    </div>                </div>            `;        }                resultsContainer.appendChild(resultElement);    }}
 
-// jQuery-like contains selector (needed for the effect update)
-Element.prototype.contains = function(text) {
-    return this.textContent.includes(text);
-};
-
-// New function for decision impact animation
-function animateDecisionImpact(element, type = 'neutral') {
-    // Ensure the element is positioned relatively or absolutely for the effect positioning
-    const currentPosition = window.getComputedStyle(element).position;
-    if (currentPosition === 'static') {
-        element.style.position = 'relative'; 
-    }
-
-    const impactVisual = document.createElement('div');
-    impactVisual.className = `decision-impact ${type}`; // Apply type for color
-
-    element.appendChild(impactVisual);
-
-    // Remove the element after the animation completes (match CSS duration)
-    setTimeout(() => {
-        impactVisual.remove();
-        // Optional: Reset position if we changed it, though usually unnecessary
-        // if (element.style.position === 'relative') {
-        //    element.style.position = ''; 
-        // }
-    }, 1000); // Match impact-ripple animation duration
-}
+// New function for decision impact animationfunction animateDecisionImpact(element, type = 'neutral') {    // Ensure the element is positioned relatively or absolutely for the effect positioning    const currentPosition = window.getComputedStyle(element).position;    if (currentPosition === 'static') {        element.style.position = 'relative';     }    const impactVisual = document.createElement('div');    impactVisual.className = `decision-impact ${type}`; // Apply type for color    element.appendChild(impactVisual);    // Remove the element after the animation completes (match CSS duration)    setTimeout(() => {        impactVisual.remove();        // Optional: Reset position if we changed it, though usually unnecessary        // if (element.style.position === 'relative') {        //    element.style.position = '';         // }    }, 1000); // Match impact-ripple animation duration}/** * Calculate the probability of an investment project failing based on risk level, * allocated funding, and relevant technology levels */function calculateFailureChance(investment, allocatedAmount) {    // Base failure chance depends on risk level    const baseFailureChance = {        "Low": 0.10,        "Medium": 0.25,        "High": 0.40,        "Very High": 0.60    }[investment.risk] || 0.25;        // Spending more reduces failure chance (diminishing returns)    // Minimum effective spending ratio - below this doesn't reduce risk    const minSpendingRatio = 0.6;    const spendingRatio = Math.min(1, allocatedAmount / investment.maxCost);    const spendingMultiplier = spendingRatio < minSpendingRatio ?         1 : (1 - ((spendingRatio - minSpendingRatio) / (1 - minSpendingRatio)) * 0.7);        // Tech level reduces failure chance for related projects    // Determine which tech is most related based on effects    const relatedTech = determineRelatedTech(investment);    let techBonus = 0;        relatedTech.forEach(tech => {        if (gameState.techLevels[tech]) {            techBonus += (gameState.techLevels[tech] / 100) * 0.3;        }    });        // Average the tech bonus if multiple technologies are relevant    techBonus = techBonus / Math.max(1, relatedTech.length);        // Calculate final failure chance with a minimum floor of 5%    return Math.max(0.05, Math.min(0.95, baseFailureChance * spendingMultiplier * (1 - techBonus)));}/** * Determine which technologies are most related to an investment based on its effects */function determineRelatedTech(investment) {    const relatedTech = [];    const effects = investment.effects || {};        // Check effect keys that start with "tech" to determine related technologies    for (const key in effects) {        if (key.startsWith('tech') && typeof effects[key] === 'function') {            // Convert techSolar to solar, etc.            const tech = key.replace('tech', '').toLowerCase();            relatedTech.push(tech);        }    }        // If no direct tech effects, infer from other effects    if (relatedTech.length === 0) {        if (effects.emissions) relatedTech.push('solar', 'wind');        if (effects.gridStability) relatedTech.push('grid', 'storage');    }        return [...new Set(relatedTech)]; // Remove duplicates}/** * Helper function to get appropriate CSS class for risk levels */function getRiskColorClass(risk) {    switch(risk) {        case "Low": return "bg-success";        case "Medium": return "bg-warning";        case "High": return "bg-danger";        case "Very High": return "bg-dark";        default: return "bg-secondary";    }}/** * Display investment results with success/failure feedback */function displayInvestmentResults(results) {    // Create a container for results if it doesn't exist    let resultsContainer = document.getElementById('investment-results');    if (!resultsContainer) {        resultsContainer = document.createElement('div');        resultsContainer.id = 'investment-results';        resultsContainer.className = 'mt-4';                // Find the appropriate place to insert it (before the "proceed" button)        const summaryTab = document.getElementById('summary-tab-pane');        const proceedButton = document.getElementById('proceed-to-events-btn');        if (summaryTab && proceedButton) {            summaryTab.insertBefore(resultsContainer, proceedButton.parentElement);        } else {            console.error('Could not find summary tab or proceed button');            return;        }    }        // Clear previous results    resultsContainer.innerHTML = '<h4 class="mb-3">Investment Outcomes</h4>';        if (results.length === 0) {        resultsContainer.innerHTML += '<p class="text-muted">No investments were made this turn.</p>';        return;    }        // Create the results display    results.forEach(result => {        const resultElement = document.createElement('div');        resultElement.className = `alert ${result.success ? 'alert-success' : 'alert-danger'} mb-2`;                if (result.success) {            resultElement.innerHTML = `                <div class="d-flex">                    <div class="me-3"><i class="bi bi-check-circle-fill"></i></div>                    <div>                        <strong>${result.name}</strong>: Successfully implemented! ($${result.amount}B)                    </div>                </div>            `;        } else {            resultElement.innerHTML = `                <div class="d-flex">                    <div class="me-3"><i class="bi bi-x-circle-fill"></i></div>                    <div>                        <strong>${result.name}</strong>: PROJECT FAILED!                         <span class="d-block">$${result.amount}B spent, only ${result.recovered}% of expected benefits realized</span>                    </div>                </div>            `;        }                resultsContainer.appendChild(resultElement);    }}
