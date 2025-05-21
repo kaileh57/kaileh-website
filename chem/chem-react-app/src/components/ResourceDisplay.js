@@ -12,7 +12,7 @@ function ResourceDisplay({ resource }) {
         <div className="card-body">
           <div className="d-flex justify-content-between align-items-center mb-1">
             <span className="card-title h6 mb-0">{label}</span>
-            <span className="fw-bold">{value}{unit}</span>
+            <span className="fw-bold">{Math.round(value)}{unit}</span>
           </div>
           {max && (
             <div className="progress mb-2" style={{ height: '10px' }}>
@@ -20,14 +20,14 @@ function ResourceDisplay({ resource }) {
                 className={`progress-bar ${progressBarClass || 'bg-secondary'}`} 
                 role="progressbar" 
                 style={{ width: `${percentage}%` }} 
-                aria-valuenow={value} 
+                aria-valuenow={Math.round(value)} 
                 aria-valuemin="0" 
                 aria-valuemax={max}
               ></div>
             </div>
           )}
           {available !== undefined && (
-            <small className="text-muted">Available: ${available}{unit}</small>
+            <small className="text-muted">Available: ${Math.round(available)}{unit}</small>
           )}
         </div>
       </div>
