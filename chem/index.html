@@ -10,12 +10,19 @@
     <link href="https://fonts.googleapis.com/css2?family=Oxanium:wght@300..800&display=swap" rel="stylesheet">
     <!-- Bootstrap CSS -->
     <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.3/dist/css/bootstrap.min.css" rel="stylesheet" integrity="sha384-QWTKZyjpPEjISv5WaRU9OFeRpok6YctnYmDr5pNlyT2bRjXh0JMhjY6hW+ALEwIH" crossorigin="anonymous">
-    <!-- Optional: Link to your custom styles AFTER Bootstrap if needed -->
+    <!-- Custom CSS - load dark theme -->
     <link rel="stylesheet" href="styles.css"> 
     <style>
         /* Base CSS Variables */
         :root {
             --hue: 0; /* For potential future environment-linked color shifts */
+            
+            /* Dark theme variables */
+            --bg-darker: #05080f;
+            --bg-dark: #0d1117;
+            --bg-card: #171e2a;
+            --text-light: #FAFAFA;
+            --text-dim: #bac8d3;
         }
 
         /* Quick Wins from Micro-Polish Plan */
@@ -23,7 +30,8 @@
             font-family: 'Oxanium', sans-serif;
         }
         body {
-            background-color: #f8f9fa; /* Light gray background */
+            background-color: var(--bg-darker); /* Dark background */
+            color: var(--text-light); /* Light text */
             /* overflow: hidden; */ /* Hide body scroll - REMOVED to allow scrolling */
             /* cursor: url('/assets/ui/cursor.png') 4 4, auto; */ /* Custom cursor - uncomment and provide path if asset exists */
             position: relative; /* Needed for grain overlay */
@@ -69,7 +77,7 @@
         input[type="checkbox"]:focus-visible + label,
         input[type="number"]:focus-visible {
              outline: none;
-             box-shadow: 0 0 0 2px #38bdf8, 0 0 8px 4px #0ea5e9aa;
+             box-shadow: 0 0 0 2px #38bdf8, 0 0 0 4px #0ea5e9aa;
              transition: box-shadow 0.2s ease-in-out; /* Add transition for smoothness */
         }
         /* Remove default outline for focused checkboxes if using the glow on label */
@@ -82,21 +90,23 @@
         /* Basic overrides and custom styles */
         .screen { display: none; }
         .screen.active { display: block; }
-        .loading-overlay { /* Keep the loading overlay styles for now */
+        
+        /* Loading overlay with dark theme */
+        .loading-overlay { 
             position: fixed;
             top: 0;
             left: 0;
             width: 100%;
             height: 100%;
-            background-color: rgba(255, 255, 255, 0.8);
+            background-color: rgba(13, 17, 23, 0.8); /* Dark background */
             display: flex;
             justify-content: center;
             align-items: center;
             z-index: 9999;
         }
-        .loader { /* Keep loader style */
-            border: 8px solid #f3f3f3;
-            border-top: 8px solid #3498db;
+        .loader { 
+            border: 8px solid #1a1f2e; /* Dark border */
+            border-top: 8px solid #0099ff; /* Primary color for spinner */
             border-radius: 50%;
             width: 60px;
             height: 60px;
@@ -106,7 +116,7 @@
             0% { transform: rotate(0deg); }
             100% { transform: rotate(360deg); }
         }
-        .notification { /* Keep notification style */
+        .notification { 
             position: fixed;
             top: 20px;
             right: 20px;
@@ -118,21 +128,39 @@
             z-index: 10000;
             box-shadow: 0 2px 5px rgba(0,0,0,0.2);
         }
-        .country-card { /* Style for selectable countries */
+        
+        /* Override Bootstrap card and background colors for dark theme */
+        .card {
+            background-color: var(--bg-card);
+            border: 1px solid rgba(255, 255, 255, 0.05);
+        }
+        
+        .card-header {
+            background-color: rgba(255, 255, 255, 0.05);
+            border-bottom: 1px solid rgba(255, 255, 255, 0.05);
+        }
+        
+        .bg-light {
+            background-color: var(--bg-dark) !important;
+        }
+        
+        .text-muted {
+            color: var(--text-dim) !important;
+        }
+        
+        /* Country card styling */
+        .country-card { 
             cursor: pointer;
             transition: transform 0.2s ease-in-out, box-shadow 0.2s ease-in-out;
-            /* Apply card texture - uncomment and provide path if asset exists */
-            /* background: url('/assets/ui/card_frame.webp') center/cover; */
-            /* border: none; */
-            box-shadow: 0 6px 12px #000a; /* Keep existing shadow or use plan's */
-            filter: contrast(1.05); /* Slight contrast boost */
+            box-shadow: 0 6px 12px rgba(0, 0, 0, 0.3);
+            filter: contrast(1.05);
         }
         .country-card img {
-            filter: saturate(1.1); /* Minor saturation boost for images inside cards */
+            filter: saturate(1.1); 
         }
         .country-card.selected {
-            border-color: #0d6efd; /* Bootstrap primary blue */
-            box-shadow: 0 0 0 0.25rem rgba(13, 110, 253, 0.25);
+            border-color: #0099ff; /* Primary color */
+            box-shadow: 0 0 0 0.25rem rgba(0, 153, 255, 0.25);
             transform: scale(1.03);
         }
         .progress-track-container {
@@ -153,15 +181,15 @@
             left: 15px; /* Start after first circle */
             right: 15px; /* End before last circle */
             height: 4px;
-            background-color: #dee2e6; /* Bootstrap light gray */
+            background-color: #343a40; /* Darker gray for dark theme */
             z-index: 1;
         }
          .progress-step {
             width: 30px;
             height: 30px;
             border-radius: 50%;
-            background-color: #dee2e6; /* Default gray */
-            color: #495057;
+            background-color: #343a40; /* Darker gray for dark theme */
+            color: var(--text-light);
             display: flex;
             justify-content: center;
             align-items: center;
@@ -171,7 +199,7 @@
             transition: background-color 0.3s, color 0.3s;
         }
         .progress-step.active {
-            background-color: #0d6efd; /* Bootstrap primary blue */
+            background-color: #0099ff; /* Primary color */
             color: white;
         }
         .progress-label {
@@ -182,7 +210,7 @@
             margin-top: 5px; /* Space between circle and label */
             font-size: 0.8rem;
             white-space: nowrap;
-            color: #6c757d; /* Bootstrap secondary text color */
+            color: var(--text-dim); /* Light text in dark theme */
         }
         .tech-levels .progress { /* Taller progress bars for tech */
              height: 1rem;
@@ -203,7 +231,7 @@
              display: flex;
              justify-content: space-between;
              padding: 0.5rem 0;
-             border-bottom: 1px solid #eee;
+             border-bottom: 1px solid rgba(255, 255, 255, 0.05);
          }
          .summary-row:last-child {
              border-bottom: none;
@@ -219,6 +247,79 @@
          }
          #summary-investments div, #summary-policies div {
              padding: 0.3rem 0;
+         }
+         
+         /* Override Bootstrap list group colors for dark theme */
+         .list-group-item {
+             background-color: var(--bg-card);
+             border-color: rgba(255, 255, 255, 0.05);
+             color: var(--text-light);
+         }
+         
+         /* Override nav tabs for dark theme */
+         .nav-tabs {
+             border-bottom-color: rgba(255, 255, 255, 0.1);
+         }
+         
+         .nav-tabs .nav-link {
+             color: var(--text-dim);
+         }
+         
+         .nav-tabs .nav-link.active {
+             color: var(--text-light);
+             background-color: var(--bg-card);
+             border-color: rgba(255, 255, 255, 0.1);
+         }
+         
+         .nav-tabs .nav-link:hover {
+             border-color: rgba(255, 255, 255, 0.2);
+         }
+         
+         /* Additional dark theme overrides for Bootstrap */
+         .form-control, .form-select {
+             background-color: var(--bg-dark);
+             border-color: rgba(255, 255, 255, 0.1);
+             color: var(--text-light);
+         }
+         
+         .form-control:focus, .form-select:focus {
+             background-color: var(--bg-dark);
+             border-color: var(--primary);
+             box-shadow: 0 0 0 0.25rem var(--glow-primary);
+             color: var(--text-light);
+         }
+         
+         /* Ensure progress bars have dark background */
+         .progress {
+             background-color: rgba(0, 0, 0, 0.3);
+         }
+         
+         /* Override alert style */
+         .alert {
+             background-color: var(--bg-dark);
+             border-color: rgba(255, 255, 255, 0.1);
+             color: var(--text-light);
+         }
+         
+         /* Add a subtle grain texture to background */
+         body::before {
+             content: '';
+             position: fixed;
+             top: 0;
+             left: 0;
+             width: 100%;
+             height: 100%;
+             background-image: 
+                 repeating-linear-gradient(
+                     45deg, 
+                     rgba(255, 255, 255, 0.01) 0, 
+                     rgba(255, 255, 255, 0.01) 1px, 
+                     transparent 0, 
+                     transparent 50%
+                 );
+             background-size: 10px 10px;
+             pointer-events: none;
+             z-index: -1;
          }
     </style>
 </head>

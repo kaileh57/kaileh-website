@@ -1,0 +1,54 @@
+.progress-track-container {
+    width: 100%;
+    margin: 30px 0; /* Matches original style */
+}
+
+.progress-track {
+    display: flex;
+    justify-content: space-between;
+    align-items: flex-start; /* Aligns items (circles) to the top of the container */
+    position: relative;
+    padding-bottom: 30px; /* Space for labels, matches original */
+}
+
+.progress-track::before { /* The connecting line */
+    content: '';
+    position: absolute;
+    top: 15px; /* Vertically center with the circle (assuming circle height is 30px) */
+    left: 15px; /* Start after the first circle's center */
+    right: 15px; /* End before the last circle's center */
+    height: 4px;
+    background-color: #dee2e6; /* Bootstrap light gray, matches original */
+    z-index: 1; /* Behind the steps */
+}
+
+.progress-step {
+    width: 30px;
+    height: 30px;
+    border-radius: 50%;
+    background-color: #dee2e6; /* Default gray, matches original */
+    color: #495057; /* Default text color */
+    display: flex;
+    justify-content: center;
+    align-items: center;
+    font-weight: bold;
+    position: relative; /* Needed for z-index to work */
+    z-index: 2; /* Above the connecting line */
+    transition: background-color 0.3s, color 0.3s;
+}
+
+.progress-step.active {
+    background-color: #0d6efd; /* Bootstrap primary blue, matches original */
+    color: white;
+}
+
+.progress-label {
+    position: absolute;
+    top: 100%; /* Position below the circle */
+    left: 50%;
+    transform: translateX(-50%);
+    margin-top: 5px; /* Space between circle and label, matches original */
+    font-size: 0.8rem;
+    white-space: nowrap;
+    color: #6c757d; /* Bootstrap secondary text color, matches original */
+} 
