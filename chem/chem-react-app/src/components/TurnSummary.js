@@ -37,12 +37,16 @@ function TurnSummary({ gameState, onEndTurn }) {
           <div className="card summary-card mb-3">
             <div className="card-header">Technology Levels</div>
             <div className="card-body">
-              {Object.entries(techLevels).map(([key, tech]) => (
-                <div className="summary-row" key={key}>
-                  <div>{tech.label || formatDisplayName(key)}:</div>
-                  <div>{tech.value}%</div>
-                </div>
-              ))}
+              {techLevels && Object.keys(techLevels).length > 0 ? (
+                Object.entries(techLevels).map(([key, tech]) => (
+                  <div className="summary-row" key={key}>
+                    <div>{tech.label || formatDisplayName(key)}:</div>
+                    <div>{tech.value}%</div>
+                  </div>
+                ))
+              ) : (
+                <p className="text-muted">No technology levels to display.</p>
+              )}
             </div>
           </div>
         </div>
