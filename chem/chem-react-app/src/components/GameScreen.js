@@ -505,9 +505,9 @@ function GameScreen({ showNotification }) {
   
   const calculateTurnEffects = () => {
     // Calculate effects from tech levels and other factors
-    let stabilityChange = -5; // Base stability decrease due to increasing demand
+    let stabilityChange = -8; // Increased from -5 to make it harder
     let emissionsChange = 0;
-    let approvalChange = -2; // Base approval decay
+    let approvalChange = -5; // Increased from -2 to make it harder
     
     // Nuclear effects increase over time
     if (gameState.techLevels.nuclear >= 15) {
@@ -530,12 +530,12 @@ function GameScreen({ showNotification }) {
       emissionsChange -= 6;
       // But high renewable without storage hurts stability
       if (gameState.techLevels.storage < 10) {
-        stabilityChange -= 3;
+        stabilityChange -= 5; // Increased from -3
       }
     } else if (renewableLevel >= 15) {
       emissionsChange -= 3;
       if (gameState.techLevels.storage < 5) {
-        stabilityChange -= 2;
+        stabilityChange -= 4; // Increased from -2
       }
     }
     
@@ -683,9 +683,23 @@ function GameScreen({ showNotification }) {
       <div className="tab-content" id="game-tabs-content">
         {gameState.gameOver ? (
           <div className="p-4">
-            <h3>Game Summary</h3>
+            <h3>{gameState.gameOverReason.includes("fired") ? "You Were Fired!" : "Game Summary"}</h3>
+            
+            {gameState.gameOverReason.includes("fired") && (
+              <div className="alert alert-danger mb-4">
+                <h4 className="alert-heading">Termination Notice</h4>
+                <p><strong>Reason:</strong> {gameState.gameOverReason}</p>
+                <hr />
+                <p className="mb-0">
+                  {gameState.resources.approval.value < 50 
+                    ? "The public has lost confidence in your leadership. Your energy policies have become too unpopular to continue."
+                    : "The power grid has become unstable under your leadership, resulting in widespread blackouts and economic damage."}
+                </p>
+              </div>
+            )}
+            
             <p>Final Score: {gameState.score}</p>
-            <p>{gameState.gameOverReason}</p>
+            
             <h4>Technology Levels Achieved:</h4>
             <ul>
               <li>Nuclear: {gameState.techLevels.nuclear}</li>
@@ -697,6 +711,18 @@ function GameScreen({ showNotification }) {
             <p>Emissions Reduced: {100 - gameState.resources.emissions.value}%</p>
             <p>Final Grid Stability: {gameState.resources.gridStability.value}%</p>
             <p>Final Public Approval: {gameState.resources.approval.value}%</p>
+            
+            {gameState.gameOverReason.includes("fired") && (
+              <div className="mt-4">
+                <h4>Post-Mortem Analysis</h4>
+                <p>
+                  {gameState.techLevels.nuclear < 10 
+                    ? "Your failure to adequately develop nuclear energy created an unstable energy mix that couldn't meet the nation's needs."
+                    : "Despite some progress with nuclear energy, your policies failed to achieve the right balance of public support and grid reliability."}
+                </p>
+                <p>Remember: A stable energy future requires solid planning and strategic investment in reliable baseload power.</p>
+              </div>
+            )}
           </div>
         ) : (
           tabContents[activeTab]
