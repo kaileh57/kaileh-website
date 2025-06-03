@@ -1,0 +1,196 @@
+/* Global Styles for the React App */
+
+/* Import Bootstrap - this is the recommended way */
+/* You'll need to install bootstrap: npm install bootstrap */
+/* @import '~bootstrap/dist/css/bootstrap.min.css'; */
+
+/* Fallback or if you prefer CDN link in public/index.html: */
+/* Ensure Bootstrap is linked in your public/index.html if not importing here */
+
+/* Google Font - Oxanium */
+@import url('https://fonts.googleapis.com/css2?family=Oxanium:wght@300..800&display=swap');
+
+/* Base CSS Variables (from original index.html) */
+:root {
+    /* Modern energy dashboard palette */
+    --primary: #0099ff;
+    --primary-dark: #0077cc;
+    --secondary: #00c8a0;
+    --accent: #ffb347;
+    --danger: #ff5a5f;
+    --success: #23ce6b;
+    --warning: #ffc145;
+    
+    /* Background Colors */
+    --bg-dark: #1a1f2e;
+    --bg-darker: #0d1117;
+    --bg-card: #212936;
+    
+    /* Text Colors */
+    --text-light: #FAFAFA;       /* Brighter off-white */
+    --text-dim: #bac8d3;         /* Lighter muted blue-gray for better contrast */
+    
+    /* Effects */
+    --glow-primary: rgba(0, 153, 255, 0.15);
+    --glow-success: rgba(35, 206, 107, 0.15);
+    --glow-danger: rgba(255, 90, 95, 0.15);
+    --glow-accent: rgba(255, 179, 71, 0.15);
+    
+    /* Bootstrap overrides */
+    --bs-body-bg: var(--bg-darker);
+    --bs-body-color: var(--text-light);
+    --bs-card-bg: var(--bg-card);
+    --bs-card-border-color: rgba(255, 255, 255, 0.05);
+    --bs-light-rgb: 33, 41, 54; /* Custom light class using our dark bg-card */
+}
+
+html {
+    font-family: 'Oxanium', sans-serif;
+}
+
+body {
+    background-color: var(--bg-darker); /* Dark theme background */
+    color: var(--text-light); /* Light text for dark theme */
+    margin: 0; /* Remove default margin */
+    padding: 0;  /* Remove default padding */
+    box-sizing: border-box;
+    position: relative; /* Needed for grain overlay if used */
+    line-height: 1.6;
+    min-height: 100vh;
+    overflow-x: hidden;
+}
+
+/* Bootstrap Dark Theme Overrides */
+.card {
+    background-color: var(--bg-card);
+    border-color: rgba(255, 255, 255, 0.05);
+    color: var(--text-light);
+}
+
+.card-header {
+    background-color: rgba(255, 255, 255, 0.05);
+    border-bottom: 1px solid rgba(255, 255, 255, 0.05);
+}
+
+.bg-light {
+    background-color: var(--bg-card) !important;
+    color: var(--text-light);
+}
+
+.text-success {
+    color: var(--success) !important;
+}
+
+.text-primary {
+    color: var(--primary) !important;
+}
+
+.btn-primary {
+    background: linear-gradient(180deg, var(--primary), var(--primary-dark));
+    border: 1px solid rgba(255, 255, 255, 0.1);
+}
+
+.btn-primary:hover {
+    background: linear-gradient(180deg, var(--primary-dark), var(--primary-dark));
+    box-shadow: 0 5px 15px rgba(0, 0, 0, 0.2), 0 0 10px var(--glow-primary);
+    transform: translateY(-2px);
+}
+
+/* Tab Styles */
+.nav-tabs .nav-link.active {
+    color: var(--text-light) !important; /* White text for active tab */
+    background-color: var(--primary) !important; /* Primary color for active tab background */
+    border-color: var(--primary-dark) var(--primary-dark) var(--primary) !important; /* Darker border for active tab */
+}
+
+.nav-tabs .nav-link {
+    color: var(--text-dim); /* Dimmer text for inactive tabs */
+    border-color: transparent transparent var(--bs-border-color) transparent;
+}
+
+.nav-tabs .nav-link:hover {
+    color: var(--text-light);
+    border-color: var(--primary-dark) var(--primary-dark) var(--primary-dark) var(--primary-dark);
+}
+
+/* Hide scrollbars (from original index.html) */
+::-webkit-scrollbar {
+    display: none; /* For Chrome, Safari, and Opera */
+}
+body {
+    -ms-overflow-style: none;  /* IE and Edge */
+    scrollbar-width: none;  /* Firefox */
+}
+
+/* Film Grain Overlay (from original index.html) - Optional */
+/* If you use this, ensure the #grain-overlay div is in your App.js or public/index.html */
+#grain-overlay {
+    position: fixed;
+    top: 0;
+    left: 0;
+    width: 100vw;
+    height: 100vh;
+    pointer-events: none;
+    background: url('data:image/png;base64,iVBORw0KGgoAAAANSUhEUgAAADAAAAAwBAMAAAClLOS0AAAAGFBMVEUAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAABWNxwqAAAAAXRSTlMAQObYZgAAAAFiS0dEAIgFHUgAAAAJcEhZcwAACxMAAAsTAQCanBgAAAAfdEVYdFNvZnR3YXJlAE1hY3JvbWVkaWEgRmlyZXdvcmtzIDMuMOvZpVAAAAAkSURBVDjLY2RgYPj/PwMewMDIwHD9//+ERB4Gxq8A/v8XCXABAF/lBKd7gEi3AAAAAElFTkSuQmCC') repeat;
+    opacity: 0.08;
+    animation: grain 0.4s steps(8) infinite;
+    z-index: 9998;
+}
+@keyframes grain {
+  0%, 100% { transform: translate(0, 0); }
+  10% { transform: translate(-1px, -1px); }
+  20% { transform: translate(1px, 1px); }
+  30% { transform: translate(-1px, 1px); }
+  40% { transform: translate(1px, -1px); }
+  50% { transform: translate(-2px, -2px); }
+  60% { transform: translate(2px, 2px); }
+  70% { transform: translate(-2px, 2px); }
+  80% { transform: translate(2px, -2px); }
+  90% { transform: translate(0, 1px); }
+}
+
+/* Glow on Focusable Controls (from original index.html) - Optional */
+button:focus-visible,
+.btn:focus-visible,
+input[type="checkbox"]:focus-visible + label,
+input[type="number"]:focus-visible,
+.form-check-input:focus-visible + .form-check-label {
+     outline: none;
+     box-shadow: 0 0 0 2px #38bdf8, 0 0 8px 4px #0ea5e9aa; /* Tailwind Sky colors for glow */
+     transition: box-shadow 0.2s ease-in-out;
+}
+input[type="checkbox"]:focus-visible {
+    outline: none;
+    box-shadow: none; /* Remove default glow if custom is on label */
+}
+
+
+/* Container class to match Bootstrap's container-fluid if needed, or for general app padding */
+.App {
+  /* text-align: center; */ /* If you want centered text globally */
+  padding: 1rem; /* Add some padding around the app */
+  max-width: 1200px; /* Max width for the game area, centered */
+  margin: 0 auto;
+}
+
+/* General card styling if not fully covered by Bootstrap or to provide defaults */
+.card {
+    /* Default card styles if needed, e.g., border, box-shadow */
+    /* box-shadow: 0 2px 4px rgba(0,0,0,0.1); */
+}
+
+/* Basic screen visibility (can be overridden by specific screen components) */
+.screen {
+  display: none;
+  width: 100%;
+}
+
+.screen.active {
+  display: block;
+  animation: fadeInScreen 0.5s ease-in-out;
+}
+
+@keyframes fadeInScreen {
+  from { opacity: 0; transform: translateY(10px); }
+  to { opacity: 1; transform: translateY(0); }
+} 
