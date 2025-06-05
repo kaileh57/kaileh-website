@@ -1037,7 +1037,7 @@ function GameScreen({ showNotification }) {
     // Opposition groups influence approval    
     Object.entries(gameState.oppositionGroups).forEach(([group, data]) => {      
       const impact = oppositionImpacts[group];      
-      if (impact) {        
+      if (impact && typeof impact.approval === 'number') { // Check if impact and impact.approval exist        
         // Scale impact based on influence and stance        
         const scaleFactor = (data.influence / 100) * (data.stance / 100);        
         approvalChange += impact.approval * scaleFactor * 10;      
