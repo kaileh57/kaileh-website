@@ -4,605 +4,11 @@
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title>Art and Social Movements Research - Black Power Movement</title>
-    <style>
-        @import url('https://fonts.googleapis.com/css2?family=Bebas+Neue&family=Inter:wght@400;600;700&display=swap');
-        
-        * {
-            margin: 0;
-            padding: 0;
-            box-sizing: border-box;
-        }
-        
-        body {
-            overflow-x: hidden;
-            background: #1a1a1a;
-            color: #fff;
-            font-family: 'Inter', sans-serif;
-            line-height: 1.6;
-            cursor: crosshair;
-        }
-        
-        /* Custom Scrollbar */
-        ::-webkit-scrollbar {
-            width: 10px;
-        }
-        
-        ::-webkit-scrollbar-track {
-            background: #000;
-        }
-        
-        ::-webkit-scrollbar-thumb {
-            background: #ff0000;
-            border-radius: 0;
-        }
-        
-        /* Progress Bar */
-        .progress {
-            position: fixed;
-            top: 0;
-            left: 0;
-            height: 5px;
-            background: #ff0000;
-            z-index: 100;
-            transition: width 0.1s linear;
-            box-shadow: 0 0 10px #ff0000;
-        }
-        
-        /* Hero Section */
-        .hero {
-            height: 100vh;
-            position: relative;
-            overflow: hidden;
-            background: url('data:image/svg+xml,<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 1200 800"><filter id="roughPaper"><feTurbulence type="fractalNoise" baseFrequency="0.04" numOctaves="5" result="noise" seed="2"/><feDiffuseLighting in="noise" lighting-color="white" surfaceScale="1"><feDistantLight azimuth="45" elevation="60"/></feDiffuseLighting></filter><rect width="100%" height="100%" filter="url(%23roughPaper)" opacity="0.4" fill="%23333"/></svg>') center/cover;
-            display: flex;
-            align-items: center;
-            justify-content: center;
-            flex-direction: column;
-        }
-        
-        .hero-title {
-            font-family: 'Bebas Neue', cursive;
-            font-size: clamp(3rem, 10vw, 8rem);
-            color: #ff0000;
-            text-align: center;
-            margin-bottom: 1rem;
-            letter-spacing: 0.05em;
-            text-shadow: 
-                3px 3px 0 #000,
-                6px 6px 0 #ffcc00,
-                9px 9px 20px rgba(0,0,0,0.8);
-            transform: rotate(-3deg);
-            animation: slideIn 1s ease-out;
-        }
-        
-        .hero-subtitle {
-            font-size: clamp(1.5rem, 4vw, 3rem);
-            color: #ffcc00;
-            text-transform: uppercase;
-            letter-spacing: 0.3em;
-            margin-bottom: 2rem;
-            background: #000;
-            padding: 10px 30px;
-            box-shadow: 5px 5px 0 #ff0000;
-            transform: rotate(2deg);
-            animation: slideIn 1s ease-out 0.2s backwards;
-        }
-        
-        .research-question {
-            max-width: 800px;
-            text-align: center;
-            font-size: 1.2rem;
-            color: #ccc;
-            padding: 2rem;
-            font-style: italic;
-            background: rgba(0,0,0,0.8);
-            border-left: 5px solid #ff0000;
-            transform: skew(-2deg);
-            animation: slideIn 1s ease-out 0.4s backwards;
-        }
-        
-        @keyframes slideIn {
-            from {
-                transform: translateY(-50px) rotate(-3deg);
-                opacity: 0;
-            }
-            to {
-                transform: translateY(0) rotate(-3deg);
-                opacity: 1;
-            }
-        }
-        
-        /* Spray paint dots */
-        .spray-dot {
-            position: absolute;
-            border-radius: 50%;
-            background: #ff0000;
-            opacity: 0.8;
-            animation: splatter 1s ease-out forwards;
-            pointer-events: none;
-        }
-        
-        @keyframes splatter {
-            0% {
-                transform: scale(0);
-                opacity: 1;
-            }
-            100% {
-                transform: scale(1);
-                opacity: 0.8;
-            }
-        }
-        
-        /* Floating elements */
-        .float-element {
-            position: fixed;
-            pointer-events: none;
-            opacity: 0.1;
-            font-size: 8rem;
-            color: #ff0000;
-            font-family: 'Bebas Neue', cursive;
-            z-index: 1;
-        }
-        
-        /* Section Styling */
-        .section {
-            min-height: 100vh;
-            position: relative;
-            padding: 5rem 2rem;
-            overflow: hidden;
-        }
-        
-        .section:nth-child(odd) {
-            transform: skewY(-2deg);
-            margin: 5rem 0;
-        }
-        
-        .section:nth-child(odd) > * {
-            transform: skewY(2deg);
-        }
-        
-        .section:nth-child(even) {
-            transform: skewY(2deg);
-            margin: 5rem 0;
-            background: rgba(255,0,0,0.05);
-        }
-        
-        .section:nth-child(even) > * {
-            transform: skewY(-2deg);
-        }
-        
-        .container {
-            max-width: 1200px;
-            margin: 0 auto;
-            position: relative;
-        }
-        
-        /* Context Section with Horizontal Scroll */
-        .context-section {
-            height: 100vh;
-            background: #000;
-            position: relative;
-            overflow: hidden;
-            transform: none !important;
-            margin: 0 !important;
-        }
-        
-        .context-wrapper {
-            position: absolute;
-            top: 50%;
-            transform: translateY(-50%);
-            display: flex;
-            width: fit-content;
-            transition: transform 0.1s linear;
-        }
-        
-        .context-card {
-            width: 100vw;
-            height: 60vh;
-            padding: 3rem;
-            display: flex;
-            align-items: center;
-            justify-content: center;
-        }
-        
-        .context-content {
-            max-width: 800px;
-            text-align: center;
-            background: rgba(0,0,0,0.8);
-            padding: 3rem;
-            border: 3px solid #ff0000;
-            position: relative;
-            transform: rotate(-2deg);
-        }
-        
-        .context-content::before {
-            content: '';
-            position: absolute;
-            top: -10px;
-            right: -10px;
-            bottom: -10px;
-            left: -10px;
-            background: #ffcc00;
-            z-index: -1;
-            transform: rotate(1deg);
-        }
-        
-        .context-content h3 {
-            font-family: 'Bebas Neue', cursive;
-            font-size: 3rem;
-            color: #ffcc00;
-            margin-bottom: 1rem;
-            text-transform: uppercase;
-            text-shadow: 3px 3px 0 #ff0000;
-        }
-        
-        /* Artwork Sections */
-        .artwork-section {
-            background: #111;
-            margin-bottom: 2rem;
-            position: relative;
-            overflow: hidden;
-            transform: rotate(-1deg);
-            box-shadow: 10px 10px 0 rgba(255,0,0,0.3);
-        }
-        
-        .artwork-header {
-            background: rgba(255, 0, 0, 0.1);
-            padding: 3rem 2rem;
-            border-left: 10px solid #ff0000;
-            position: relative;
-            overflow: hidden;
-        }
-        
-        .artwork-header::after {
-            content: '';
-            position: absolute;
-            top: 0;
-            right: 0;
-            width: 100px;
-            height: 100%;
-            background: #ffcc00;
-            transform: skewX(-20deg) translateX(50px);
-            opacity: 0.1;
-        }
-        
-        .artwork-title {
-            font-family: 'Bebas Neue', cursive;
-            font-size: clamp(3rem, 6vw, 5rem);
-            color: #ffcc00;
-            margin-bottom: 0.5rem;
-            text-shadow: 4px 4px 0 #ff0000, 8px 8px 0 #000;
-            transform: rotate(-2deg);
-            display: inline-block;
-        }
-        
-        .artwork-meta {
-            font-size: 1.5rem;
-            color: #fff;
-            margin-bottom: 1rem;
-            text-transform: uppercase;
-            letter-spacing: 0.2em;
-        }
-        
-        .artwork-source {
-            font-size: 0.9rem;
-            color: #888;
-            font-style: italic;
-        }
-        
-        .artwork-image {
-            width: 100%;
-            max-width: 600px;
-            margin: 2rem auto;
-            display: block;
-            border: 5px solid #ff0000;
-            background: #222;
-            min-height: 400px;
-            position: relative;
-            transform: rotate(3deg);
-            box-shadow: 
-                5px 5px 0 #ffcc00,
-                10px 10px 0 #000,
-                15px 15px 30px rgba(0,0,0,0.5);
-        }
-        
-        .artwork-image::after {
-            content: '[Artwork Image]';
-            position: absolute;
-            top: 50%;
-            left: 50%;
-            transform: translate(-50%, -50%);
-            color: #555;
-            font-size: 1.5rem;
-            font-family: 'Bebas Neue', cursive;
-            letter-spacing: 0.2em;
-        }
-        
-        .artwork-description {
-            padding: 3rem;
-            font-size: 1.2rem;
-            line-height: 1.8;
-            color: #fff;
-            background: rgba(0, 0, 0, 0.8);
-            border-left: 5px solid #ffcc00;
-            margin: 2rem;
-            position: relative;
-            transform: skew(-1deg);
-            box-shadow: 5px 5px 0 rgba(255,0,0,0.3);
-        }
-        
-        .artwork-description::before {
-            content: '\\201C';
-            position: absolute;
-            top: -20px;
-            left: 20px;
-            font-size: 4rem;
-            color: #ff0000;
-            font-family: 'Bebas Neue', cursive;
-        }
-        
-        /* Wall of Respect Section */
-        .wall-section {
-            background: linear-gradient(135deg, #1a1a1a, #000);
-            padding: 5rem 2rem;
-            position: relative;
-            overflow: hidden;
-        }
-        
-        .wall-title {
-            font-family: 'Bebas Neue', cursive;
-            font-size: clamp(4rem, 10vw, 8rem);
-            text-align: center;
-            color: #ff0000;
-            margin-bottom: 3rem;
-            text-transform: uppercase;
-            letter-spacing: 0.1em;
-            text-shadow: 
-                5px 5px 0 #ffcc00,
-                10px 10px 0 #000;
-            transform: rotate(-5deg);
-            display: inline-block;
-            width: 100%;
-        }
-        
-        .wall-quote {
-            max-width: 800px;
-            margin: 0 auto 3rem;
-            padding: 3rem;
-            background: rgba(0,0,0,0.9);
-            border: 3px solid #ffcc00;
-            font-size: 1.3rem;
-            line-height: 1.8;
-            color: #fff;
-            position: relative;
-            transform: rotate(2deg);
-            box-shadow: 
-                -5px 5px 0 #ff0000,
-                -10px 10px 20px rgba(0,0,0,0.5);
-        }
-        
-        /* Interactive Tag Section */
-        .tag-section {
-            background: #111;
-            padding: 5rem 2rem;
-            text-align: center;
-            position: relative;
-            overflow: hidden;
-        }
-        
-        .tag-section::before {
-            content: '';
-            position: absolute;
-            top: 0;
-            left: 0;
-            right: 0;
-            height: 10px;
-            background: repeating-linear-gradient(
-                90deg,
-                #ff0000,
-                #ff0000 10px,
-                #ffcc00 10px,
-                #ffcc00 20px
-            );
-        }
-        
-        .tag-title {
-            font-family: 'Bebas Neue', cursive;
-            font-size: clamp(3rem, 6vw, 5rem);
-            color: #ffcc00;
-            margin-bottom: 1rem;
-            text-transform: uppercase;
-            text-shadow: 3px 3px 0 #ff0000, 6px 6px 0 #000;
-            transform: rotate(-3deg);
-            display: inline-block;
-        }
-        
-        .tag-input {
-            flex: 1;
-            min-width: 250px;
-            padding: 1rem;
-            font-size: 1.5rem;
-            background: rgba(255, 255, 255, 0.1);
-            border: 3px solid #ff0000;
-            color: #fff;
-            font-family: 'Bebas Neue', cursive;
-            letter-spacing: 0.1em;
-            text-transform: uppercase;
-            transform: skew(-5deg);
-        }
-        
-        .tag-input:focus {
-            outline: none;
-            border-color: #ffcc00;
-            background: rgba(255, 255, 255, 0.2);
-            box-shadow: 0 0 20px rgba(255,204,0,0.5);
-        }
-        
-        .tag-button {
-            padding: 1rem 3rem;
-            font-size: 1.5rem;
-            background: #ff0000;
-            border: none;
-            color: #000;
-            font-family: 'Bebas Neue', cursive;
-            letter-spacing: 0.1em;
-            cursor: pointer;
-            text-transform: uppercase;
-            transition: all 0.3s ease;
-            transform: skew(-5deg);
-            box-shadow: 5px 5px 0 #000;
-        }
-        
-        .tag-button:hover {
-            background: #ffcc00;
-            transform: skew(-5deg) scale(1.05) rotate(-2deg);
-            box-shadow: 8px 8px 0 #000;
-        }
-        
-        .tag-wall {
-            max-width: 1200px;
-            margin: 3rem auto 0;
-            display: flex;
-            flex-wrap: wrap;
-            gap: 1.5rem;
-            justify-content: center;
-            min-height: 200px;
-            padding: 3rem;
-            background: url('data:image/svg+xml,<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 100 100"><rect width="100" height="100" fill="%23222"/><rect x="0" y="0" width="2" height="100" fill="%23333"/><rect x="98" y="0" width="2" height="100" fill="%23333"/><rect x="0" y="0" width="100" height="2" fill="%23333"/><rect x="0" y="98" width="100" height="2" fill="%23333"/></svg>') repeat;
-            border: 3px solid #333;
-            position: relative;
-        }
-        
-        .user-tag {
-            padding: 1rem 2rem;
-            background: rgba(255, 0, 0, 0.9);
-            border: 3px solid #000;
-            color: #000;
-            font-family: 'Bebas Neue', cursive;
-            font-size: 2rem;
-            letter-spacing: 0.1em;
-            text-transform: uppercase;
-            transform: rotate(-5deg);
-            transition: all 0.3s ease;
-            cursor: default;
-            box-shadow: 3px 3px 0 #ffcc00;
-            font-weight: bold;
-        }
-        
-        .user-tag:nth-child(even) {
-            transform: rotate(5deg);
-            background: rgba(255, 204, 0, 0.9);
-            box-shadow: 3px 3px 0 #ff0000;
-        }
-        
-        .user-tag:nth-child(3n) {
-            transform: rotate(-8deg);
-            background: #000;
-            color: #ffcc00;
-            border-color: #ff0000;
-        }
-        
-        .user-tag:hover {
-            transform: scale(1.2) rotate(0deg) !important;
-            z-index: 10;
-            box-shadow: 5px 5px 0 #000;
-        }
-        
-        /* Scroll to Top Button */
-        .scroll-top {
-            position: fixed;
-            bottom: 2rem;
-            right: 2rem;
-            width: 60px;
-            height: 60px;
-            background: #ff0000;
-            border: 3px solid #000;
-            cursor: pointer;
-            display: none;
-            align-items: center;
-            justify-content: center;
-            z-index: 100;
-            transition: all 0.3s ease;
-            transform: rotate(45deg);
-            box-shadow: 5px 5px 0 #ffcc00;
-        }
-        
-        .scroll-top::after {
-            content: '↑';
-            font-size: 2rem;
-            color: #000;
-            transform: rotate(-45deg);
-            display: block;
-            font-family: 'Bebas Neue', cursive;
-        }
-        
-        .scroll-top:hover {
-            background: #ffcc00;
-            transform: rotate(45deg) scale(1.1);
-            box-shadow: 8px 8px 0 #ff0000;
-        }
-        
-        .scroll-top.visible {
-            display: flex;
-        }
-        
-        /* Mouse trail effect */
-        .trail-dot {
-            position: fixed;
-            width: 10px;
-            height: 10px;
-            background: #ff0000;
-            border-radius: 50%;
-            pointer-events: none;
-            z-index: 9999;
-            opacity: 0.8;
-        }
-        
-        /* Sources Section */
-        .sources-section {
-            background: #000;
-            padding: 3rem 2rem;
-            border-top: 5px solid #ff0000;
-            position: relative;
-            transform: skewY(-1deg);
-            margin-top: 5rem;
-        }
-        
-        .sources-section > * {
-            transform: skewY(1deg);
-        }
-        
-        /* Responsive */
-        @media (max-width: 768px) {
-            .section:nth-child(odd),
-            .section:nth-child(even) {
-                transform: none;
-                margin: 2rem 0;
-            }
-            
-            .section:nth-child(odd) > *,
-            .section:nth-child(even) > * {
-                transform: none;
-            }
-            
-            .context-wrapper {
-                flex-direction: column;
-            }
-            
-            .context-card {
-                height: 100vh;
-            }
-        }
-    </style>
+    <link rel="stylesheet" href="style.css">
 </head>
 <body>
     <!-- Progress Bar -->
     <div class="progress" id="progress"></div>
-    
-    <!-- Floating Background Elements -->
-    <div class="float-element" style="top: 10%; left: 5%;">POWER</div>
-    <div class="float-element" style="top: 60%; right: 10%;">ART</div>
-    <div class="float-element" style="bottom: 20%; left: 15%;">REVOLT</div>
     
     <!-- Hero Section -->
     <section class="hero">
@@ -611,25 +17,55 @@
         <p class="research-question">How did Art and Popular Culture operate as levers of change within a modern social movement?</p>
     </section>
     
-    <!-- Context Section with Horizontal Scroll -->
+    <!-- Historical Context Section -->
     <section class="context-section">
-        <div class="context-wrapper" id="contextWrapper">
-            <div class="context-card">
-                <div class="context-content">
-                    <h3>Historical Context</h3>
-                    <p>Catalyzed by the African American Civil Rights movement, the late 20th century witnessed social and political movements utilizing art and popular culture as powerful tools for change.</p>
-                </div>
+        <span class="section-number">01</span>
+        <span class="section-label">Historical Context</span>
+        <div class="container">
+            <h2 style="font-family: 'Bebas Neue', cursive; font-size: clamp(3rem, 6vw, 5rem); color: #ffcc00; text-align: center; margin-bottom: 3rem; text-transform: uppercase; text-shadow: 3px 3px 0 #ff0000;">Historical Context</h2>
+            
+            <div class="historical-text" style="max-width: 900px; margin: 0 auto; padding: 3rem; background: rgba(0,0,0,0.8); border: 3px solid #ff0000; transform: rotate(-1deg); position: relative;">
+                <div style="position: absolute; top: -15px; right: -15px; bottom: -15px; left: -15px; background: #ffcc00; z-index: -1; transform: rotate(1deg);"></div>
+                <p style="font-size: 1.2rem; line-height: 1.8; color: #fff; margin-bottom: 2rem;">
+                    Despite the many legislative successes of the Civil Rights Movement, African Americans weren't fully accepted in society and faced many different inequalities during the 1960s and 1970s. As a response, the Black Power Movement rose by encouraging African Americans to embrace their own cultures and identities instead of succumbing to the limitations of predominantly white societies.
+                </p>
+                <p style="font-size: 1.2rem; line-height: 1.8; color: #fff; margin-bottom: 2rem;">
+                    During the mid-1960s, Malcolm X became a very influential figure in the early years of the Black Power Movement as an advocate for self-determination and black nationalism. After his assassination in 1965, his ideals and legacy were solidified, inspiring further activism toward the cause and the creation of the Black Panther Party: a revolutionary activist-based organization.
+                </p>
+                <p style="font-size: 1.2rem; line-height: 1.8; color: #fff;">
+                    Many groups and individuals around the nation were able to contribute through different forms of protest, like direct action, creative expression, and more, with the collective goal of empowering black people and ending white supremacy. <span style="color: #ffcc00; font-weight: bold;">Various art forms like hip hop, graffiti art, and more were crucial for highlighting the cultural aspect of the Black Power Movement and allowed people to show their pride in their African cultures and reflect on their experiences as black people in America.</span>
+                </p>
             </div>
-            <div class="context-card">
-                <div class="context-content">
-                    <h3>Art as Resistance</h3>
-                    <p>From the streets of the Bronx to the walls of Chicago, artists transformed urban landscapes into canvases of resistance, challenging traditional art spaces and Eurocentric perspectives.</p>
+            
+            <!-- Timeline -->
+            <div class="timeline" style="margin-top: 5rem; position: relative;">
+                <div style="position: absolute; left: 50%; top: 0; bottom: 0; width: 5px; background: #ff0000; transform: translateX(-50%);"></div>
+                
+                <div class="timeline-item" style="display: flex; align-items: center; margin-bottom: 3rem; position: relative;">
+                    <div style="flex: 1; text-align: right; padding-right: 3rem;">
+                        <h3 style="font-family: 'Bebas Neue', cursive; font-size: 2rem; color: #ffcc00;">1960s</h3>
+                        <p style="color: #ccc;">Civil Rights Movement peaks, inequalities persist</p>
+                    </div>
+                    <div style="position: absolute; left: 50%; transform: translateX(-50%); width: 20px; height: 20px; background: #ff0000; border: 3px solid #ffcc00; border-radius: 50%;"></div>
+                    <div style="flex: 1; padding-left: 3rem;"></div>
                 </div>
-            </div>
-            <div class="context-card">
-                <div class="context-content">
-                    <h3>Cultural Revolution</h3>
-                    <p>Graffiti and street art emerged not as vandalism, but as forms of political expression that spoke directly to and for communities under threat.</p>
+                
+                <div class="timeline-item" style="display: flex; align-items: center; margin-bottom: 3rem; position: relative;">
+                    <div style="flex: 1;"></div>
+                    <div style="position: absolute; left: 50%; transform: translateX(-50%); width: 20px; height: 20px; background: #ffcc00; border: 3px solid #ff0000; border-radius: 50%;"></div>
+                    <div style="flex: 1; padding-left: 3rem;">
+                        <h3 style="font-family: 'Bebas Neue', cursive; font-size: 2rem; color: #ff0000;">1965</h3>
+                        <p style="color: #ccc;">Malcolm X assassinated, Black Panther Party formed</p>
+                    </div>
+                </div>
+                
+                <div class="timeline-item" style="display: flex; align-items: center; margin-bottom: 3rem; position: relative;">
+                    <div style="flex: 1; text-align: right; padding-right: 3rem;">
+                        <h3 style="font-family: 'Bebas Neue', cursive; font-size: 2rem; color: #ffcc00;">1970s-80s</h3>
+                        <p style="color: #ccc;">Hip hop, graffiti art, and cultural expression flourish</p>
+                    </div>
+                    <div style="position: absolute; left: 50%; transform: translateX(-50%); width: 20px; height: 20px; background: #ff0000; border: 3px solid #ffcc00; border-radius: 50%;"></div>
+                    <div style="flex: 1;"></div>
                 </div>
             </div>
         </div>
@@ -637,6 +73,8 @@
     
     <!-- Artwork 1: Fab 5 Freddy -->
     <section class="section">
+        <span class="section-number">02</span>
+        <span class="section-label">Artwork One</span>
         <div class="container">
             <div class="artwork-section">
                 <div class="artwork-header">
@@ -645,10 +83,24 @@
                     <p class="artwork-source">Source: "Untitled (1986) by Fab 5 Freddy." Artchive.com, 11 Nov. 2024, www.artchive.com/artwork/untitled-fab-5-freddy-1986/. Accessed 14 Apr. 2025.</p>
                 </div>
                 
-                <div class="artwork-image"></div>
+                <div class="artwork-display" style="display: flex; align-items: center; gap: 3rem; padding: 2rem; flex-wrap: wrap;">
+                    <div class="artwork-image" style="flex: 1; min-width: 300px;">
+                        <img src="untitled-fab-5-freddy-1986.jpg" alt="Untitled by Fab 5 Freddy" style="width: 100%; display: block;">
+                    </div>
+                    <div class="artwork-analysis" style="flex: 1; min-width: 300px;">
+                        <h3 style="font-family: 'Bebas Neue', cursive; font-size: 2rem; color: #ff0000; margin-bottom: 1rem; text-transform: uppercase;">How This Art Changed Everything</h3>
+                        <div class="lever-points" style="background: rgba(0,0,0,0.8); padding: 2rem; border-left: 5px solid #ffcc00;">
+                            <p style="margin-bottom: 1.5rem; font-size: 1.1rem;"><span style="color: #ffcc00; font-weight: bold;">CULTURAL FUSION:</span> Freddy merged high art with street culture, proving graffiti belonged in galleries</p>
+                            <p style="margin-bottom: 1.5rem; font-size: 1.1rem;"><span style="color: #ffcc00; font-weight: bold;">VISIBILITY:</span> Brought marginalized voices from the streets to mainstream consciousness</p>
+                            <p style="font-size: 1.1rem;"><span style="color: #ffcc00; font-weight: bold;">IDENTITY:</span> Empowered artists to embrace their authentic cultural expressions</p>
+                        </div>
+                    </div>
+                </div>
                 
                 <div class="artwork-description">
-                    "Untitled" (1986) is an example that effectively shows Freddy's goal in the movement of merging cultures by depicting traditional figures from mainstream culture in the style of graffiti with loose, energetic strokes and vibrant colors.
+                    <blockquote style="font-style: italic; font-size: 1.2rem;">
+                        "Untitled" (1986) is an example that effectively shows Freddy's goal in the movement of merging cultures by depicting traditional figures from mainstream culture in the style of graffiti with loose, energetic strokes and vibrant colors.
+                    </blockquote>
                 </div>
             </div>
         </div>
@@ -656,6 +108,8 @@
     
     <!-- Artwork 2: Basquiat -->
     <section class="section">
+        <span class="section-number">03</span>
+        <span class="section-label">Artwork Two</span>
         <div class="container">
             <div class="artwork-section">
                 <div class="artwork-header">
@@ -664,10 +118,24 @@
                     <p class="artwork-source">Source: epp. "BASQUIAT EL GRAN ESPECTACULO (the NILE), 1983 WILL LEAD CHRISTIE'S SPRING MARQUEE WEEK - Christie's." Christie's, 19 Apr. 2023, press.christies.com/basquiat-el-gran-espectaculo-the-nile-1983-will-lead-christies-spring-marquee-week.</p>
                 </div>
                 
-                <div class="artwork-image"></div>
+                <div class="artwork-display" style="display: flex; align-items: center; gap: 3rem; padding: 2rem; flex-wrap: wrap;">
+                    <div class="artwork-image landscape" style="flex: 1; min-width: 300px;">
+                        <img src="EvidenceElGranEspectaculo.jpg" alt="El Gran Espectaculo (The Nile) by Basquiat" style="width: 100%; display: block;">
+                    </div>
+                    <div class="artwork-analysis" style="flex: 1; min-width: 300px;">
+                        <h3 style="font-family: 'Bebas Neue', cursive; font-size: 2rem; color: #ff0000; margin-bottom: 1rem; text-transform: uppercase;">Revolutionary Impact</h3>
+                        <div class="lever-points" style="background: rgba(0,0,0,0.8); padding: 2rem; border-left: 5px solid #ffcc00;">
+                            <p style="margin-bottom: 1.5rem; font-size: 1.1rem;"><span style="color: #ffcc00; font-weight: bold;">RECLAMATION:</span> Reconnected Egyptian culture to its African roots, challenging Eurocentric art history</p>
+                            <p style="margin-bottom: 1.5rem; font-size: 1.1rem;"><span style="color: #ffcc00; font-weight: bold;">DISRUPTION:</span> Transformed "urban decay" into powerful political statements</p>
+                            <p style="font-size: 1.1rem;"><span style="color: #ffcc00; font-weight: bold;">ELEVATION:</span> Proved street art could command the same respect as "high" art</p>
+                        </div>
+                    </div>
+                </div>
                 
                 <div class="artwork-description">
-                    Basquiat highlights Egyptian culture through his use of hieroglyphs and reclaims it as a part of the African culture as Eurocentric perspectives have isolated it in the past. Graffiti was commonly connected to the urban decay of lower class communities like the Bronx as it wasn't controlled and didn't conform to the "standards" society had for art.
+                    <blockquote style="font-style: italic; font-size: 1.2rem;">
+                        Basquiat highlights Egyptian culture through his use of hieroglyphs and reclaims it as a part of the African culture as Eurocentric perspectives have isolated it in the past. Graffiti was commonly connected to the urban decay of lower class communities like the Bronx as it wasn't controlled and didn't conform to the "standards" society had for art.
+                    </blockquote>
                 </div>
             </div>
         </div>
@@ -675,34 +143,72 @@
     
     <!-- Wall of Respect Section -->
     <section class="wall-section">
+        <span class="section-number">04</span>
+        <span class="section-label">Artwork Three</span>
         <div class="container">
-            <h2 class="wall-title">The Wall of Respect</h2>
-            
-            <div class="wall-quote">
-                "These served to instill pride, hope, and a sense of heritage and racial identity in African American urban neighborhoods in light of nationwide urban renewal initiatives that threatened to destroy such communities under the guise of 'slum clearance.' Chicago produced the largest number of murals."
-                <br><br>
-                <cite style="color: #ffcc00;">— Perry, Regenia, et al. "African American Art." Oxford Art Online, Jan. 2003</cite>
+            <div class="artwork-section">
+                <div class="artwork-header">
+                    <h2 class="artwork-title">The Wall of Respect</h2>
+                    <p class="artwork-meta">Chicago, 1967</p>
+                    <p class="artwork-source">Source: "We Are Revolutionaries: The Wall of Respect and Chicago's Mural Movement: Block Museum - Northwestern University." Northwestern.edu, 2023</p>
+                </div>
+                
+                <div class="artwork-display" style="display: flex; align-items: center; gap: 3rem; padding: 2rem; flex-wrap: wrap;">
+                    <div class="artwork-image landscape" style="flex: 1; min-width: 300px;">
+                        <img src="Wall_of_Respect.jpg" alt="The Wall of Respect in Chicago" style="width: 100%; display: block;">
+                    </div>
+                    <div class="artwork-analysis" style="flex: 1; min-width: 300px;">
+                        <h3 style="font-family: 'Bebas Neue', cursive; font-size: 2rem; color: #ff0000; margin-bottom: 1rem; text-transform: uppercase;">Transformative Power</h3>
+                        <div class="lever-points" style="background: rgba(0,0,0,0.8); padding: 2rem; border-left: 5px solid #ffcc00;">
+                            <p style="margin-bottom: 1.5rem; font-size: 1.1rem;"><span style="color: #ffcc00; font-weight: bold;">COMMUNITY SPACE:</span> Transformed a blank wall into a source of neighborhood pride and identity</p>
+                            <p style="margin-bottom: 1.5rem; font-size: 1.1rem;"><span style="color: #ffcc00; font-weight: bold;">RESISTANCE:</span> Fought "urban renewal" by asserting cultural permanence</p>
+                            <p style="font-size: 1.1rem;"><span style="color: #ffcc00; font-weight: bold;">INSPIRATION:</span> Sparked the largest mural movement in Chicago history</p>
+                        </div>
+                    </div>
+                </div>
+                
+                <div class="wall-quote" style="margin: 2rem 0;">
+                    <blockquote style="font-style: italic; font-size: 1.2rem; background: rgba(0,0,0,0.8); padding: 2rem; border-left: 5px solid #ffcc00;">
+                        "These served to instill pride, hope, and a sense of heritage and racial identity in African American urban neighborhoods in light of nationwide urban renewal initiatives that threatened to destroy such communities under the guise of 'slum clearance.' Chicago produced the largest number of murals."
+                        <br><br>
+                        <cite style="color: #ffcc00;">— Perry, Regenia, et al. "African American Art." Oxford Art Online, Jan. 2003</cite>
+                    </blockquote>
+                </div>
             </div>
-            
-            <p class="artwork-source" style="text-align: center;">
-                Source: "We Are Revolutionaries: The Wall of Respect and Chicago's Mural Movement: Block Museum - Northwestern University." Northwestern.edu, 2023
-            </p>
         </div>
     </section>
     
-    <!-- Interactive Tag Section -->
-    <section class="tag-section">
+    <!-- Summary: Art as Lever of Change -->
+    <section class="summary-section" style="min-height: 100vh; background: linear-gradient(135deg, #000, #1a1a1a); padding: 5rem 2rem; display: flex; align-items: center;">
         <div class="container">
-            <h2 class="tag-title">Create Your Tag</h2>
-            <p class="tag-subtitle" style="font-size: 1.5rem; color: #ccc; margin-bottom: 3rem;">Add your own message to the wall</p>
+            <h2 style="font-family: 'Bebas Neue', cursive; font-size: clamp(3rem, 8vw, 6rem); color: #ffcc00; text-align: center; margin-bottom: 3rem; text-transform: uppercase; text-shadow: 5px 5px 0 #ff0000, 10px 10px 0 #000;">Art as a Lever of Change</h2>
             
-            <div class="tag-input-container" style="max-width: 600px; margin: 0 auto 3rem; display: flex; gap: 1rem; justify-content: center; flex-wrap: wrap;">
-                <input type="text" class="tag-input" id="tagInput" placeholder="YOUR MESSAGE" maxlength="20">
-                <button class="tag-button" onclick="addTag()">TAG IT</button>
+            <div class="change-grid" style="display: grid; grid-template-columns: repeat(2, 1fr); gap: 2rem; max-width: 1000px; margin: 0 auto;">
+                <div class="change-card" style="background: rgba(255,0,0,0.1); border: 3px solid #ff0000; padding: 2rem; transform: rotate(-2deg);">
+                    <h3 style="font-family: 'Bebas Neue', cursive; font-size: 2rem; color: #ff0000; margin-bottom: 1rem;">VISIBILITY</h3>
+                    <p style="color: #ddd; line-height: 1.6;">Art moved from the margins to the center, forcing mainstream society to see and hear voices that had been systematically silenced.</p>
+                </div>
+                
+                <div class="change-card" style="background: rgba(255,204,0,0.1); border: 3px solid #ffcc00; padding: 2rem; transform: rotate(2deg);">
+                    <h3 style="font-family: 'Bebas Neue', cursive; font-size: 2rem; color: #ffcc00; margin-bottom: 1rem;">IDENTITY</h3>
+                    <p style="color: #ddd; line-height: 1.6;">Artists reclaimed narratives, rewrote histories, and celebrated African heritage in defiance of cultural erasure.</p>
+                </div>
+                
+                <div class="change-card" style="background: rgba(0,0,0,0.8); border: 3px solid #fff; padding: 2rem; transform: rotate(-1deg);">
+                    <h3 style="font-family: 'Bebas Neue', cursive; font-size: 2rem; color: #fff; margin-bottom: 1rem;">COMMUNITY</h3>
+                    <p style="color: #ddd; line-height: 1.6;">Murals and graffiti transformed neighborhoods into galleries, creating shared spaces of resistance and pride.</p>
+                </div>
+                
+                <div class="change-card" style="background: rgba(255,0,0,0.2); border: 3px solid #ff0000; padding: 2rem; transform: rotate(1deg);">
+                    <h3 style="font-family: 'Bebas Neue', cursive; font-size: 2rem; color: #ff0000; margin-bottom: 1rem;">REVOLUTION</h3>
+                    <p style="color: #ddd; line-height: 1.6;">Art didn't just document change—it created it, turning walls into weapons and paint into power.</p>
+                </div>
             </div>
             
-            <div class="tag-wall" id="tagWall">
-                <!-- User tags will appear here -->
+            <div style="text-align: center; margin-top: 3rem;">
+                <p style="font-size: 1.5rem; color: #ffcc00; font-family: 'Bebas Neue', cursive; letter-spacing: 0.1em; text-transform: uppercase;">
+                    The Revolution Was Not Televised. It Was Painted.
+                </p>
             </div>
         </div>
     </section>
@@ -710,212 +216,41 @@
     <!-- Sources Section -->
     <section class="sources-section">
         <div class="container">
-            <h3 class="sources-title" style="font-family: 'Bebas Neue', cursive; font-size: 3rem; color: #ffcc00; margin-bottom: 2rem; text-transform: uppercase; text-shadow: 2px 2px 0 #ff0000;">Sources</h3>
+            <h3 class="sources-title" style="font-family: 'Bebas Neue', cursive; font-size: 3rem; color: #ffcc00; margin-bottom: 2rem; text-transform: uppercase; text-shadow: 2px 2px 0 #ff0000;">Sources:</h3>
             <div class="sources-list" style="max-width: 800px; margin: 0 auto; color: #aaa; font-size: 1rem; line-height: 1.8;">
-                <p style="margin-bottom: 1rem; padding-left: 2rem; text-indent: -2rem;">RODRIGUES, LAURIE A. "'SAMO© as an Escape Clause': Jean-Michel Basquiat's Engagement with a Commodified American Africanism." Journal of American Studies, vol. 45, no. 2, 2011, pp. 227–43. JSTOR</p>
+                <p style="margin-bottom: 1rem; padding-left: 2rem; text-indent: -2rem;">RODRIGUES, LAURIE A. "'SAMO© as an Escape Clause': Jean-Michel Basquiat's Engagement with a Commodified American Africanism." Journal of American Studies, vol. 45, no. 2, 2011, pp. 227–43. JSTOR, http://www.jstor.org/stable/23016272. Accessed 28 May 2025.</p>
                 
-                <p style="margin-bottom: 1rem; padding-left: 2rem; text-indent: -2rem;">"ART | FAB 5 FREDDY." FAB 5 FREDDY, 2024, www.fab5freddy.com/portfolio.</p>
+                <p style="margin-bottom: 1rem; padding-left: 2rem; text-indent: -2rem;">"ART | FAB 5 FREDDY." FAB 5 FREDDY, 2024, www.fab5freddy.com/portfolio. Accessed 28 May 2025.</p>
                 
-                <p style="margin-bottom: 1rem; padding-left: 2rem; text-indent: -2rem;">Jon Anderson TRIBUNE, STAFF W. "Pride and Hope Adorn a Wall: With Help from an Artist, Youths Put Up a Mural with a Message." Chicago Tribune (1997-), 05 June 1998</p>
+                <p style="margin-bottom: 1rem; padding-left: 2rem; text-indent: -2rem;">Jon Anderson TRIBUNE, STAFF W. "Pride and Hope Adorn a Wall: With Help from an Artist, Youths Put Up a Mural with a Message." Chicago Tribune (1997-), 05 June 1998, p. 1. ProQuest. Web. 28 May 2025.</p>
+                
+                <p style="margin-bottom: 1rem; padding-left: 2rem; text-indent: -2rem;">Perry, Regenia, et al. "African American Art." Oxford Art Online, Jan. 2003, https://doi.org/10.1093/gao/9781884446054.article.t001094. Accessed 28 May 2025.</p>
+                
+                <p style="margin-bottom: 1rem; padding-left: 2rem; text-indent: -2rem;">Shakur, Prince. "The Power of Black Art in Harlem, Black Power, and Beyond." Substack.com, Millennial Writer Life, 14 July 2023, princeshakur.substack.com/p/the-power-of-black-art-in-harlem. Accessed 5 June 2025.</p>
+                
+                <p style="margin-bottom: 1rem; padding-left: 2rem; text-indent: -2rem;">"The Foundations of Black Power." National Museum of African American History and Culture, Dec. 2021, nmaahc.si.edu/explore/stories/foundations-black-power. Accessed 5 June 2025.</p>
             </div>
+        </div>
+    </section>
+    
+    <!-- Conclusion -->
+    <section style="background: #000; padding: 3rem 2rem; text-align: center;">
+        <div class="container">
+            <p style="font-size: 1.5rem; color: #ffcc00; font-family: 'Bebas Neue', cursive; letter-spacing: 0.2em; text-transform: uppercase; margin-bottom: 2rem;">
+                Thank you for exploring this exhibit!
+            </p>
+            <p style="font-size: 1.1rem; color: #ccc; max-width: 600px; margin: 0 auto;">
+                H300 Art and Social Movements Research (ASMR) Project - 2025
+            </p>
+            <p style="font-size: 1.1rem; color: #ccc; max-width: 600px; margin: 1rem auto 0;">
+                A project by Kellen and Lauryn
+            </p>
         </div>
     </section>
     
     <!-- Scroll to Top Button -->
     <button class="scroll-top" id="scrollTop" onclick="scrollToTop()"></button>
     
-    <script>
-        // Spray paint effect on hero
-        const hero = document.querySelector('.hero');
-        let sprayInterval;
-        
-        hero.addEventListener('mouseenter', () => {
-            sprayInterval = setInterval(() => {
-                const dot = document.createElement('div');
-                dot.className = 'spray-dot';
-                dot.style.width = Math.random() * 30 + 10 + 'px';
-                dot.style.height = dot.style.width;
-                dot.style.left = Math.random() * 100 + '%';
-                dot.style.top = Math.random() * 100 + '%';
-                dot.style.background = Math.random() > 0.5 ? '#ff0000' : '#ffcc00';
-                hero.appendChild(dot);
-                
-                setTimeout(() => dot.remove(), 2000);
-            }, 50);
-        });
-        
-        hero.addEventListener('mouseleave', () => {
-            clearInterval(sprayInterval);
-        });
-        
-        // Progress bar and scroll effects
-        const floatElements = document.querySelectorAll('.float-element');
-        const artworkSections = document.querySelectorAll('.artwork-section');
-        const contextWrapper = document.getElementById('contextWrapper');
-        let horizontalScroll = 0;
-        
-        function updateProgress() {
-            const scrolled = window.pageYOffset;
-            const maxScroll = document.body.scrollHeight - window.innerHeight;
-            const percentage = (scrolled / maxScroll) * 100;
-            document.getElementById('progress').style.width = percentage + '%';
-        }
-        
-        // Parallax effects
-        function parallax() {
-            const scrolled = window.pageYOffset;
-            
-            // Floating elements
-            floatElements.forEach((el, index) => {
-                const speed = 0.2 * (index + 1);
-                const yPos = scrolled * speed;
-                const rotation = scrolled * 0.1;
-                el.style.transform = `translateY(${yPos}px) rotate(${rotation}deg)`;
-            });
-            
-            // Artwork sections parallax
-            artworkSections.forEach((section, index) => {
-                const rect = section.getBoundingClientRect();
-                if (rect.top < window.innerHeight && rect.bottom > 0) {
-                    const speed = 0.1;
-                    const yPos = -(scrolled - section.offsetTop) * speed;
-                    section.style.transform = `rotate(-1deg) translateY(${yPos}px)`;
-                }
-            });
-            
-            // Horizontal scroll for context section
-            const contextSection = document.querySelector('.context-section');
-            if (contextSection) {
-                const rect = contextSection.getBoundingClientRect();
-                if (rect.top <= 0 && rect.bottom >= window.innerHeight) {
-                    const progress = Math.abs(rect.top) / (rect.height - window.innerHeight);
-                    horizontalScroll = progress * (contextWrapper.scrollWidth - window.innerWidth);
-                    contextWrapper.style.transform = `translateX(-${horizontalScroll}px) translateY(-50%)`;
-                }
-            }
-        }
-        
-        // Scroll to top button visibility
-        function updateScrollButton() {
-            const scrollTop = document.getElementById('scrollTop');
-            if (window.pageYOffset > 300) {
-                scrollTop.classList.add('visible');
-            } else {
-                scrollTop.classList.remove('visible');
-            }
-        }
-        
-        // Scroll to top function
-        function scrollToTop() {
-            window.scrollTo({ top: 0, behavior: 'smooth' });
-        }
-        
-        // Add tag function
-        function addTag() {
-            const input = document.getElementById('tagInput');
-            const wall = document.getElementById('tagWall');
-            const tagText = input.value.trim();
-            
-            if (tagText) {
-                // Create tag element
-                const tag = document.createElement('div');
-                tag.className = 'user-tag';
-                tag.textContent = tagText;
-                
-                // Add to wall
-                wall.appendChild(tag);
-                
-                // Save to localStorage
-                const tags = JSON.parse(localStorage.getItem('userTags') || '[]');
-                tags.push(tagText);
-                localStorage.setItem('userTags', JSON.stringify(tags));
-                
-                // Clear input
-                input.value = '';
-                
-                // Animate appearance
-                tag.style.opacity = '0';
-                tag.style.transform = 'scale(0) rotate(180deg)';
-                setTimeout(() => {
-                    tag.style.transition = 'all 0.5s ease';
-                    tag.style.opacity = '1';
-                    const rotation = [-5, 5, -8][tags.length % 3];
-                    tag.style.transform = `rotate(${rotation}deg)`;
-                }, 10);
-            }
-        }
-        
-        // Load saved tags
-        function loadTags() {
-            const wall = document.getElementById('tagWall');
-            const tags = JSON.parse(localStorage.getItem('userTags') || '[]');
-            
-            tags.forEach((tagText, index) => {
-                const tag = document.createElement('div');
-                tag.className = 'user-tag';
-                tag.textContent = tagText;
-                wall.appendChild(tag);
-            });
-        }
-        
-        // Mouse trail effect
-        let mouseTrail = [];
-        const maxTrailSize = 20;
-        
-        document.addEventListener('mousemove', (e) => {
-            if (Math.random() > 0.95) {
-                const trail = document.createElement('div');
-                trail.className = 'trail-dot';
-                trail.style.left = e.clientX + 'px';
-                trail.style.top = e.clientY + 'px';
-                trail.style.background = Math.random() > 0.5 ? '#ff0000' : '#ffcc00';
-                trail.style.width = trail.style.height = Math.random() * 15 + 5 + 'px';
-                document.body.appendChild(trail);
-                
-                mouseTrail.push(trail);
-                
-                if (mouseTrail.length > maxTrailSize) {
-                    const oldTrail = mouseTrail.shift();
-                    oldTrail.remove();
-                }
-                
-                setTimeout(() => {
-                    trail.style.transition = 'all 1s ease-out';
-                    trail.style.transform = `translate(${Math.random() * 40 - 20}px, ${Math.random() * 40 - 20}px) scale(0)`;
-                    trail.style.opacity = '0';
-                }, 10);
-                
-                setTimeout(() => trail.remove(), 1000);
-            }
-        });
-        
-        // Scroll event listeners
-        let isScrolling = false;
-        window.addEventListener('scroll', () => {
-            if (!isScrolling) {
-                window.requestAnimationFrame(() => {
-                    updateProgress();
-                    updateScrollButton();
-                    parallax();
-                    isScrolling = false;
-                });
-                isScrolling = true;
-            }
-        });
-        
-        // Enter key support
-        document.getElementById('tagInput').addEventListener('keypress', (e) => {
-            if (e.key === 'Enter') {
-                addTag();
-            }
-        });
-        
-        // Initialize
-        window.addEventListener('load', () => {
-            loadTags();
-            updateProgress();
-            updateScrollButton();
-        });
-    </script>
+    <script src="script.js"></script>
 </body>
 </html>
