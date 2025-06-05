@@ -1,0 +1,36 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Everything Falls</title>
+    <link rel="icon" href="#" id="favicon"> <!-- Placeholder for dynamic favicon -->
+    <link rel="stylesheet" href="style.css"> <!-- Link to external CSS -->
+</head>
+<body>
+
+    <div id="simulation-container">
+        <canvas id="simulationCanvas"></canvas>
+        <canvas id="faviconCanvas" width="16" height="16"></canvas> <!-- Hidden canvas for favicon -->
+    </div>
+
+    <!-- Right Panel containing Info and Palette -->
+    <div id="right-panel">
+        <div id="ui-info">
+            <p id="material-text">Brush: Sand (Size: 3)</p>
+            <p>Click Palette/Use Mouse Wheel for Size</p>
+            <p>Painting replaces existing material.</p>
+            <p id="coords-text">Coords: (0, 0)</p>
+            <p id="fps-text">FPS: calculating...</p>
+            <p><button id="clear-button">Clear [C]</button></p>
+        </div>
+
+        <div id="palette">
+            <!-- Buttons will be generated here by JavaScript -->
+        </div>
+    </div>
+
+    <script src="script.js" defer></script> <!-- Link to external JS, defer execution -->
+
+</body>
+</html>

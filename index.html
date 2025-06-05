@@ -3,254 +3,745 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Art and Social Movements Research - Black Power Movement</title>
-    <link rel="stylesheet" href="style.css">
+    <title>Kaileh57 - Under Construction</title>
+    <link rel="icon" type="image/png" id="favicon">
+
+    <meta property="og:type" content="website" />
+    <meta property="og:title" content="Kaileh57's Portfolio - Coming Soon" />
+    <meta property="og:description" content="Game Designer & Fullstack Developer - Site Under Construction" />
+
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/particles.js/2.0.0/particles.min.js"></script>
+    <style>
+        :root {  
+            --purple: rgb(123, 31, 162);
+            --violet: rgb(103, 58, 183);
+            --pink: rgb(244, 143, 177);
+        }
+
+        @keyframes background-pan {
+            from {
+                background-position: 0% center;
+            }
+            to {
+                background-position: -200% center;
+            }
+        }
+
+        @keyframes scale {
+            from, to {
+                transform: scale(0);
+            }
+            50% {
+                transform: scale(1);
+            }
+        }
+
+        @keyframes rotate {
+            from {
+                transform: rotate(0deg);
+            }
+            to {
+                transform: rotate(360deg);
+            }
+        }
+
+        @keyframes blink {
+            0%, 100% { opacity: 1; }
+            50% { opacity: 0.3; }
+        }
+
+        .magic {
+            display: inline-block;
+            position: relative;
+        }
+
+        .magic-star {
+            --size: clamp(20px, 1.5vw, 30px);
+            animation: scale 700ms ease forwards;
+            display: block;
+            height: var(--size);
+            left: var(--star-left);
+            position: absolute;
+            top: var(--star-top);
+            width: var(--size);
+            opacity: 0; /* Start hidden */
+            transition: opacity 0.3s ease;
+        }
+
+        .magic:hover .magic-star {
+            opacity: 1; /* Show on hover */
+        }
+
+        .magic-star > svg {
+            animation: rotate 1000ms linear infinite;
+            display: block;
+            opacity: 0.7;
+        }
+
+        .magic-star > svg > path {
+            fill: var(--violet);
+        }
+
+        .magic-text {
+            animation: background-pan 3s linear infinite;
+            background: linear-gradient(
+                to right,
+                var(--purple),
+                var(--violet),
+                var(--pink),
+                var(--purple)
+            );
+            background-size: 200%;
+            -webkit-background-clip: text;
+            -webkit-text-fill-color: transparent;
+            white-space: nowrap;
+        }
+
+        * {
+            margin: 0;
+            padding: 0;
+            box-sizing: border-box;
+            font-family: 'Inter', sans-serif;
+        }
+
+        body {
+            background-color: #1a1a1a;
+            color: #e0e0e0;
+            line-height: 1.6;
+        }
+
+        body::-webkit-scrollbar {
+            width: 8px; 
+        }
+
+        body::-webkit-scrollbar-track {
+            background: #1a1a1a; 
+        }
+
+        body::-webkit-scrollbar-thumb {
+            background: #333333;
+            border-radius: 4px;
+        }
+
+        body::-webkit-scrollbar-thumb:hover {
+            background: #444444;
+        }
+
+        #particles-js {
+            position: fixed;
+            top: 0;
+            left: 0;
+            width: 100%;
+            height: 100%;
+            z-index: 1;
+        }
+
+        .content {
+            position: relative;
+            z-index: 2;
+            padding: 2rem;
+        }
+
+        .logo {
+            font-size: 1.5rem;
+            font-weight: bold;
+            color: #8A2BE2;
+        }        
+
+        .logo-container {
+            position: fixed;
+            top: 1rem;      
+            left: 1rem;      
+            z-index: 3;
+            opacity: 0;      
+            transform: translateY(-10px);
+            transition: all 0.3s ease;
+        }
+
+        .logo-container.visible {
+            opacity: 1;
+            transform: translateY(0);
+        }
+
+        .logo {
+            font-size: 1.5rem;
+            font-weight: bold;
+            color: #8A2BE2;
+        }
+
+        .hero {
+            min-height: 100vh;
+            display: flex;
+            flex-direction: column;
+            align-items: center;
+            justify-content: center;
+            text-align: center;
+            margin: 0;
+            padding: 0;
+        }
+
+        .hero-content {
+            max-width: 800px;
+            transform: translateY(0);
+            margin: 0 auto;
+            text-align: center;
+        }
+
+        h1 {
+            font-size: 3.5rem;
+            margin-bottom: 1rem;
+            color: #ffffff;
+        }
+
+        .highlight {
+            color: #8A2BE2;
+        }
+
+        .section {
+            padding: 5rem 2rem;
+            max-width: 1200px;
+            margin: 0 auto;
+        }
+
+        .section h2 {
+            text-align: center;
+            margin-bottom: 2rem;
+            font-size: 2.5rem;
+            position: relative;
+        }
+
+        .section h2::after {
+            content: '';
+            position: absolute;
+            bottom: -10px;
+            left: 50%;
+            transform: translateX(-50%);
+            width: 60px;
+            height: 3px;
+            background: #8A2BE2;
+            border-radius: 2px;
+        }
+
+        .construction-banner {
+            background: linear-gradient(135deg, #8A2BE2, #7B1FA2);
+            color: white;
+            text-align: center;
+            padding: 1rem;
+            border-radius: 10px;
+            margin: 2rem auto;
+            max-width: 800px;
+            box-shadow: 0 4px 15px rgba(138, 43, 226, 0.3);
+            position: relative;
+            overflow: hidden;
+        }
+
+        .construction-banner::before {
+            content: '';
+            position: absolute;
+            top: 0;
+            left: 0;
+            width: 100%;
+            height: 100%;
+            background: repeating-linear-gradient(
+                45deg,
+                rgba(0, 0, 0, 0.1),
+                rgba(0, 0, 0, 0.1) 10px,
+                rgba(0, 0, 0, 0.2) 10px,
+                rgba(0, 0, 0, 0.2) 20px
+            );
+        }
+
+        .construction-icon {
+            margin-right: 10px;
+            animation: rotate 3s linear infinite;
+            display: inline-block;
+            font-size: 1.5rem;
+        }
+
+        .coming-soon {
+            font-size: 2rem;
+            margin: 1.5rem 0;
+            animation: blink 2s ease-in-out infinite;
+        }
+
+        .placeholder-box {
+            background: rgba(138, 43, 226, 0.1);
+            border: 2px dashed #8A2BE2;
+            border-radius: 10px;
+            padding: 2rem;
+            margin: 1rem 0;
+            text-align: center;
+        }
+
+        footer {
+            padding: 0rem;
+            text-align: center;
+            margin-top: 4rem;
+        }
+
+        footer p {
+            color: #e0e0e0;
+            opacity: 0.8; 
+        }
+
+        .social-links {
+            display: flex;
+            justify-content: center;
+            gap: 2rem;
+            margin-top: 1rem;
+        }
+
+        .social-links a {
+            color: #e0e0e0;
+            text-decoration: none;
+            font-size: 1.5rem;
+            transition: color 0.3s;
+        }
+
+        .social-links a:hover {
+            color: #8A2BE2;
+        }
+
+        .progress-bar {
+            height: 20px;
+            background-color: #2a2a2a;
+            border-radius: 10px;
+            margin: 20px auto;
+            max-width: 500px;
+            overflow: hidden;
+            position: relative;
+        }
+
+        .progress-fill {
+            height: 100%;
+            width: 35%;
+            background: linear-gradient(90deg, #8A2BE2, #7B1FA2);
+            border-radius: 10px;
+            animation: progress-animation 3s ease-in-out infinite alternate;
+        }
+
+        .hard-work-message {
+            font-style: italic;
+            margin-top: 10px;
+            font-size: 1.1rem;
+            opacity: 0.9;
+        }
+
+        @keyframes progress-animation {
+            0% { width: 30%; }
+            100% { width: 60%; }
+        }
+    </style>
 </head>
 <body>
-    <!-- Progress Bar -->
-    <div class="progress" id="progress"></div>
+    <div id="particles-js"></div>
+    <div class="logo-container">
+        <div class="logo">
+            <span class="magic">
+                <span class="magic-star">
+                    <svg viewBox="0 0 512 512">
+                    <path d="M512 255.1c0 11.34-7.406 20.86-18.44 23.64l-171.3 42.78l-42.78 171.1C276.7 504.6 267.2 512 255.9 512s-20.84-7.406-23.62-18.44l-42.66-171.2L18.47 279.6C7.406 276.8 0 267.3 0 255.1c0-11.34 7.406-20.83 18.44-23.61l171.2-42.78l42.78-171.1C235.2 7.406 244.7 0 256 0s20.84 7.406 23.62 18.44l42.78 171.2l171.2 42.78C504.6 235.2 512 244.6 512 255.1z" />
+                    </svg>
+                </span>
+                <span class="magic-star">
+                    <svg viewBox="0 0 512 512">
+                    <path d="M512 255.1c0 11.34-7.406 20.86-18.44 23.64l-171.3 42.78l-42.78 171.1C276.7 504.6 267.2 512 255.9 512s-20.84-7.406-23.62-18.44l-42.66-171.2L18.47 279.6C7.406 276.8 0 267.3 0 255.1c0-11.34 7.406-20.83 18.44-23.61l171.2-42.78l42.78-171.1C235.2 7.406 244.7 0 256 0s20.84 7.406 23.62 18.44l42.78 171.2l171.2 42.78C504.6 235.2 512 244.6 512 255.1z" />
+                    </svg>
+                </span>
+                <span class="magic-star">
+                    <svg viewBox="0 0 512 512">
+                    <path d="M512 255.1c0 11.34-7.406 20.86-18.44 23.64l-171.3 42.78l-42.78 171.1C276.7 504.6 267.2 512 255.9 512s-20.84-7.406-23.62-18.44l-42.66-171.2L18.47 279.6C7.406 276.8 0 267.3 0 255.1c0-11.34 7.406-20.83 18.44-23.61l171.2-42.78l42.78-171.1C235.2 7.406 244.7 0 256 0s20.84 7.406 23.62 18.44l42.78 171.2l171.2 42.78C504.6 235.2 512 244.6 512 255.1z" />
+                    </svg>
+                </span>
+                <span class="magic-text">K57</span>
+            </span>
+        </div>
+    </div>
+
+    <div class="content">
+        <section id="home" class="hero">
+            <div class="hero-content">
+                <h1 class="fade-in-first">Hi, I'm 
+                    <span class="magic">
+                        <span class="magic-star">
+                            <svg viewBox="0 0 512 512">
+                                <path d="M512 255.1c0 11.34-7.406 20.86-18.44 23.64l-171.3 42.78l-42.78 171.1C276.7 504.6 267.2 512 255.9 512s-20.84-7.406-23.62-18.44l-42.66-171.2L18.47 279.6C7.406 276.8 0 267.3 0 255.1c0-11.34 7.406-20.83 18.44-23.61l171.2-42.78l42.78-171.1C235.2 7.406 244.7 0 256 0s20.84 7.406 23.62 18.44l42.78 171.2l171.2 42.78C504.6 235.2 512 244.6 512 255.1z" />
+                            </svg>
+                        </span>
+                        <span class="magic-star">
+                            <svg viewBox="0 0 512 512">
+                                <path d="M512 255.1c0 11.34-7.406 20.86-18.44 23.64l-171.3 42.78l-42.78 171.1C276.7 504.6 267.2 512 255.9 512s-20.84-7.406-23.62-18.44l-42.66-171.2L18.47 279.6C7.406 276.8 0 267.3 0 255.1c0-11.34 7.406-20.83 18.44-23.61l171.2-42.78l42.78-171.1C235.2 7.406 244.7 0 256 0s20.84 7.406 23.62 18.44l42.78 171.2l171.2 42.78C504.6 235.2 512 244.6 512 255.1z" />
+                            </svg>
+                        </span>
+                        <span class="magic-star">
+                            <svg viewBox="0 0 512 512">
+                                <path d="M512 255.1c0 11.34-7.406 20.86-18.44 23.64l-171.3 42.78l-42.78 171.1C276.7 504.6 267.2 512 255.9 512s-20.84-7.406-23.62-18.44l-42.66-171.2L18.47 279.6C7.406 276.8 0 267.3 0 255.1c0-11.34 7.406-20.83 18.44-23.61l171.2-42.78l42.78-171.1C235.2 7.406 244.7 0 256 0s20.84 7.406 23.62 18.44l42.78 171.2l171.2 42.78C504.6 235.2 512 244.6 512 255.1z" />
+                            </svg>
+                        </span>
+                        <span class="magic-text">Kaileh57</span>
+                    </span>
+                </h1>
+                <h2 class="fade-in-second" style="font-size: 1.5rem; margin-top: -2rem; margin-bottom: 1rem;">(Aka 
+                    <span class="magic">
+                        <span class="magic-star">
+                            <svg viewBox="0 0 512 512">
+                                <path d="M512 255.1c0 11.34-7.406 20.86-18.44 23.64l-171.3 42.78l-42.78 171.1C276.7 504.6 267.2 512 255.9 512s-20.84-7.406-23.62-18.44l-42.66-171.2L18.47 279.6C7.406 276.8 0 267.3 0 255.1c0-11.34 7.406-20.83 18.44-23.61l171.2-42.78l42.78-171.1C235.2 7.406 244.7 0 256 0s20.84 7.406 23.62 18.44l42.78 171.2l171.2 42.78C504.6 235.2 512 244.6 512 255.1z" />
+                            </svg>
+                        </span>
+                        <span class="magic-star">
+                            <svg viewBox="0 0 512 512">
+                                <path d="M512 255.1c0 11.34-7.406 20.86-18.44 23.64l-171.3 42.78l-42.78 171.1C276.7 504.6 267.2 512 255.9 512s-20.84-7.406-23.62-18.44l-42.66-171.2L18.47 279.6C7.406 276.8 0 267.3 0 255.1c0-11.34 7.406-20.83 18.44-23.61l171.2-42.78l42.78-171.1C235.2 7.406 244.7 0 256 0s20.84 7.406 23.62 18.44l42.78 171.2l171.2 42.78C504.6 235.2 512 244.6 512 255.1z" />
+                            </svg>
+                        </span>
+                        <span class="magic-star">
+                            <svg viewBox="0 0 512 512">
+                                <path d="M512 255.1c0 11.34-7.406 20.86-18.44 23.64l-171.3 42.78l-42.78 171.1C276.7 504.6 267.2 512 255.9 512s-20.84-7.406-23.62-18.44l-42.66-171.2L18.47 279.6C7.406 276.8 0 267.3 0 255.1c0-11.34 7.406-20.83 18.44-23.61l171.2-42.78l42.78-171.1C235.2 7.406 244.7 0 256 0s20.84 7.406 23.62 18.44l42.78 171.2l171.2 42.78C504.6 235.2 512 244.6 512 255.1z" />
+                            </svg>
+                        </span>
+                        <span class="magic-text">Kellen Heraty</span>
+                    </span>)
+                </h2>
+                <p class="fade-in-third">Game Designer & Fullstack Developer</p>
+
+            </div>
+        </section>
+
+        <section id="about" class="section">
+            <h2>About Me</h2>
+            <div class="placeholder-box">
+                <p>Hi! From designing and developing XR games in Godot 4.3 and Unreal 5.4 in my free time, to building fullstack tools using React and FluentUI for Microsoft, and developing open-source AI tools in my free time, I have a wide range of experience and knowledge to bring to any project!</p>
+                <p style="margin-top: 1rem;"><em>Full bio and details coming soon...</em></p>
+            </div>
+        </section>
+
+        <section id="games" class="section">
+            <h2>Some Games I've Made</h2>
+            <div class="placeholder-box">
+                <p>My portfolio of game development projects will be showcased here.</p>
+                <p>Stay tuned for screenshots, descriptions, and playable demos!</p>
+            </div>
+        </section>
+        
+        <section id="other-projects" class="section">
+            <h2>Some Other Stuff</h2>
+            <div class="placeholder-box">
+                <p>Additional projects, tools, and experiments will appear in this section.</p>
+                <p>Currently preparing content for this gallery...</p>
+            </div>
+        </section>
+
+        <section id="contact" class="section">
+            <h2>Find Me On GitHub</h2>
+            <div class="github-link-container">
+                <a href="https://github.com/kaileh57" class="github-link">
+                    <span class="magic">
+                        <span class="magic-star">
+                            <svg viewBox="0 0 512 512">
+                            <path d="M512 255.1c0 11.34-7.406 20.86-18.44 23.64l-171.3 42.78l-42.78 171.1C276.7 504.6 267.2 512 255.9 512s-20.84-7.406-23.62-18.44l-42.66-171.2L18.47 279.6C7.406 276.8 0 267.3 0 255.1c0-11.34 7.406-20.83 18.44-23.61l171.2-42.78l42.78-171.1C235.2 7.406 244.7 0 256 0s20.84 7.406 23.62 18.44l42.78 171.2l171.2 42.78C504.6 235.2 512 244.6 512 255.1z" />
+                            </svg>
+                        </span>
+                        <span class="magic-star">
+                            <svg viewBox="0 0 512 512">
+                            <path d="M512 255.1c0 11.34-7.406 20.86-18.44 23.64l-171.3 42.78l-42.78 171.1C276.7 504.6 267.2 512 255.9 512s-20.84-7.406-23.62-18.44l-42.66-171.2L18.47 279.6C7.406 276.8 0 267.3 0 255.1c0-11.34 7.406-20.83 18.44-23.61l171.2-42.78l42.78-171.1C235.2 7.406 244.7 0 256 0s20.84 7.406 23.62 18.44l42.78 171.2l171.2 42.78C504.6 235.2 512 244.6 512 255.1z" />
+                            </svg>
+                        </span>
+                        <span class="magic-star">
+                            <svg viewBox="0 0 512 512">
+                            <path d="M512 255.1c0 11.34-7.406 20.86-18.44 23.64l-171.3 42.78l-42.78 171.1C276.7 504.6 267.2 512 255.9 512s-20.84-7.406-23.62-18.44l-42.66-171.2L18.47 279.6C7.406 276.8 0 267.3 0 255.1c0-11.34 7.406-20.83 18.44-23.61l171.2-42.78l42.78-171.1C235.2 7.406 244.7 0 256 0s20.84 7.406 23.62 18.44l42.78 171.2l171.2 42.78C504.6 235.2 512 244.6 512 255.1z" />
+                            </svg>
+                        </span>
+                        <span class="magic-text">Check out my code</span>
+                    </span>
+                    <svg class="github-icon" xmlns="http://www.w3.org/2000/svg" width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
+                        <path d="M9 19c-5 1.5-5-2.5-7-3m14 6v-3.87a3.37 3.37 0 0 0-.94-2.61c3.14-.35 6.44-1.54 6.44-7A5.44 5.44 0 0 0 20 4.77 5.07 5.07 0 0 0 19.91 1S18.73.65 16 2.48a13.38 13.38 0 0 0-7 0C6.27.65 5.09 1 5.09 1A5.07 5.07 0 0 0 5 4.77a5.44 5.44 0 0 0-1.5 3.78c0 5.42 3.3 6.61 6.44 7A3.37 3.37 0 0 0 9 18.13V22"></path>
+                    </svg>
+                </a>
+            </div>
+        </section>
+        
+        <style>
+        @keyframes fadeSlideIn {
+            0% {
+                opacity: 0;
+                transform: translateY(20px);
+            }
+            100% {
+                opacity: 1;
+                transform: translateY(0);
+            }
+        }
+
+        .fade-in-first {
+            opacity: 0;
+            animation: fadeSlideIn 1s ease forwards;
+        }
+
+        .fade-in-second {
+            opacity: 0;
+            animation: fadeSlideIn 1s ease forwards;
+            animation-delay: 1s;
+        }
+
+        .fade-in-third {
+            opacity: 0;
+            animation: fadeSlideIn 1s ease forwards;
+            animation-delay: 1.5s;
+        }
+
+        .github-link-container {
+            display: flex;
+            justify-content: center;
+            align-items: center;
+            margin-top: 2rem;
+        }
+        
+        .github-link {
+            display: flex;
+            align-items: center;
+            gap: 1rem;
+            padding: 1rem 2rem;
+            background: rgba(138, 43, 226, 0.1);
+            border: 2px solid #8A2BE2;
+            border-radius: 12px;
+            text-decoration: none;
+            color: #e0e0e0;
+            font-size: 1.2rem;
+            transition: all 0.3s ease;
+        }
+        
+        .github-link:hover {
+            background: rgba(138, 43, 226, 0.2);
+            transform: translateY(-3px);
+            box-shadow: 0 6px 20px rgba(138, 43, 226, 0.2);
+        }
+        
+        .github-icon {
+            width: 24px;
+            height: 24px;
+            stroke: #8A2BE2;
+            transition: transform 0.3s ease;
+        }
+        
+        .github-link:hover .github-icon {
+            transform: rotate(12deg) scale(1.1);
+        }
+        
+        .github-link .magic-text {
+            font-size: 1.2rem;
+        }
+        
+        .github-link:hover .magic-star {
+            opacity: 1;
+        }
+        </style>
+
+        <footer>
+            <p>© 2025 Kellen Heraty. All rights reserved.</p>
+            <div class="social-links">
+                <a href="#" aria-label="GitHub">
+                    <i class="fab fa-github"></i>
+                </a>
+                <a href="#" aria-label="Twitter">
+                    <i class="fab fa-twitter"></i>
+                </a>
+                <a href="#" aria-label="LinkedIn">
+                    <i class="fab fa-linkedin"></i>
+                </a>
+            </div>
+        </footer>
+    </div>
+    <script>
+        // Favicon animation setup
+        const faviconCanvas = document.createElement('canvas');
+        faviconCanvas.width = 64;
+        faviconCanvas.height = 64;
+        const ctx = faviconCanvas.getContext('2d', { alpha: true });
     
-    <!-- Hero Section -->
-    <section class="hero">
-        <h1 class="hero-title">Art and Social Movements Research</h1>
-        <h2 class="hero-subtitle">Black Power Movement</h2>
-        <p class="research-question">How did Art and Popular Culture operate as levers of change within a modern social movement?</p>
-    </section>
+        // Create favicon downscaling canvas
+        const tempCanvas = document.createElement('canvas');
+        tempCanvas.width = 32;
+        tempCanvas.height = 32;
+        const tempCtx = tempCanvas.getContext('2d', { alpha: true });
+        tempCtx.imageSmoothingEnabled = true;
+        tempCtx.imageSmoothingQuality = 'high';
     
-    <!-- Historical Context Section -->
-    <section class="context-section">
-        <span class="section-number">01</span>
-        <span class="section-label">Historical Context</span>
-        <div class="container">
-            <h2 style="font-family: 'Bebas Neue', cursive; font-size: clamp(3rem, 6vw, 5rem); color: #ffcc00; text-align: center; margin-bottom: 3rem; text-transform: uppercase; text-shadow: 3px 3px 0 #ff0000;">Historical Context</h2>
+        // Get favicon link element
+        const faviconLink = document.getElementById('favicon');
+        let offset = 0;
+    
+        function updateFavicon() {
+            // Clear canvas with transparency
+            ctx.clearRect(0, 0, 64, 64);
+    
+            // Create gradient
+            const gradient = ctx.createLinearGradient(0, 0, 64, 0);
             
-            <div class="historical-text" style="max-width: 900px; margin: 0 auto; padding: 3rem; background: rgba(0,0,0,0.8); border: 3px solid #ff0000; transform: rotate(-1deg); position: relative;">
-                <div style="position: absolute; top: -15px; right: -15px; bottom: -15px; left: -15px; background: #ffcc00; z-index: -1; transform: rotate(1deg);"></div>
-                <p style="font-size: 1.2rem; line-height: 1.8; color: #fff; margin-bottom: 2rem;">
-                    Despite the many legislative successes of the Civil Rights Movement, African Americans weren't fully accepted in society and faced many different inequalities during the 1960s and 1970s. As a response, the Black Power Movement rose by encouraging African Americans to embrace their own cultures and identities instead of succumbing to the limitations of predominantly white societies.
-                </p>
-                <p style="font-size: 1.2rem; line-height: 1.8; color: #fff; margin-bottom: 2rem;">
-                    During the mid-1960s, Malcolm X became a very influential figure in the early years of the Black Power Movement as an advocate for self-determination and black nationalism. After his assassination in 1965, his ideals and legacy were solidified, inspiring further activism toward the cause and the creation of the Black Panther Party: a revolutionary activist-based organization.
-                </p>
-                <p style="font-size: 1.2rem; line-height: 1.8; color: #fff;">
-                    Many groups and individuals around the nation were able to contribute through different forms of protest, like direct action, creative expression, and more, with the collective goal of empowering black people and ending white supremacy. <span style="color: #ffcc00; font-weight: bold;">Various art forms like hip hop, graffiti art, and more were crucial for highlighting the cultural aspect of the Black Power Movement and allowed people to show their pride in their African cultures and reflect on their experiences as black people in America.</span>
-                </p>
-            </div>
+            // Gradient with color stops
+            gradient.addColorStop((0 + offset) % 1, 'rgb(123, 31, 162)');
+            gradient.addColorStop((0.2 + offset) % 1, 'rgb(103, 58, 183)');
+            gradient.addColorStop((0.4 + offset) % 1, 'rgb(244, 143, 177)');
+            gradient.addColorStop((0.6 + offset) % 1, 'rgb(123, 31, 162)');
+            gradient.addColorStop((0.8 + offset) % 1, 'rgb(103, 58, 183)');
+            gradient.addColorStop((1 + offset) % 1, 'rgb(123, 31, 162)');
+    
+            // Draw text
+            ctx.textAlign = 'center';
+            ctx.textBaseline = 'middle';
+            ctx.font = 'bold 56px Inter, Arial';
+            ctx.fillStyle = gradient;
+            ctx.fillText('K', 32, 36);
+    
+            // Update offset for next frame
+            offset = (offset + 0.01) % 1;
+    
+            // Downscale to favicon size
+            tempCtx.clearRect(0, 0, 32, 32);
+            tempCtx.drawImage(faviconCanvas, 0, 0, 32, 32);
             
-            <!-- Timeline -->
-            <div class="timeline" style="margin-top: 5rem; position: relative;">
-                <div style="position: absolute; left: 50%; top: 0; bottom: 0; width: 5px; background: #ff0000; transform: translateX(-50%);"></div>
-                
-                <div class="timeline-item" style="display: flex; align-items: center; margin-bottom: 3rem; position: relative;">
-                    <div style="flex: 1; text-align: right; padding-right: 3rem;">
-                        <h3 style="font-family: 'Bebas Neue', cursive; font-size: 2rem; color: #ffcc00;">1960s</h3>
-                        <p style="color: #ccc;">Civil Rights Movement peaks, inequalities persist</p>
-                    </div>
-                    <div style="position: absolute; left: 50%; transform: translateX(-50%); width: 20px; height: 20px; background: #ff0000; border: 3px solid #ffcc00; border-radius: 50%;"></div>
-                    <div style="flex: 1; padding-left: 3rem;"></div>
-                </div>
-                
-                <div class="timeline-item" style="display: flex; align-items: center; margin-bottom: 3rem; position: relative;">
-                    <div style="flex: 1;"></div>
-                    <div style="position: absolute; left: 50%; transform: translateX(-50%); width: 20px; height: 20px; background: #ffcc00; border: 3px solid #ff0000; border-radius: 50%;"></div>
-                    <div style="flex: 1; padding-left: 3rem;">
-                        <h3 style="font-family: 'Bebas Neue', cursive; font-size: 2rem; color: #ff0000;">1965</h3>
-                        <p style="color: #ccc;">Malcolm X assassinated, Black Panther Party formed</p>
-                    </div>
-                </div>
-                
-                <div class="timeline-item" style="display: flex; align-items: center; margin-bottom: 3rem; position: relative;">
-                    <div style="flex: 1; text-align: right; padding-right: 3rem;">
-                        <h3 style="font-family: 'Bebas Neue', cursive; font-size: 2rem; color: #ffcc00;">1970s-80s</h3>
-                        <p style="color: #ccc;">Hip hop, graffiti art, and cultural expression flourish</p>
-                    </div>
-                    <div style="position: absolute; left: 50%; transform: translateX(-50%); width: 20px; height: 20px; background: #ff0000; border: 3px solid #ffcc00; border-radius: 50%;"></div>
-                    <div style="flex: 1;"></div>
-                </div>
-            </div>
-        </div>
-    </section>
-    
-    <!-- Artwork 1: Fab 5 Freddy -->
-    <section class="section">
-        <span class="section-number">02</span>
-        <span class="section-label">Artwork One</span>
-        <div class="container">
-            <div class="artwork-section">
-                <div class="artwork-header">
-                    <h2 class="artwork-title">"Untitled" (1986)</h2>
-                    <p class="artwork-meta">by Fab 5 Freddy</p>
-                    <p class="artwork-source">Source: "Untitled (1986) by Fab 5 Freddy." Artchive.com, 11 Nov. 2024, www.artchive.com/artwork/untitled-fab-5-freddy-1986/. Accessed 14 Apr. 2025.</p>
-                </div>
-                
-                <div class="artwork-display" style="display: flex; align-items: center; gap: 3rem; padding: 2rem; flex-wrap: wrap;">
-                    <div class="artwork-image" style="flex: 1; min-width: 300px;">
-                        <img src="untitled-fab-5-freddy-1986.jpg" alt="Untitled by Fab 5 Freddy" style="width: 100%; display: block;">
-                    </div>
-                    <div class="artwork-analysis" style="flex: 1; min-width: 300px;">
-                        <h3 style="font-family: 'Bebas Neue', cursive; font-size: 2rem; color: #ff0000; margin-bottom: 1rem; text-transform: uppercase;">How This Art Changed Everything</h3>
-                        <div class="lever-points" style="background: rgba(0,0,0,0.8); padding: 2rem; border-left: 5px solid #ffcc00;">
-                            <p style="margin-bottom: 1.5rem; font-size: 1.1rem;"><span style="color: #ffcc00; font-weight: bold;">CULTURAL FUSION:</span> Freddy merged high art with street culture, proving graffiti belonged in galleries</p>
-                            <p style="margin-bottom: 1.5rem; font-size: 1.1rem;"><span style="color: #ffcc00; font-weight: bold;">VISIBILITY:</span> Brought marginalized voices from the streets to mainstream consciousness</p>
-                            <p style="font-size: 1.1rem;"><span style="color: #ffcc00; font-weight: bold;">IDENTITY:</span> Empowered artists to embrace their authentic cultural expressions</p>
-                        </div>
-                    </div>
-                </div>
-                
-                <div class="artwork-description">
-                    <blockquote style="font-style: italic; font-size: 1.2rem;">
-                        "Untitled" (1986) is an example that effectively shows Freddy's goal in the movement of merging cultures by depicting traditional figures from mainstream culture in the style of graffiti with loose, energetic strokes and vibrant colors.
-                    </blockquote>
-                </div>
-            </div>
-        </div>
-    </section>
-    
-    <!-- Artwork 2: Basquiat -->
-    <section class="section">
-        <span class="section-number">03</span>
-        <span class="section-label">Artwork Two</span>
-        <div class="container">
-            <div class="artwork-section">
-                <div class="artwork-header">
-                    <h2 class="artwork-title">El Gran Espectaculo (The Nile)</h2>
-                    <p class="artwork-meta">by Jean-Michel Basquiat (1983)</p>
-                    <p class="artwork-source">Source: epp. "BASQUIAT EL GRAN ESPECTACULO (the NILE), 1983 WILL LEAD CHRISTIE'S SPRING MARQUEE WEEK - Christie's." Christie's, 19 Apr. 2023, press.christies.com/basquiat-el-gran-espectaculo-the-nile-1983-will-lead-christies-spring-marquee-week.</p>
-                </div>
-                
-                <div class="artwork-display" style="display: flex; align-items: center; gap: 3rem; padding: 2rem; flex-wrap: wrap;">
-                    <div class="artwork-image landscape" style="flex: 1; min-width: 300px;">
-                        <img src="EvidenceElGranEspectaculo.jpg" alt="El Gran Espectaculo (The Nile) by Basquiat" style="width: 100%; display: block;">
-                    </div>
-                    <div class="artwork-analysis" style="flex: 1; min-width: 300px;">
-                        <h3 style="font-family: 'Bebas Neue', cursive; font-size: 2rem; color: #ff0000; margin-bottom: 1rem; text-transform: uppercase;">Revolutionary Impact</h3>
-                        <div class="lever-points" style="background: rgba(0,0,0,0.8); padding: 2rem; border-left: 5px solid #ffcc00;">
-                            <p style="margin-bottom: 1.5rem; font-size: 1.1rem;"><span style="color: #ffcc00; font-weight: bold;">RECLAMATION:</span> Reconnected Egyptian culture to its African roots, challenging Eurocentric art history</p>
-                            <p style="margin-bottom: 1.5rem; font-size: 1.1rem;"><span style="color: #ffcc00; font-weight: bold;">DISRUPTION:</span> Transformed "urban decay" into powerful political statements</p>
-                            <p style="font-size: 1.1rem;"><span style="color: #ffcc00; font-weight: bold;">ELEVATION:</span> Proved street art could command the same respect as "high" art</p>
-                        </div>
-                    </div>
-                </div>
-                
-                <div class="artwork-description">
-                    <blockquote style="font-style: italic; font-size: 1.2rem;">
-                        Basquiat highlights Egyptian culture through his use of hieroglyphs and reclaims it as a part of the African culture as Eurocentric perspectives have isolated it in the past. Graffiti was commonly connected to the urban decay of lower class communities like the Bronx as it wasn't controlled and didn't conform to the "standards" society had for art.
-                    </blockquote>
-                </div>
-            </div>
-        </div>
-    </section>
-    
-    <!-- Wall of Respect Section -->
-    <section class="wall-section">
-        <span class="section-number">04</span>
-        <span class="section-label">Artwork Three</span>
-        <div class="container">
-            <div class="artwork-section">
-                <div class="artwork-header">
-                    <h2 class="artwork-title">The Wall of Respect</h2>
-                    <p class="artwork-meta">Chicago, 1967</p>
-                    <p class="artwork-source">Source: "We Are Revolutionaries: The Wall of Respect and Chicago's Mural Movement: Block Museum - Northwestern University." Northwestern.edu, 2023</p>
-                </div>
-                
-                <div class="artwork-display" style="display: flex; align-items: center; gap: 3rem; padding: 2rem; flex-wrap: wrap;">
-                    <div class="artwork-image landscape" style="flex: 1; min-width: 300px;">
-                        <img src="Wall_of_Respect.jpg" alt="The Wall of Respect in Chicago" style="width: 100%; display: block;">
-                    </div>
-                    <div class="artwork-analysis" style="flex: 1; min-width: 300px;">
-                        <h3 style="font-family: 'Bebas Neue', cursive; font-size: 2rem; color: #ff0000; margin-bottom: 1rem; text-transform: uppercase;">Transformative Power</h3>
-                        <div class="lever-points" style="background: rgba(0,0,0,0.8); padding: 2rem; border-left: 5px solid #ffcc00;">
-                            <p style="margin-bottom: 1.5rem; font-size: 1.1rem;"><span style="color: #ffcc00; font-weight: bold;">COMMUNITY SPACE:</span> Transformed a blank wall into a source of neighborhood pride and identity</p>
-                            <p style="margin-bottom: 1.5rem; font-size: 1.1rem;"><span style="color: #ffcc00; font-weight: bold;">RESISTANCE:</span> Fought "urban renewal" by asserting cultural permanence</p>
-                            <p style="font-size: 1.1rem;"><span style="color: #ffcc00; font-weight: bold;">INSPIRATION:</span> Sparked the largest mural movement in Chicago history</p>
-                        </div>
-                    </div>
-                </div>
-                
-                <div class="wall-quote" style="margin: 2rem 0;">
-                    <blockquote style="font-style: italic; font-size: 1.2rem; background: rgba(0,0,0,0.8); padding: 2rem; border-left: 5px solid #ffcc00;">
-                        "These served to instill pride, hope, and a sense of heritage and racial identity in African American urban neighborhoods in light of nationwide urban renewal initiatives that threatened to destroy such communities under the guise of 'slum clearance.' Chicago produced the largest number of murals."
-                        <br><br>
-                        <cite style="color: #ffcc00;">— Perry, Regenia, et al. "African American Art." Oxford Art Online, Jan. 2003</cite>
-                    </blockquote>
-                </div>
-            </div>
-        </div>
-    </section>
-    
-    <!-- Summary: Art as Lever of Change -->
-    <section class="summary-section" style="min-height: 100vh; background: linear-gradient(135deg, #000, #1a1a1a); padding: 5rem 2rem; display: flex; align-items: center;">
-        <div class="container">
-            <h2 style="font-family: 'Bebas Neue', cursive; font-size: clamp(3rem, 8vw, 6rem); color: #ffcc00; text-align: center; margin-bottom: 3rem; text-transform: uppercase; text-shadow: 5px 5px 0 #ff0000, 10px 10px 0 #000;">Art as a Lever of Change</h2>
+            // Update favicon
+            faviconLink.href = tempCanvas.toDataURL('image/png');
             
-            <div class="change-grid" style="display: grid; grid-template-columns: repeat(2, 1fr); gap: 2rem; max-width: 1000px; margin: 0 auto;">
-                <div class="change-card" style="background: rgba(255,0,0,0.1); border: 3px solid #ff0000; padding: 2rem; transform: rotate(-2deg);">
-                    <h3 style="font-family: 'Bebas Neue', cursive; font-size: 2rem; color: #ff0000; margin-bottom: 1rem;">VISIBILITY</h3>
-                    <p style="color: #ddd; line-height: 1.6;">Art moved from the margins to the center, forcing mainstream society to see and hear voices that had been systematically silenced.</p>
-                </div>
+            requestAnimationFrame(updateFavicon);
+        }
+    
+        // Start animation when fonts are loaded
+        document.fonts.ready.then(() => {
+            updateFavicon();
+        });
+    </script>
+    
+    <script>
+        particlesJS('particles-js',
+        {
+            "particles": {
+                "number": {
+                    "value": 80,
+                    "density": {
+                        "enable": true,
+                        "value_area": 800
+                    }
+                },
+                "color": {
+                    "value": "#8A2BE2"
+                },
+                "shape": {
+                    "type": "circle"
+                },
+                "opacity": {
+                    "value": 0.5,
+                    "random": false
+                },
+                "size": {
+                    "value": 3,
+                    "random": true
+                },
+                "line_linked": {
+                    "enable": true,
+                    "distance": 150,
+                    "color": "#8A2BE2",
+                    "opacity": 0.4,
+                    "width": 1
+                },
+                "move": {
+                    "enable": true,
+                    "speed": 2,
+                    "direction": "none",
+                    "random": false,
+                    "straight": false,
+                    "out_mode": "out",
+                    "bounce": false
+                }
+            },
+            "interactivity": {
+                "detect_on": "canvas",
+                "events": {
+                    "onhover": {
+                        "enable": true,
+                        "mode": "grab"
+                    },
+                    "onclick": {
+                        "enable": true,
+                        "mode": "push"
+                    },
+                    "resize": true
+                },
+                "modes": {
+                    "grab": {
+                        "distance": 140,
+                        "line_linked": {
+                            "opacity": 1
+                        }
+                    },
+                    "push": {
+                        "particles_nb": 4
+                    }
+                }
+            },
+            "retina_detect": true
+        });
+    </script>
+    <script>
+        // Magic star animation
+        document.addEventListener('DOMContentLoaded', () => {
+            const rand = (min, max) => Math.floor(Math.random() * (max - min + 1)) + min;
+
+            const animateStar = star => {
+                star.style.setProperty("--star-left", `${rand(-10, 100)}%`);
+                star.style.setProperty("--star-top", `${rand(-40, 80)}%`);
+                star.style.animation = "none";
+                star.offsetHeight;
+                star.style.animation = "";
+            };
+
+            // Set initial positions for magic stars
+            const stars = document.querySelectorAll('.magic-star');
+            stars.forEach((star, i) => {
+                star.style.setProperty("--star-left", `${rand(-10, 100)}%`);
+                star.style.setProperty("--star-top", `${rand(-40, 80)}%`);
+            });
+
+            // Handle hover effects
+            document.querySelectorAll('.magic').forEach(magicElement => {
+                const magicStars = magicElement.querySelectorAll('.magic-star');
                 
-                <div class="change-card" style="background: rgba(255,204,0,0.1); border: 3px solid #ffcc00; padding: 2rem; transform: rotate(2deg);">
-                    <h3 style="font-family: 'Bebas Neue', cursive; font-size: 2rem; color: #ffcc00; margin-bottom: 1rem;">IDENTITY</h3>
-                    <p style="color: #ddd; line-height: 1.6;">Artists reclaimed narratives, rewrote histories, and celebrated African heritage in defiance of cultural erasure.</p>
-                </div>
+                magicElement.addEventListener('mouseenter', () => {
+                    magicStars.forEach((star, i) => {
+                        setTimeout(() => {
+                            animateStar(star);
+                            star._interval = setInterval(() => animateStar(star), 1000);
+                        }, i * 300);
+                    });
+                });
                 
-                <div class="change-card" style="background: rgba(0,0,0,0.8); border: 3px solid #fff; padding: 2rem; transform: rotate(-1deg);">
-                    <h3 style="font-family: 'Bebas Neue', cursive; font-size: 2rem; color: #fff; margin-bottom: 1rem;">COMMUNITY</h3>
-                    <p style="color: #ddd; line-height: 1.6;">Murals and graffiti transformed neighborhoods into galleries, creating shared spaces of resistance and pride.</p>
-                </div>
-                
-                <div class="change-card" style="background: rgba(255,0,0,0.2); border: 3px solid #ff0000; padding: 2rem; transform: rotate(1deg);">
-                    <h3 style="font-family: 'Bebas Neue', cursive; font-size: 2rem; color: #ff0000; margin-bottom: 1rem;">REVOLUTION</h3>
-                    <p style="color: #ddd; line-height: 1.6;">Art didn't just document change—it created it, turning walls into weapons and paint into power.</p>
-                </div>
-            </div>
+                magicElement.addEventListener('mouseleave', () => {
+                    magicStars.forEach(star => {
+                        if (star._interval) {
+                            clearInterval(star._interval);
+                            star._interval = null;
+                        }
+                    });
+                });
+            });
+        });
+    </script>
+    <script>
+        // Logo visibility on scroll
+        document.addEventListener('DOMContentLoaded', () => {
+            const logoContainer = document.querySelector('.logo-container');
+            const heroSection = document.querySelector('.hero');
             
-            <div style="text-align: center; margin-top: 3rem;">
-                <p style="font-size: 1.5rem; color: #ffcc00; font-family: 'Bebas Neue', cursive; letter-spacing: 0.1em; text-transform: uppercase;">
-                    The Revolution Was Not Televised. It Was Painted.
-                </p>
-            </div>
-        </div>
-    </section>
-    
-    <!-- Sources Section -->
-    <section class="sources-section">
-        <div class="container">
-            <h3 class="sources-title" style="font-family: 'Bebas Neue', cursive; font-size: 3rem; color: #ffcc00; margin-bottom: 2rem; text-transform: uppercase; text-shadow: 2px 2px 0 #ff0000;">Sources:</h3>
-            <div class="sources-list" style="max-width: 800px; margin: 0 auto; color: #aaa; font-size: 1rem; line-height: 1.8;">
-                <p style="margin-bottom: 1rem; padding-left: 2rem; text-indent: -2rem;">RODRIGUES, LAURIE A. "'SAMO© as an Escape Clause': Jean-Michel Basquiat's Engagement with a Commodified American Africanism." Journal of American Studies, vol. 45, no. 2, 2011, pp. 227–43. JSTOR, http://www.jstor.org/stable/23016272. Accessed 28 May 2025.</p>
-                
-                <p style="margin-bottom: 1rem; padding-left: 2rem; text-indent: -2rem;">"ART | FAB 5 FREDDY." FAB 5 FREDDY, 2024, www.fab5freddy.com/portfolio. Accessed 28 May 2025.</p>
-                
-                <p style="margin-bottom: 1rem; padding-left: 2rem; text-indent: -2rem;">Jon Anderson TRIBUNE, STAFF W. "Pride and Hope Adorn a Wall: With Help from an Artist, Youths Put Up a Mural with a Message." Chicago Tribune (1997-), 05 June 1998, p. 1. ProQuest. Web. 28 May 2025.</p>
-                
-                <p style="margin-bottom: 1rem; padding-left: 2rem; text-indent: -2rem;">Perry, Regenia, et al. "African American Art." Oxford Art Online, Jan. 2003, https://doi.org/10.1093/gao/9781884446054.article.t001094. Accessed 28 May 2025.</p>
-                
-                <p style="margin-bottom: 1rem; padding-left: 2rem; text-indent: -2rem;">Shakur, Prince. "The Power of Black Art in Harlem, Black Power, and Beyond." Substack.com, Millennial Writer Life, 14 July 2023, princeshakur.substack.com/p/the-power-of-black-art-in-harlem. Accessed 5 June 2025.</p>
-                
-                <p style="margin-bottom: 1rem; padding-left: 2rem; text-indent: -2rem;">"The Foundations of Black Power." National Museum of African American History and Culture, Dec. 2021, nmaahc.si.edu/explore/stories/foundations-black-power. Accessed 5 June 2025.</p>
-            </div>
-        </div>
-    </section>
-    
-    <!-- Conclusion -->
-    <section style="background: #000; padding: 3rem 2rem; text-align: center;">
-        <div class="container">
-            <p style="font-size: 1.5rem; color: #ffcc00; font-family: 'Bebas Neue', cursive; letter-spacing: 0.2em; text-transform: uppercase; margin-bottom: 2rem;">
-                Thank you for exploring this exhibit!
-            </p>
-            <p style="font-size: 1.1rem; color: #ccc; max-width: 600px; margin: 0 auto;">
-                H300 Art and Social Movements Research (ASMR) Project - 2025
-            </p>
-            <p style="font-size: 1.1rem; color: #ccc; max-width: 600px; margin: 1rem auto 0;">
-                A project by Kellen H and Lauryn C
-            </p>
-        </div>
-    </section>
-    
-    <!-- Scroll to Top Button -->
-    <button class="scroll-top" id="scrollTop" onclick="scrollToTop()"></button>
-    
-    <script src="script.js"></script>
+            if (logoContainer && heroSection) {
+                window.addEventListener('scroll', () => {
+                    const heroBottom = heroSection.getBoundingClientRect().bottom;
+                    
+                    if (heroBottom <= 200) {
+                        logoContainer.classList.add('visible');
+                    } else {
+                        logoContainer.classList.remove('visible');
+                    }
+                });
+            }
+        });
+    </script>
 </body>
 </html>

@@ -1,0 +1,95 @@
+body {
+    display: flex;
+    flex-direction: row; /* Arrange items horizontally */
+    justify-content: center;
+    align-items: flex-start; /* Align top edges */
+    min-height: 100vh;
+    background-color: #222;
+    margin: 20px; /* Add margin around content */
+    font-family: sans-serif;
+    color: white;
+    gap: 10px; /* Space between main content areas - Reduced */
+    overflow-y: hidden; /* Prevent vertical scrollbar */
+}
+#simulation-container {
+    display: flex;
+    flex-direction: column;
+    align-items: center; /* Center canvas */
+}
+canvas#simulationCanvas {
+    border: 1px solid #555;
+    background-color: black; /* Matches EMPTY_COLOR */
+    cursor: crosshair;
+    image-rendering: pixelated;
+    image-rendering: -moz-crisp-edges;
+    image-rendering: crisp-edges;
+}
+
+/* Container for UI Info and Palette on the right */
+#right-panel {
+    display: flex;
+    flex-direction: column; /* Stack info above palette */
+    gap: 10px; /* Space between info and palette - Reduced */
+    width: 240px; /* Fixed width for the right panel - Increased */
+    height: 600px; /* Match canvas height (150 * 4) */
+    box-sizing: border-box; /* Include padding in height */
+    padding: 10px;
+    background-color: #333;
+    border-radius: 5px;
+}
+
+/* Style for the moved UI info */
+#ui-info {
+    font-size: 13px; /* Slightly smaller */
+    text-align: left; /* Align text left */
+    padding: 5px;
+    border-bottom: 1px solid #555; /* Separator line */
+    margin-bottom: 5px; /* Space below separator */
+    flex-shrink: 0; /* Prevent info from shrinking, allowing palette to scroll */
+}
+ #ui-info p {
+    margin: 4px 0; /* Adjust spacing */
+}
+/* Add style for coordinate text to prevent overflow */
+ #ui-info p#coords-text {
+    white-space: nowrap;
+    overflow: hidden;
+    text-overflow: ellipsis;
+}
+ #ui-info button { /* Style the clear button */
+     padding: 5px 10px;
+     font-size: 12px;
+     cursor: pointer;
+ }
+
+ /* Style for the palette within the right panel */
+ #palette {
+    display: grid;
+    grid-template-columns: repeat(2, 1fr); /* 2 columns */
+    gap: 6px; /* Slightly more gap */
+    overflow-y: auto; /* Allow scrolling if needed */
+    flex-grow: 1; /* Allow palette to take remaining space */
+    min-height: 0; /* Add min-height to help flex shrinking */
+ }
+#palette button {
+    padding: 8px 5px;
+    border: 1px solid #ccc;
+    cursor: pointer;
+    font-size: 12px;
+    border-radius: 3px;
+    color: #111; /* Dark text for contrast on light buttons */
+    font-weight: bold;
+    text-shadow: 0px 0px 2px rgba(255,255,255,0.4); /* Slight glow */
+    overflow: hidden;
+    white-space: nowrap;
+    text-overflow: ellipsis;
+}
+ #palette button.selected {
+    border: 2px solid yellow;
+    box-shadow: 0 0 5px yellow;
+}
+
+/* Favicon canvas (hidden) */
+#faviconCanvas {
+    display: none;
+} 
