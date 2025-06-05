@@ -613,10 +613,16 @@ body {
 
 /* Responsive */
 @media (max-width: 768px) {
+    :root {
+        --spacing-md: 1.5rem;
+        --spacing-lg: 2rem;
+        --spacing-xl: 3rem;
+    }
+    
     .section:nth-child(odd),
     .section:nth-child(even) {
         transform: none;
-        margin: 2rem 0;
+        margin: var(--spacing-md) 0;
     }
     
     .section:nth-child(odd) > *,
@@ -630,6 +636,58 @@ body {
     
     .context-card {
         height: 100vh;
+        padding: var(--spacing-md);
+    }
+    
+    .artwork-section {
+        transform: none;
+        margin-bottom: var(--spacing-md);
+    }
+    
+    .artwork-header {
+        padding: var(--spacing-md) var(--spacing-sm);
+    }
+    
+    .artwork-image {
+        transform: none;
+        margin: var(--spacing-sm) auto;
+    }
+    
+    .artwork-description {
+        padding: var(--spacing-md);
+        margin: var(--spacing-sm);
+        transform: none;
+    }
+    
+    .wall-quote {
+        padding: var(--spacing-md);
+        transform: none;
+    }
+    
+    .historical-text {
+        padding: var(--spacing-md) !important;
+        transform: none !important;
+    }
+    
+    .timeline-item {
+        flex-direction: column !important;
+        text-align: center !important;
+    }
+    
+    .timeline-item > div {
+        padding: var(--spacing-sm) !important;
+        text-align: center !important;
+    }
+    
+    .change-card {
+        transform: none !important;
+    }
+    
+    .scroll-top {
+        width: 50px;
+        height: 50px;
+        bottom: 1rem;
+        right: 1rem;
     }
 }
 
@@ -665,4 +723,69 @@ body {
 
 .wall-section .section-label {
     top: -5rem;
+}
+
+/* Performance Optimizations */
+.artwork-section,
+.hero-title,
+.hero-subtitle,
+.research-question,
+.user-tag,
+.scroll-top {
+    will-change: transform;
+}
+
+/* Reduce motion for accessibility */
+@media (prefers-reduced-motion: reduce) {
+    *,
+    *::before,
+    *::after {
+        animation-duration: 0.01ms !important;
+        animation-iteration-count: 1 !important;
+        transition-duration: 0.01ms !important;
+        scroll-behavior: auto !important;
+    }
+    
+    .trail-dot {
+        display: none !important;
+    }
+}
+
+/* Print styles */
+@media print {
+    .progress,
+    .scroll-top,
+    .trail-dot {
+        display: none !important;
+    }
+    
+    body {
+        background: white;
+        color: black;
+    }
+    
+    .section {
+        page-break-inside: avoid;
+        transform: none !important;
+        margin: 0 !important;
+    }
+    
+    .section > * {
+        transform: none !important;
+    }
+}
+
+/* High contrast mode support */
+@media (prefers-contrast: high) {
+    :root {
+        --color-primary: #ff0000;
+        --color-secondary: #ffff00;
+        --color-dark: #000;
+        --color-bg: #000;
+        --color-text: #fff;
+    }
+    
+    * {
+        border-width: 2px !important;
+    }
 } 
