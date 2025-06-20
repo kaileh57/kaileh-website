@@ -169,6 +169,44 @@
             color: #8A2BE2;
         }
 
+        /* Blog link styling */
+        .blog-link {
+            position: fixed;
+            top: 1.5rem;
+            right: 2rem;
+            z-index: 3;
+            text-decoration: none;
+            color: #e0e0e0;
+            font-size: 1rem;
+            opacity: 0.8;
+            transition: all 0.3s ease;
+            display: flex;
+            align-items: center;
+            gap: 0.5rem;
+        }
+
+        .blog-link:hover {
+            opacity: 1;
+            color: #8A2BE2;
+            transform: translateX(-5px);
+        }
+
+        .blog-link::before {
+            content: '';
+            display: inline-block;
+            width: 4px;
+            height: 4px;
+            background: #8A2BE2;
+            border-radius: 50%;
+            transition: all 0.3s ease;
+        }
+
+        .blog-link:hover::before {
+            width: 20px;
+            height: 2px;
+            border-radius: 1px;
+        }
+
         .hero {
             min-height: 100vh;
             display: flex;
@@ -331,6 +369,121 @@
             0% { width: 30%; }
             100% { width: 60%; }
         }
+
+        /* --- newly added modern card & grid styles --- */
+        .project-grid {
+            display: grid;
+            grid-template-columns: repeat(auto-fit, minmax(280px, 1fr));
+            gap: 1.5rem;
+        }
+
+        .card {
+            background: rgba(255, 255, 255, 0.04);
+            border: 1px solid rgba(138, 43, 226, 0.4);
+            border-radius: 12px;
+            padding: 1.5rem;
+            text-align: left;
+            transition: transform 0.3s, box-shadow 0.3s, background 0.3s;
+            display: flex;
+            flex-direction: column;
+            height: 100%;
+            color: inherit;
+            text-decoration: none;
+            position: relative;
+            overflow: hidden;
+        }
+
+        .card::before {
+            content: '';
+            position: absolute;
+            top: 0;
+            left: 0;
+            right: 0;
+            bottom: 0;
+            background: radial-gradient(circle at var(--mouse-x) var(--mouse-y), rgba(138, 43, 226, 0.1) 0%, transparent 60%);
+            opacity: 0;
+            transition: opacity 0.3s;
+            pointer-events: none;
+        }
+
+        .card:hover::before {
+            opacity: 1;
+        }
+
+        .card:hover {
+            transform: translateY(-6px);
+            box-shadow: 0 10px 30px rgba(138, 43, 226, 0.3);
+            background: rgba(255, 255, 255, 0.06);
+        }
+
+        .card h3 {
+            margin-bottom: 0.5rem;
+            font-size: 1.4rem;
+            color: #ffffff;
+        }
+
+        .card p {
+            font-size: 0.95rem;
+            line-height: 1.4;
+            opacity: 0.9;
+        }
+
+        .about-list {
+            margin: 1rem 0 0 1.2rem;
+            list-style-type: disc;
+        }
+
+        /* Enhanced card interactions */
+        .card {
+            background: rgba(255, 255, 255, 0.04);
+            border: 1px solid rgba(138, 43, 226, 0.4);
+            border-radius: 12px;
+            padding: 1.5rem;
+            text-align: left;
+            transition: transform 0.3s, box-shadow 0.3s, background 0.3s;
+            display: flex;
+            flex-direction: column;
+            height: 100%;
+            color: inherit;
+            text-decoration: none;
+            position: relative;
+            overflow: hidden;
+        }
+
+        .card::before {
+            content: '';
+            position: absolute;
+            top: 0;
+            left: 0;
+            right: 0;
+            bottom: 0;
+            background: radial-gradient(circle at var(--mouse-x) var(--mouse-y), rgba(138, 43, 226, 0.1) 0%, transparent 60%);
+            opacity: 0;
+            transition: opacity 0.3s;
+            pointer-events: none;
+        }
+
+        .card:hover::before {
+            opacity: 1;
+        }
+
+        .card:hover {
+            transform: translateY(-6px);
+            box-shadow: 0 10px 30px rgba(138, 43, 226, 0.3);
+            background: rgba(255, 255, 255, 0.06);
+        }
+
+        /* Sections without parallax */
+        .section {
+            padding: 5rem 2rem;
+            max-width: 1200px;
+            margin: 0 auto;
+        }
+
+        /* Enhanced magic text glow on hover */
+        .magic:hover .magic-text {
+            text-shadow: 0 0 20px rgba(138, 43, 226, 0.5);
+        }
     </style>
 </head>
 <body>
@@ -357,6 +510,8 @@
             </span>
         </div>
     </div>
+
+    <a href="/blog" class="blog-link">Blog</a>
 
     <div class="content">
         <section id="home" class="hero">
@@ -408,25 +563,59 @@
 
         <section id="about" class="section">
             <h2>About Me</h2>
-            <div class="placeholder-box">
-                <p>Hi! From designing and developing XR games in Godot 4.3 and Unreal 5.4 in my free time, to building fullstack tools using React and FluentUI for Microsoft, and developing open-source AI tools in my free time, I have a wide range of experience and knowledge to bring to any project!</p>
-                <p style="margin-top: 1rem;"><em>Full bio and details coming soon...</em></p>
+            <div style="text-align: left; max-width: 800px; margin: 0 auto;">
+                <p>I'm a multidisciplinary developer and designer with a love for turning ambitious ideas into polished, production-ready experiences. Recent work spans XR games, open-source AI products, and enterprise software.</p>
+                <ul class="about-list">
+                    <li>IT Intern, Lakeside School — automated campus services and deployed secure infrastructure.</li>
+                    <li>Engineering Contractor, Microsoft GSA — co-built a Graph-API migration tool adopted company-wide.</li>
+                    <li>Creator of Sculptor AI, a suite of open-source AI tools and interfaces.</li>
+                    <li>Proficient in TypeScript, React, Godot, Unreal, Python, C++, Rust, Java, C, C#, Swift, and Go.</li>
+                </ul>
+                <p>When I'm not coding you'll find me playing bass or designing and manufacturing PCBs for my hardware projects.</p>
             </div>
         </section>
 
         <section id="games" class="section">
             <h2>Some Games I've Made</h2>
-            <div class="placeholder-box">
-                <p>My portfolio of game development projects will be showcased here.</p>
-                <p>Stay tuned for screenshots, descriptions, and playable demos!</p>
+            <div class="project-grid">
+                <a href="https://github.com/kaileh57/arcademultiracing" class="card" target="_blank" rel="noopener">
+                    <h3>Arcade Multiplayer Racing</h3>
+                    <p>Fast-paced driving game built in Godot 4.2 with network play, VR steering-wheel support, and full vehicle physics.</p>
+                </a>
+                <a href="https://nemo9955.itch.io/graftmancer" class="card" target="_blank" rel="noopener">
+                    <h3>Graftmancer</h3>
+                    <p>14-day game-jam entry created with a distributed team. Ranked 5/5 in Style and 4/5 in Playability and Cleverness.</p>
+                </a>
             </div>
         </section>
         
         <section id="other-projects" class="section">
-            <h2>Some Other Stuff</h2>
-            <div class="placeholder-box">
-                <p>Additional projects, tools, and experiments will appear in this section.</p>
-                <p>Currently preparing content for this gallery...</p>
+            <h2>AI & Tools</h2>
+            <div class="project-grid">
+                <a href="https://ai.kaileh.dev" class="card" target="_blank" rel="noopener">
+                    <h3>Sculptor Chat</h3>
+                    <p>Unified chat interface for GPT-4o, Claude 3, Gemini, and other models. Bring-your-own key with secure storage.</p>
+                </a>
+                <a href="https://translate.kaileh.dev" class="card" target="_blank" rel="noopener">
+                    <h3>Sculptor Translate</h3>
+                    <p>Gemini-powered translator supporting six languages, automatic detection, and multi-shot deep translation.</p>
+                </a>
+                <a href="https://huggingface.co/Sculptor-AI/Ursa_Minor" class="card" target="_blank" rel="noopener">
+                    <h3>Ursa Minor</h3>
+                    <p>Distilled 7B open-source model derived from Qwen 2.5, tuned for stronger reasoning with the S1k dataset.</p>
+                </a>
+                <div class="card">
+                    <h3>Project Andromeda</h3>
+                    <p>Campus-wide AI platform providing equitable access to frontier models, built on OpenWebUI with custom fine-tuned assistants.</p>
+                </div>
+                <div class="card">
+                    <h3>Wheatley</h3>
+                    <p>Always-on voice assistant running on Raspberry Pi, combining Gemini, Claude, live weather, stock data, and music playback.</p>
+                </div>
+                <div class="card">
+                    <h3>Microsoft Migration Tool</h3>
+                    <p>Graph-API-powered utility that simplifies migrations from a competitor's platform to Microsoft's in-house solution.</p>
+                </div>
             </div>
         </section>
 
@@ -437,17 +626,17 @@
                     <span class="magic">
                         <span class="magic-star">
                             <svg viewBox="0 0 512 512">
-                            <path d="M512 255.1c0 11.34-7.406 20.86-18.44 23.64l-171.3 42.78l-42.78 171.1C276.7 504.6 267.2 512 255.9 512s-20.84-7.406-23.62-18.44l-42.66-171.2L18.47 279.6C7.406 276.8 0 267.3 0 255.1c0-11.34 7.406-20.83 18.44-23.61l171.2-42.78l42.78-171.1C235.2 7.406 244.7 0 256 0s20.84 7.406 23.62 18.44l42.78 171.2l171.2 42.78C504.6 235.2 512 244.6 512 255.1z" />
+                            <path d="M9 19c-5 1.5-5-2.5-7-3m14 6v-3.87a3.37 3.37 0 0 0-.94-2.61c3.14-.35 6.44-1.54 6.44-7A5.44 5.44 0 0 0 20 4.77 5.07 5.07 0 0 0 19.91 1S18.73.65 16 2.48a13.38 13.38 0 0 0-7 0C6.27.65 5.09 1 5.09 1A5.07 5.07 0 0 0 5 4.77a5.44 5.44 0 0 0-1.5 3.78c0 5.42 3.3 6.61 6.44 7A3.37 3.37 0 0 0 9 18.13V22"></path>
                             </svg>
                         </span>
                         <span class="magic-star">
                             <svg viewBox="0 0 512 512">
-                            <path d="M512 255.1c0 11.34-7.406 20.86-18.44 23.64l-171.3 42.78l-42.78 171.1C276.7 504.6 267.2 512 255.9 512s-20.84-7.406-23.62-18.44l-42.66-171.2L18.47 279.6C7.406 276.8 0 267.3 0 255.1c0-11.34 7.406-20.83 18.44-23.61l171.2-42.78l42.78-171.1C235.2 7.406 244.7 0 256 0s20.84 7.406 23.62 18.44l42.78 171.2l171.2 42.78C504.6 235.2 512 244.6 512 255.1z" />
+                            <path d="M9 19c-5 1.5-5-2.5-7-3m14 6v-3.87a3.37 3.37 0 0 0-.94-2.61c3.14-.35 6.44-1.54 6.44-7A5.44 5.44 0 0 0 20 4.77 5.07 5.07 0 0 0 19.91 1S18.73.65 16 2.48a13.38 13.38 0 0 0-7 0C6.27.65 5.09 1 5.09 1A5.07 5.07 0 0 0 5 4.77a5.44 5.44 0 0 0-1.5 3.78c0 5.42 3.3 6.61 6.44 7A3.37 3.37 0 0 0 9 18.13V22"></path>
                             </svg>
                         </span>
                         <span class="magic-star">
                             <svg viewBox="0 0 512 512">
-                            <path d="M512 255.1c0 11.34-7.406 20.86-18.44 23.64l-171.3 42.78l-42.78 171.1C276.7 504.6 267.2 512 255.9 512s-20.84-7.406-23.62-18.44l-42.66-171.2L18.47 279.6C7.406 276.8 0 267.3 0 255.1c0-11.34 7.406-20.83 18.44-23.61l171.2-42.78l42.78-171.1C235.2 7.406 244.7 0 256 0s20.84 7.406 23.62 18.44l42.78 171.2l171.2 42.78C504.6 235.2 512 244.6 512 255.1z" />
+                            <path d="M9 19c-5 1.5-5-2.5-7-3m14 6v-3.87a3.37 3.37 0 0 0-.94-2.61c3.14-.35 6.44-1.54 6.44-7A5.44 5.44 0 0 0 20 4.77 5.07 5.07 0 0 0 19.91 1S18.73.65 16 2.48a13.38 13.38 0 0 0-7 0C6.27.65 5.09 1 5.09 1A5.07 5.07 0 0 0 5 4.77a5.44 5.44 0 0 0-1.5 3.78c0 5.42 3.3 6.61 6.44 7A3.37 3.37 0 0 0 9 18.13V22"></path>
                             </svg>
                         </span>
                         <span class="magic-text">Check out my code</span>
@@ -649,7 +838,12 @@
                     "random": false,
                     "straight": false,
                     "out_mode": "out",
-                    "bounce": false
+                    "bounce": false,
+                    "attract": {
+                        "enable": true,
+                        "rotateX": 600,
+                        "rotateY": 1200
+                    }
                 }
             },
             "interactivity": {
@@ -667,13 +861,24 @@
                 },
                 "modes": {
                     "grab": {
-                        "distance": 140,
+                        "distance": 200,
                         "line_linked": {
-                            "opacity": 1
+                            "opacity": 0.8
                         }
                     },
                     "push": {
                         "particles_nb": 4
+                    },
+                    "bubble": {
+                        "distance": 400,
+                        "size": 40,
+                        "duration": 2,
+                        "opacity": 8,
+                        "speed": 3
+                    },
+                    "repulse": {
+                        "distance": 200,
+                        "duration": 0.4
                     }
                 }
             },
@@ -741,6 +946,67 @@
                     }
                 });
             }
+        });
+    </script>
+    <script>
+        // Enhanced mouse interactions
+        document.addEventListener('DOMContentLoaded', () => {
+            const mouseGlow = document.querySelector('.mouse-glow');
+            const body = document.body;
+            let mouseX = 0;
+            let mouseY = 0;
+            let currentX = 0;
+            let currentY = 0;
+            let isMouseMoving = false;
+            let mouseTimeout;
+
+            // Smooth animation loop
+            function animate() {
+                // Lerp for smooth movement
+                currentX += (mouseX - currentX) * 0.1;
+                currentY += (mouseY - currentY) * 0.1;
+
+                requestAnimationFrame(animate);
+            }
+            animate();
+
+            // Mouse move handler
+            document.addEventListener('mousemove', (e) => {
+                mouseX = e.clientX;
+                mouseY = e.clientY;
+
+                // Add active class when mouse moves
+                if (!isMouseMoving) {
+                    body.classList.add('mouse-active');
+                    isMouseMoving = true;
+                }
+
+                // Clear existing timeout
+                clearTimeout(mouseTimeout);
+
+                // Keep glow visible - removed auto-hide
+
+                // Update CSS variables for card hover effects
+                document.querySelectorAll('.card').forEach(card => {
+                    const rect = card.getBoundingClientRect();
+                    const x = ((e.clientX - rect.left) / rect.width) * 100;
+                    const y = ((e.clientY - rect.top) / rect.height) * 100;
+                    card.style.setProperty('--mouse-x', `${x}%`);
+                    card.style.setProperty('--mouse-y', `${y}%`);
+                });
+            });
+
+            // Keep cursor elements visible when mouse leaves window
+            document.addEventListener('mouseleave', () => {
+                // Don't hide anything - keep the glow and trail visible
+            });
+
+            document.addEventListener('mouseenter', () => {
+                // Re-enable on mouse enter if needed
+                if (!body.classList.contains('mouse-active')) {
+                    body.classList.add('mouse-active');
+                }
+            });
         });
     </script>
 </body>
