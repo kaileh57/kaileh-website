@@ -1,0 +1,99 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>News Drop #16 - April 9, 2025 — Kaileh57</title>
+    <link rel="stylesheet" href="../blog.css" />
+    <link href="https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;700&display=swap" rel="stylesheet" />
+</head>
+<body>
+    <header class="site-header">
+        <div class="container">
+            <h1 class="site-title"><a href="../../index.html">Kaileh57</a></h1>
+            <nav class="site-nav">
+                <a href="../../index.html">Home</a>
+                <a href="../index.html">Blog</a>
+            </nav>
+        </div>
+    </header>
+
+    <main class="container page-content" role="main">
+        <article class="post-full">
+            <header class="post-full-header">
+                <h1 class="post-full-title">News Drop #16 - April 9, 2025</h1>
+                <p class="post-full-meta">April 9, 2025</p>
+            </header>
+
+            <div class="post-full-content">
+                <p>Today was Google's annual Google Cloud Next event, and oh boy did they announce a lot of cool new stuff:</p>
+                
+                <h3>Without further ado, Google:</h3>
+                <p>Perhaps the biggest thing in the AI space this week, Google has announced a new version of their TPU:</p>
+                <ul>
+                    <li>A TPU is a Tensor Processing Unit, a chip designed specifically for AI inference</li>
+                    <li>Google is the only company to make and use a TPU</li>
+                    <li>Ironwood is their brand new 7th gen processor</li>
+                    <li>A full pod of chips (the max amount that could be linked together) has the following specs:
+                        <ul>
+                            <li>9216 chips all working together</li>
+                            <li>Over 42.5 EXAFLOPS of computing power, that is 42.5 Quintillion floating-point math calculations per second</li>
+                            <li>This means one pod is over 24x the power of El Capitan, the world's fastest supercomputer</li>
+                        </ul>
+                    </li>
+                    <li>Pathways, a new piece of tech developed by DeepMind, will allow the TPUs to work together at a scale never before seen</li>
+                    <li>A single chip, while about half the performance of an Nvidia b200, draws 6 times less power</li>
+                    <li>Google clusters can also get about 4x larger than Nvidia at the moment, which allows for over double the performance</li>
+                    <li>These chips each have the same amount of VRAM as the Nvidia ones, so these computing clusters have an absolutely absurd amount to play with, which probably helps enable Gemini's long context capabilities</li>
+                    <li>These chips will be available later this year, and this continued investment into making their own hardware is really starting to pay off for Google, as they don't have to pay Nvidia's high marked-up prices to have cutting edge performance</li>
+                </ul>
+                
+                <h3>Google's also been cooking over on their Vertex platform:</h3>
+                <ul>
+                    <li>Lyria, a text-to-music model is in preview, and early impressions seem to put it on the leading edge of the industry.</li>
+                    <li>Veo2 is now public on Vertex. Google seems to be leading the industry in most areas of text-to-content, however their once flagship image model Imagen3 has fallen behind OpenAI's offerings</li>
+                </ul>
+                
+                <p>Google also launched Agent Development Kit and Agent2Agent which are open protocols to allow developers to create Agents that can communicate with each other and collaborate on complex tasks.</p>
+                
+                <p>Gemini 2.5 flash was also teased, it's a reasoning model optimized for cost, and if it's anything like its bigger brother Gemini 2.5 pro, it should be pretty awesome to see.</p>
+                
+                <p>Finally, Google's built a solution to run Gemini in air gapped environments on customers hardware in a way that ensures data never leaves the premises, and so they've received clearance for this local system to handle even top secret government data, and the tools are already in production.</p>
+                
+                <p>I would say at this point that, especially with their custom hardware and infrastructure, Google is the forerunner in the AI race.</p>
+                
+                <h3>Anthropic saw OpenAI's $200 a month plan, and decided that was the way to go:</h3>
+                <p>Claude Max is now a subscription offering, for those truly addicted to using Claude 24/7. Max is $100-200 per month, and offers either 5x or 20x the usage limits of Claude Pro. While I do sometimes hit my usage limit, the base Claude Pro currently has enough for most of the time, unless you're doing repeated prompts with long context. This does make me afraid that they will gatekeep certain models or functionality to the higher tier, or that they'll reduce the usage limit so much the Pro plan becomes unusable (in this case I will be switching to Gemini Advanced).</p>
+                
+                <p>Anthropic's also published a research paper about how AI models lie in their thinking (these guys are the safety goats)<br/>
+                <a href="https://www.anthropic.com/research/reasoning-models-dont-say-think">https://www.anthropic.com/research/reasoning-models-dont-say-think</a><br/>
+                The paper details how models will not admit they don't know something, or that they're pulling the information from somewhere they're not allowed to, in their thinking process. This allows them to actively deceive the user and makes it more difficult to ensure the model's intentions align with the values of its creators.</p>
+                
+                <h3>Llama 4 is here, and it's pretty bad:</h3>
+                <p>Llama 4 was just released by Meta earlier in the week, these new models are Mixture of Expert models, which means several smaller models are loaded, and the expert on a given topic is the one that responds. For example, you might have a math expert, a coding expert, and a writing expert.<br/>
+                There are 3 current sizes of Llama 4 model:</p>
+                <ul>
+                    <li>Behemoth: 2t params, 16 experts, and still undergoing final training</li>
+                    <li>Maverick: 400b params, 128 experts, 1 million context window</li>
+                    <li>Scout: 190b params, 16 experts, industry leading 10 million context window</li>
+                </ul>
+                
+                <p>While these models seem great on paper, there has been general backlash from people in the space... The models fail the "vibe test," specifically they seem really dumb in real life, constantly failing simple problems they should be able to succeed. The public version also responds very differently than the one on LmArena used for blind comparison testing. In real usage, the 10 million token context window on Scout is not useful, as a ridiculous amount of VRAM is needed, and Scout is not able to consistently use everything in its context window, despite performing well on needle in a haystack benchmarks.</p>
+                
+                <p>All this has lead to the general belief that Meta cheated, specifically by training their model on testing data so it would do better on benchmarks, optimizing a special version for human preferences for the blind ranking, and by engineering haystack benchmarks to be impossible to fail.</p>
+                
+                <p>Due to size constraints, these models will likely never make it into most local deployments, but to be honest this week has cast serious doubt into Meta's AI capabilities, and the idea of Mixture of Experts models in general.</p>
+                
+                <p>That's it for this week!</p>
+            </div>
+        </article>
+    </main>
+
+    <footer class="site-footer">
+        <div class="container">
+            <p>&copy; 2025 Kaileh57. All rights reserved.</p>
+        </div>
+    </footer>
+    <script src="../blog.js"></script>
+</body>
+</html> 
