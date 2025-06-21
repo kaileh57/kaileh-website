@@ -163,6 +163,44 @@ body {
     margin-bottom: 1.5em;
 }
 
+/* Heading styles within blog posts */
+.post-full-content h3 {
+    font-size: 24px;
+    font-weight: 600;
+    margin-top: 2.5em;
+    margin-bottom: 1em;
+    color: #000;
+    letter-spacing: -0.01em;
+}
+
+.post-full-content h3:first-child {
+    margin-top: 0;
+}
+
+.post-full-content ul {
+    margin-bottom: 1.5em;
+    padding-left: 1.5em;
+}
+
+.post-full-content ul li {
+    margin-bottom: 0.5em;
+}
+
+.post-full-content ul ul {
+    margin-top: 0.5em;
+    margin-bottom: 0.5em;
+}
+
+.post-full-content strong {
+    font-weight: 600;
+}
+
+/* Ensure proper spacing after lists before headings */
+.post-full-content ul + h3,
+.post-full-content p + h3 {
+    margin-top: 2.5em;
+}
+
 /* Responsive */
 @media (max-width: 768px) {
     .container {
