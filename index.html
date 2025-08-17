@@ -3,7 +3,7 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Kellen Heraty - AI Engineer & Technical Leader</title>
+    <title>Kellen Heraty | Portfolio</title>
     <meta name="description" content="High school AI engineer with experience building production AI systems serving hundreds of users. CTO at Sculptor AI, Microsoft GSA contractor, Lakeside IT.">
     
     <!-- Google Fonts -->
@@ -571,7 +571,7 @@
             <div class="nav-links">
                 <a href="#work">Work</a>
                 <a href="#contact">Contact</a>
-                <a href="/blog" target="_blank">Writing</a>
+                <a href="/blog" target="_blank">Blog</a>
                 <div class="nav-divider"></div>
                 <a href="https://github.com/kaileh57" target="_blank" rel="noopener noreferrer">GitHub</a>
                 <a href="/resume.pdf" class="nav-cta" target="_blank">Resume</a>
@@ -866,30 +866,66 @@
                 <a href="mailto:kellenhe@hotmail.com">Email</a>
                 <a href="https://github.com/kaileh57" target="_blank">GitHub</a>
                 <a href="https://www.linkedin.com/in/kellenheraty/" target="_blank">LinkedIn</a>
-                <a href="/blog">Writing</a>
+                <a href="/blog">Blog</a>
             </div>
         </div>
     </footer>
     <script>
         // Professional smooth scrolling and interaction observers
         document.addEventListener('DOMContentLoaded', () => {
-            // Simple favicon setup (no animated gradient)
+            // Animated favicon with shimmer effect
             const faviconCanvas = document.createElement('canvas');
             faviconCanvas.width = 32;
             faviconCanvas.height = 32;
             const ctx = faviconCanvas.getContext('2d');
             
-            // Draw simple 'K' favicon
-            ctx.textAlign = 'center';
-            ctx.textBaseline = 'middle';
-            ctx.font = 'bold 24px Inter, sans-serif';
-            ctx.fillStyle = '#fafafa';
-            ctx.fillText('K', 16, 18);
-            
             const faviconLink = document.getElementById('favicon');
-            if (faviconLink) {
-                faviconLink.href = faviconCanvas.toDataURL('image/png');
+            let shimmerOffset = 0;
+            
+            function updateFavicon() {
+                // Clear canvas
+                ctx.clearRect(0, 0, 32, 32);
+                
+                // Draw black K
+                ctx.textAlign = 'center';
+                ctx.textBaseline = 'middle';
+                ctx.font = 'bold 24px Inter, Arial, sans-serif';
+                ctx.fillStyle = '#000000';
+                ctx.fillText('K', 16, 18);
+                
+                // Create shimmer effect mask
+                const shimmerGradient = ctx.createLinearGradient(
+                    shimmerOffset - 20, 0, 
+                    shimmerOffset + 20, 0
+                );
+                shimmerGradient.addColorStop(0, 'rgba(255, 255, 255, 0)');
+                shimmerGradient.addColorStop(0.3, 'rgba(255, 255, 255, 0)');
+                shimmerGradient.addColorStop(0.5, 'rgba(255, 255, 255, 0.8)');
+                shimmerGradient.addColorStop(0.7, 'rgba(255, 255, 255, 0)');
+                shimmerGradient.addColorStop(1, 'rgba(255, 255, 255, 0)');
+                
+                // Apply shimmer over the K
+                ctx.globalCompositeOperation = 'source-atop';
+                ctx.fillStyle = shimmerGradient;
+                ctx.fillRect(0, 0, 32, 32);
+                ctx.globalCompositeOperation = 'source-over';
+                
+                // Update shimmer position
+                shimmerOffset += 0.8;
+                if (shimmerOffset > 52) shimmerOffset = -20;
+                
+                // Update favicon
+                if (faviconLink) {
+                    faviconLink.href = faviconCanvas.toDataURL('image/png');
+                }
+                
+                requestAnimationFrame(updateFavicon);
             }
+            
+            // Start animation when fonts are loaded
+            document.fonts.ready.then(() => {
+                updateFavicon();
+            });
 
             // Navigation scroll behavior
             const nav = document.querySelector('nav');
