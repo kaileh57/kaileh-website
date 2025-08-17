@@ -5,6 +5,7 @@
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title>Kellen Heraty | Portfolio</title>
     <meta name="description" content="High school AI engineer with experience building production AI systems serving hundreds of users. CTO at Sculptor AI, Microsoft GSA contractor, Lakeside IT.">
+    <link rel="icon" type="image/png" id="favicon">
     
     <!-- Google Fonts -->
     <link rel="preconnect" href="https://fonts.googleapis.com">
@@ -873,59 +874,24 @@
     <script>
         // Professional smooth scrolling and interaction observers
         document.addEventListener('DOMContentLoaded', () => {
-            // Animated favicon with shimmer effect
+            // Simple static favicon - clean white K
             const faviconCanvas = document.createElement('canvas');
             faviconCanvas.width = 32;
             faviconCanvas.height = 32;
             const ctx = faviconCanvas.getContext('2d');
             
+            // Draw stylized white K
+            ctx.textAlign = 'center';
+            ctx.textBaseline = 'middle';
+            ctx.font = 'bold 24px "SF Pro Display", -apple-system, BlinkMacSystemFont, "Segoe UI", system-ui, sans-serif';
+            ctx.fillStyle = '#ffffff';
+            ctx.fillText('K', 16, 18);
+            
+            // Set favicon
             const faviconLink = document.getElementById('favicon');
-            let shimmerOffset = 0;
-            
-            function updateFavicon() {
-                // Clear canvas
-                ctx.clearRect(0, 0, 32, 32);
-                
-                // Draw black K
-                ctx.textAlign = 'center';
-                ctx.textBaseline = 'middle';
-                ctx.font = 'bold 24px Inter, Arial, sans-serif';
-                ctx.fillStyle = '#000000';
-                ctx.fillText('K', 16, 18);
-                
-                // Create shimmer effect mask
-                const shimmerGradient = ctx.createLinearGradient(
-                    shimmerOffset - 20, 0, 
-                    shimmerOffset + 20, 0
-                );
-                shimmerGradient.addColorStop(0, 'rgba(255, 255, 255, 0)');
-                shimmerGradient.addColorStop(0.3, 'rgba(255, 255, 255, 0)');
-                shimmerGradient.addColorStop(0.5, 'rgba(255, 255, 255, 0.8)');
-                shimmerGradient.addColorStop(0.7, 'rgba(255, 255, 255, 0)');
-                shimmerGradient.addColorStop(1, 'rgba(255, 255, 255, 0)');
-                
-                // Apply shimmer over the K
-                ctx.globalCompositeOperation = 'source-atop';
-                ctx.fillStyle = shimmerGradient;
-                ctx.fillRect(0, 0, 32, 32);
-                ctx.globalCompositeOperation = 'source-over';
-                
-                // Update shimmer position
-                shimmerOffset += 0.8;
-                if (shimmerOffset > 52) shimmerOffset = -20;
-                
-                // Update favicon
-                if (faviconLink) {
-                    faviconLink.href = faviconCanvas.toDataURL('image/png');
-                }
-                
-                requestAnimationFrame(updateFavicon);
+            if (faviconLink) {
+                faviconLink.href = faviconCanvas.toDataURL('image/png');
             }
-            
-            // Start animation when fonts are loaded
-            document.fonts.ready.then(() => {
-                updateFavicon();
-            });
 
             // Navigation scroll behavior
             const nav = document.querySelector('nav');
