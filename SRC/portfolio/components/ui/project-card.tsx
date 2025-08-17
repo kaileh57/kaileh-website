@@ -92,11 +92,11 @@ export default function ProjectCard({
 
         {/* Metrics */}
         {metrics && (
-          <div className="grid grid-cols-2 gap-4 mb-4">
+          <div className="grid grid-cols-2 sm:grid-cols-3 gap-4 mb-4">
             {Object.entries(metrics).map(([key, value]) => (
               <div key={key}>
-                <div className="text-sm text-neutral-500 capitalize">{key}</div>
-                <div className="font-semibold">{value}</div>
+                <div className="text-xs sm:text-sm text-neutral-500 capitalize">{key}</div>
+                <div className="font-semibold text-sm sm:text-base">{value}</div>
               </div>
             ))}
           </div>

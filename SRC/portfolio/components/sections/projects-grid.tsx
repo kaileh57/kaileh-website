@@ -32,8 +32,8 @@ const additionalProjects = [
 
 export default function ProjectsGrid() {
   return (
-    <section id="projects" className="py-32 bg-surface/30">
-      <div className="max-w-7xl mx-auto px-6">
+    <section id="projects" className="py-16 sm:py-24 md:py-32 bg-surface/30">
+      <div className="max-w-7xl mx-auto px-4 sm:px-6">
         <motion.div
           initial={{ opacity: 0 }}
           whileInView={{ opacity: 1 }}

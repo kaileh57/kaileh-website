@@ -30,8 +30,8 @@ const toolCategories = [
 
 export default function ToolsSection() {
   return (
-    <section id="tools" className="py-32">
-      <div className="max-w-7xl mx-auto px-6">
+    <section id="tools" className="py-16 sm:py-24 md:py-32">
+      <div className="max-w-7xl mx-auto px-4 sm:px-6">
         <motion.div
           initial={{ opacity: 0 }}
           whileInView={{ opacity: 1 }}

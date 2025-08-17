@@ -4,8 +4,8 @@ import { IconMail, IconBrandGithub, IconBrandLinkedin, IconDownload } from "@tab
 
 export default function ContactSection() {
   return (
-    <section className="py-32 bg-surface/30">
-      <div className="max-w-7xl mx-auto px-6">
+    <section className="py-16 sm:py-24 md:py-32 bg-surface/30">
+      <div className="max-w-7xl mx-auto px-4 sm:px-6">
         <motion.div
           initial={{ opacity: 0 }}
           whileInView={{ opacity: 1 }}
@@ -18,10 +18,10 @@ export default function ContactSection() {
             AI/ML engineering, and technical leadership roles.
           </p>
 
-          <div className="flex flex-wrap justify-center gap-6 mb-12">
+          <div className="grid grid-cols-1 sm:grid-cols-2 lg:flex lg:flex-wrap justify-center gap-4 sm:gap-6 mb-12 max-w-2xl mx-auto">
             <a
               href="mailto:kellen@kaileh.dev"
-              className="flex items-center gap-3 px-6 py-3 bg-white text-black rounded-lg hover:bg-neutral-200 transition-colors font-medium"
+              className="flex items-center justify-center gap-3 px-6 py-3 bg-white text-black rounded-lg hover:bg-neutral-200 transition-colors font-medium"
             >
               <IconMail size={20} />
               Email Me
@@ -31,7 +31,7 @@ export default function ContactSection() {
               href="https://github.com/kaileh57"
               target="_blank"
               rel="noopener noreferrer"
-              className="flex items-center gap-3 px-6 py-3 border border-white/20 rounded-lg hover:bg-white/10 transition-colors font-medium"
+              className="flex items-center justify-center gap-3 px-6 py-3 border border-white/20 rounded-lg hover:bg-white/10 transition-colors font-medium"
             >
               <IconBrandGithub size={20} />
               GitHub
@@ -41,7 +41,7 @@ export default function ContactSection() {
               href="https://linkedin.com/in/kellen-heraty"
               target="_blank"
               rel="noopener noreferrer"
-              className="flex items-center gap-3 px-6 py-3 border border-white/20 rounded-lg hover:bg-white/10 transition-colors font-medium"
+              className="flex items-center justify-center gap-3 px-6 py-3 border border-white/20 rounded-lg hover:bg-white/10 transition-colors font-medium"
             >
               <IconBrandLinkedin size={20} />
               LinkedIn
@@ -49,7 +49,7 @@ export default function ContactSection() {
             
             <a
               href="/resume.pdf"
-              className="flex items-center gap-3 px-6 py-3 text-neutral-400 hover:text-white transition-colors font-medium"
+              className="flex items-center justify-center gap-3 px-6 py-3 text-neutral-400 hover:text-white transition-colors font-medium sm:col-span-2 lg:col-span-1"
             >
               <IconDownload size={20} />
               Resume
