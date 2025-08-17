@@ -11,18 +11,18 @@ export default function HeroSection() {
           Currently at Lakeside School IT, previously Microsoft GSA.
         </p>
 
-        <div className="flex flex-wrap gap-6 sm:gap-8 mb-12">
+        <div className="grid grid-cols-1 sm:grid-cols-3 gap-6 sm:gap-8 mb-12 max-w-lg sm:max-w-none mx-auto sm:mx-0">
           <div className="text-center sm:text-left">
-            <div className="text-2xl sm:text-3xl font-bold text-white">5+</div>
-            <div className="text-xs sm:text-sm text-gray-400">Production Systems</div>
+            <div className="text-3xl sm:text-3xl font-bold text-white">5+</div>
+            <div className="text-sm sm:text-sm text-gray-400">Production Systems</div>
           </div>
           <div className="text-center sm:text-left">
-            <div className="text-2xl sm:text-3xl font-bold text-white">10K+</div>
-            <div className="text-xs sm:text-sm text-gray-400">Users Impacted</div>
+            <div className="text-3xl sm:text-3xl font-bold text-white">10K+</div>
+            <div className="text-sm sm:text-sm text-gray-400">Users Impacted</div>
           </div>
           <div className="text-center sm:text-left">
-            <div className="text-2xl sm:text-3xl font-bold text-white">12</div>
-            <div className="text-xs sm:text-sm text-gray-400">Open Source Projects</div>
+            <div className="text-3xl sm:text-3xl font-bold text-white">12</div>
+            <div className="text-sm sm:text-sm text-gray-400">Open Source Projects</div>
           </div>
         </div>
 
@@ -49,7 +49,7 @@ export default function HeroSection() {
           </a>
         </div>
 
-        <div className="bg-gray-900 rounded-lg border border-gray-700 p-4 sm:p-6 font-mono text-sm max-w-2xl overflow-x-auto">
+        <div className="bg-gray-900 rounded-lg border border-gray-700 p-4 sm:p-6 font-mono text-sm w-full sm:max-w-2xl overflow-x-auto">
           <div className="flex items-center gap-2 mb-4">
             <div className="w-3 h-3 rounded-full bg-red-500" />
             <div className="w-3 h-3 rounded-full bg-yellow-500" />
