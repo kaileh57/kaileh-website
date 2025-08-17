@@ -4,7 +4,7 @@
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title>Kellen Heraty | Portfolio</title>
-    <meta name="description" content="High school AI engineer with experience building production AI systems serving hundreds of users. CTO at Sculptor AI, Microsoft GSA contractor, Lakeside IT.">
+    <meta name="description" content="High school AI engineer with experience building production AI systems serving hundreds of users. CTO at Sculptor AI, Microsoft GSA intern, Lakeside IT.">
     <link rel="icon" type="image/png" id="favicon">
     
     <!-- Google Fonts -->
@@ -111,6 +111,7 @@
             display: flex;
             justify-content: space-between;
             align-items: center;
+            position: relative;
         }
 
         .logo {
@@ -523,14 +524,76 @@
             color: var(--text-primary);
         }
 
+        /* Mobile Navigation */
+        .mobile-menu-btn {
+            display: none;
+            background: none;
+            border: none;
+            color: var(--text-primary);
+            font-size: 1.5rem;
+            cursor: pointer;
+            padding: 0.5rem;
+        }
+
+        .mobile-menu {
+            display: none;
+            position: absolute;
+            top: 100%;
+            left: 0;
+            right: 0;
+            background: rgba(0, 0, 0, 0.95);
+            backdrop-filter: blur(20px);
+            border-top: 1px solid var(--border-primary);
+            padding: 1rem 1.5rem;
+            z-index: 100;
+        }
+
+        .mobile-menu.active {
+            display: block;
+        }
+
+        .mobile-nav-links {
+            display: flex;
+            flex-direction: column;
+            gap: 1rem;
+        }
+
+        .mobile-nav-links a {
+            color: var(--text-secondary);
+            text-decoration: none;
+            font-size: 1rem;
+            font-weight: 500;
+            padding: 0.5rem 0;
+            transition: color 0.3s;
+        }
+
+        .mobile-nav-links a:hover {
+            color: var(--text-primary);
+        }
+
+        .mobile-nav-divider {
+            height: 1px;
+            background: var(--border-primary);
+            margin: 0.5rem 0;
+        }
+
         /* Mobile Responsive */
         @media (max-width: 768px) {
             .nav-links {
                 display: none;
             }
 
+            .mobile-menu-btn {
+                display: block;
+            }
+
+            .hero {
+                padding: 8rem 1.5rem 4rem;
+            }
+
             .metrics {
                 gap: 2rem;
+                justify-content: center;
             }
 
             .projects-grid {
@@ -539,6 +602,18 @@
 
             .hero-buttons {
                 justify-content: center;
+                flex-direction: column;
+                gap: 1rem;
+            }
+
+            .btn {
+                text-align: center;
+                justify-content: center;
+            }
+
+            .terminal {
+                max-width: 100%;
+                margin-top: 2rem;
             }
         }
 
@@ -577,6 +652,19 @@
                 <a href="https://github.com/kaileh57" target="_blank" rel="noopener noreferrer">GitHub</a>
                 <a href="/resume.pdf" class="nav-cta" target="_blank">Resume</a>
             </div>
+            
+            <button class="mobile-menu-btn" onclick="toggleMobileMenu()">☰</button>
+            
+            <div class="mobile-menu" id="mobileMenu">
+                <div class="mobile-nav-links">
+                    <a href="#work" onclick="closeMobileMenu()">Work</a>
+                    <a href="#contact" onclick="closeMobileMenu()">Contact</a>
+                    <a href="/blog" target="_blank">Blog</a>
+                    <div class="mobile-nav-divider"></div>
+                    <a href="https://github.com/kaileh57" target="_blank" rel="noopener noreferrer">GitHub</a>
+                    <a href="/resume.pdf" target="_blank" class="nav-cta">Resume</a>
+                </div>
+            </div>
         </div>
     </nav>
 
@@ -588,7 +676,7 @@
                 
                 <p class="hero-subtitle animate-fade-in-up animate-delay-1">
                     AI Engineer and technical leader building production systems serving hundreds of users. 
-                    CTO at VetrAI, Lead researcher at Sculptor AI, Microsoft GSA contractor, Lakeside School IT.
+                    CTO at VetrAI, Lead researcher at Sculptor AI, Microsoft GSA intern, Lakeside School IT.
                 </p>
                 
                 <div class="metrics animate-fade-in-up animate-delay-2">
@@ -872,6 +960,21 @@
         </div>
     </footer>
     <script>
+        // Mobile menu functions
+        function toggleMobileMenu() {
+            const mobileMenu = document.getElementById('mobileMenu');
+            const menuBtn = document.querySelector('.mobile-menu-btn');
+            mobileMenu.classList.toggle('active');
+            menuBtn.textContent = mobileMenu.classList.contains('active') ? '✕' : '☰';
+        }
+
+        function closeMobileMenu() {
+            const mobileMenu = document.getElementById('mobileMenu');
+            const menuBtn = document.querySelector('.mobile-menu-btn');
+            mobileMenu.classList.remove('active');
+            menuBtn.textContent = '☰';
+        }
+
         // Professional smooth scrolling and interaction observers
         document.addEventListener('DOMContentLoaded', () => {
             // Simple static favicon - clean white K
