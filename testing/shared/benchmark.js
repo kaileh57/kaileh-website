@@ -12,6 +12,7 @@ class BenchmarkInterface {
         this.stats = this.loadStats();
         this.isAnswered = false;
         this.userAnswer = null;
+        this.viewRaw = false;
         this.filters = {
             category: 'all',
             difficulty: 'all',
@@ -123,7 +124,7 @@ class BenchmarkInterface {
         ctx.textBaseline = 'middle';
         ctx.font = 'bold 24px Inter, sans-serif';
         ctx.fillStyle = '#ffffff';
-        ctx.fillText('T', 16, 18);
+        ctx.fillText('K', 16, 18);
         
         const faviconLink = document.getElementById('favicon');
         if (faviconLink) {
@@ -242,6 +243,7 @@ class BenchmarkInterface {
 
         this.isAnswered = false;
         this.userAnswer = null;
+        this.viewRaw = false;
 
         const container = document.getElementById('question-container');
         container.innerHTML = this.renderQuestion();
@@ -264,6 +266,11 @@ class BenchmarkInterface {
                         <div class="difficulty-badge difficulty-${question.difficulty.replace('_', '-')}">
                             ${question.difficulty.replace('_', ' ').toUpperCase()}
                         </div>
+                    </div>
+                    <div class="question-header-right">
+                        <button id="view-raw-btn" class="view-raw-btn">
+                            <span>View Raw</span>
+                        </button>
                     </div>
                 </div>
                 
@@ -346,6 +353,35 @@ class BenchmarkInterface {
         document.getElementById('submit-btn').addEventListener('click', () => {
             this.submitAnswer();
         });
+
+        // View raw button
+        document.getElementById('view-raw-btn').addEventListener('click', () => {
+            this.toggleViewRaw();
+        });
+    }
+
+    toggleViewRaw() {
+        this.viewRaw = !this.viewRaw;
+        const btn = document.getElementById('view-raw-btn');
+        const questionText = document.querySelector('.question-text');
+        
+        if (this.viewRaw) {
+            btn.classList.add('active');
+            btn.innerHTML = '<span>View Formatted</span>';
+            questionText.innerHTML = `<pre style="white-space: pre-wrap; font-family: inherit; background: none; border: none; padding: 0; margin: 0;">${this.escapeHtml(this.currentQuestion.question)}</pre>`;
+        } else {
+            btn.classList.remove('active');
+            btn.innerHTML = '<span>View Raw</span>';
+            questionText.innerHTML = this.formatQuestionText(this.currentQuestion.question);
+            // Re-render math after switching back to formatted view
+            setTimeout(() => this.renderMath(), 50);
+        }
+    }
+
+    escapeHtml(text) {
+        const div = document.createElement('div');
+        div.textContent = text;
+        return div.innerHTML;
     }
 
     enableSubmitButton() {

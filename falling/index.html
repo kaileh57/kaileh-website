@@ -34,9 +34,6 @@
         <div class="material-palette">
             <div class="palette-header">
                 <div class="palette-title">Materials</div>
-                <div class="palette-info">
-                    <div id="material-text" style="font-size: 0.75rem; color: var(--text-secondary);">Brush: Sand (Size: 3)</div>
-                </div>
             </div>
             <div id="palette" class="material-grid">
                 <!-- Materials will be populated by JavaScript -->
@@ -46,13 +43,64 @@
         <!-- Canvas -->
         <div class="canvas-container">
             <canvas id="simulationCanvas"></canvas>
-            <div class="canvas-overlay">
-                <div id="coords-text">Coords: (0, 0)</div>
-            </div>
         </div>
 
         <!-- Info Panel -->
         <div class="info-panel">
+            <div class="info-section">
+                <div class="info-title">Current Tool</div>
+                <div id="material-text" style="font-size: 0.875rem; color: var(--text-secondary);">Brush: Sand (Size: 3)</div>
+            </div>
+            
+            <div class="info-section">
+                <div class="info-title">Position</div>
+                <div id="coords-text" style="font-size: 0.875rem; color: var(--text-secondary);">Coords: (0, 0)</div>
+            </div>
+
+            <div class="info-section">
+                <div class="info-title">Brush Controls</div>
+                <div class="brush-controls">
+                    <div class="control-group">
+                        <label class="control-label">Brush Size</label>
+                        <input type="range" id="brushSize" class="size-slider" min="1" max="20" value="3">
+                    </div>
+                    <div class="brush-preview">
+                        <div id="brushPreview" class="brush-circle"></div>
+                    </div>
+                </div>
+            </div>
+
+            <div class="info-section">
+                <div class="info-title">Visualization</div>
+                <div class="visualization-modes">
+                    <button class="viz-mode active" data-mode="normal">Normal</button>
+                    <button class="viz-mode" data-mode="temperature">Heat</button>
+                    <button class="viz-mode" data-mode="pressure">Pressure</button>
+                    <button class="viz-mode" data-mode="velocity">Velocity</button>
+                </div>
+            </div>
+
+            <div class="info-section">
+                <div class="info-title">Statistics</div>
+                <div class="stats-grid">
+                    <div class="stat-card">
+                        <div class="stat-value" id="statFPS">60</div>
+                        <div class="stat-label">FPS</div>
+                    </div>
+                    <div class="stat-card">
+                        <div class="stat-value" id="statParticles">0</div>
+                        <div class="stat-label">Particles</div>
+                    </div>
+                    <div class="stat-card">
+                        <div class="stat-value" id="statTemp">20°</div>
+                        <div class="stat-label">Avg Temp</div>
+                    </div>
+                    <div class="stat-card">
+                        <div class="stat-value" id="statPressure">1.0</div>
+                        <div class="stat-label">Pressure</div>
+                    </div>
+                </div>
+            </div>
         </div>
     </div>
 

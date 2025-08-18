@@ -17,9 +17,9 @@ let faviconColorIndex = 0;
 
 
 // --- CONSTANTS ---
-const GRID_WIDTH = 200;
-const GRID_HEIGHT = 150;
-const CELL_SIZE = 4;
+const GRID_WIDTH = 500;
+const GRID_HEIGHT = 375;
+const CELL_SIZE = 2;
 
 const WIDTH = GRID_WIDTH * CELL_SIZE;
 const HEIGHT = GRID_HEIGHT * CELL_SIZE;
@@ -35,7 +35,8 @@ const PLANT = 4; const FIRE = 5; const LAVA = 6; const GLASS = 7;
 const STEAM = 8; const OIL = 9; const ACID = 10; const COAL = 11;
 const GUNPOWDER = 12; const ICE = 13; const WOOD = 14; const SMOKE = 15;
 const TOXIC_GAS = 16; const SLIME = 17; const GASOLINE = 18; const GENERATOR = 19;
-const FUSE = 20; const ASH = 21; const ERASER = 99;
+const FUSE = 20; const ASH = 21; const MERCURY = 22; const PLASMA = 23;
+const CONCRETE = 24; const RUST = 25; const CRYSTAL = 26; const ERASER = 99;
 
 // --- COLORS ---
 const C_EMPTY = [0, 0, 0]; const C_SAND = [194, 178, 128]; const C_WATER = [50, 100, 200];
@@ -45,7 +46,9 @@ const C_OIL = [80, 70, 20]; const C_ACID = [100, 255, 100]; const C_COAL = [40, 
 const C_GUNPOWDER = [60, 60, 70]; const C_ICE = [170, 200, 255]; const C_WOOD = [139, 69, 19];
 const C_SMOKE = [150, 150, 150]; const C_TOXIC_GAS = [150, 200, 150]; const C_SLIME = [100, 200, 100];
 const C_GASOLINE = [255, 223, 186]; const C_GENERATOR = [255, 0, 0]; const C_FUSE = [100, 80, 60];
-const C_ASH = [90, 90, 90]; const C_ERASER = [255,0,255];
+const C_ASH = [90, 90, 90]; const C_MERCURY = [180, 180, 190]; const C_PLASMA = [255, 100, 255];
+const C_CONCRETE = [160, 160, 160]; const C_RUST = [140, 70, 30]; const C_CRYSTAL = [200, 150, 255];
+const C_ERASER = [255,0,255];
 
 
 // --- MATERIAL PROPERTIES ---
@@ -76,11 +79,16 @@ const MATERIALS = {
     [GENERATOR]: [ 100, 0.9, 0.0, null, null, null, C_GENERATOR, "Generator",  1, null, 0.0, null, 5.0, null ],
     [FUSE]:      [   5, 0.2, 1.0,  150, null, null, C_FUSE,      "Fuse",       1, null, 0.0, null, 0.0, 150  ],
     [ASH]:       [ 4.8, 0.2, 0.0, null, null, null, C_ASH,       "Ash",        1, null, 0.0, null, 0.0, null ],
+    [MERCURY]:   [  13, 0.9, 0.0, null,  357, -39,  C_MERCURY,   "Mercury",    1, null, 0.0, null, 0.0, null ],
+    [PLASMA]:    [  -1, 1.0, 0.0, null, null, null, C_PLASMA,    "Plasma",     1,  2.0, 0.0, null, 8.0, null ],
+    [CONCRETE]:  [  15, 0.1, 0.0, null, null, null, C_CONCRETE,  "Concrete",   1, null, 0.0, null, 0.0, null ],
+    [RUST]:      [ 7.8, 0.2, 0.0, 1500, null, null, C_RUST,      "Rust",       1, null, 0.0, null, 0.0, null ],
+    [CRYSTAL]:   [  12, 0.3, 0.0, 2000, null, null, C_CRYSTAL,   "Crystal",    1, null, 0.0, null, 0.0, null ],
     [ERASER]:    [   0, 0.0, 0.0, null, null, null, C_ERASER,    "Eraser",     1, null, 0.0, null, 0.0, null ],
 };
 
 // --- SIMULATION PARAMETERS ---
-const AMBIENT_TEMP = 20.0; const COOLING_RATE = 0.005; const FIRE_HEAT_TRANSFER = 60.0;
+const AMBIENT_TEMP = 20.0; const COOLING_RATE = 0.005; const FIRE_HEAT_TRANSFER = 150.0;
 const WATER_COOLING_FACTOR = 80.0; const PLANT_GROWTH_CHANCE_PER_SEC = 0.09; // = 0.0015 * 60
 const MAX_TEMP = 3000;
 const DEFAULT_FIRE_LIFESPAN_SEC = MATERIALS[FIRE][9];
@@ -94,17 +102,17 @@ const ACID_GAS_TEMP_FACTOR = 0.8; // Temperature factor for gas created by acid
 // Helper function to check if a type is liquid
 function isLiquid(type) {
     // Only true fluids should flow like liquids
-    return type === WATER || type === OIL || type === ACID || type === GASOLINE || type === LAVA;
+    return type === WATER || type === OIL || type === ACID || type === GASOLINE || type === LAVA || type === MERCURY;
 }
 
 // Helper function to check if a type behaves like a powder/granular solid
 function isPowder(type) {
-    return type === SAND || type === ASH || type === GUNPOWDER || type === COAL; // Maybe add PLANT?
+    return type === SAND || type === ASH || type === GUNPOWDER || type === COAL || type === RUST;
 }
 
 // Helper function to check if a type is a generally rigid solid
 function isRigidSolid(type) {
-    return type === STONE || type === GLASS || type === WOOD || type === ICE;
+    return type === STONE || type === GLASS || type === WOOD || type === ICE || type === CONCRETE || type === CRYSTAL;
 }
 
 // --- PARTICLE CLASS ---
@@ -496,7 +504,58 @@ class Simulation {
              }
          }
          else if (ptype === ACID) {
-             const cPow = cP[10] || 0.0; if (cPow > 0) { let consumed = false; for (let dx = -1; dx <= 1; dx++) { for (let dy = -1; dy <= 1; dy++) { if (Math.abs(dx) + Math.abs(dy) !== 1) continue; const n = this.getParticle(x + dx, y + dy); const immune = [EMPTY, ACID, GLASS, GENERATOR]; if (n && !immune.includes(n.type)) { if (Math.random() < cPow * dtScale) { const tX = n.x; const tY = n.y; let dissolve = true; if (n.type === STONE && Math.random() < 0.3) { n.changeType(SAND); dissolve = false; } if (dissolve) { this.setParticle(tX, tY, new Particle(tX, tY, EMPTY)); const gasSpawnTemp = particle.temp * ACID_GAS_TEMP_FACTOR; const gX1 = tX; const gY1 = tY - 1; const target1 = this.getParticle(gX1, gY1); if (target1 && target1.type === EMPTY) { this.setParticle(gX1, gY1, new Particle(gX1, gY1, TOXIC_GAS, gasSpawnTemp)); } else { const gX2 = x; const gY2 = y - 1; const target2 = this.getParticle(gX2, gY2); if(target2 && target2.type === EMPTY){ this.setParticle(gX2, gY2, new Particle(gX2, gY2, TOXIC_GAS, gasSpawnTemp)); } } } if(Math.random() < 0.05 * dtScale) { this.setParticle(x, y, new Particle(x,y, EMPTY)); consumed = true; } if (consumed) return; break; } } } } }; // Added semicolon
+             const cPow = cP[10] || 0.0; if (cPow > 0) { let consumed = false; for (let dx = -1; dx <= 1; dx++) { for (let dy = -1; dy <= 1; dy++) { if (Math.abs(dx) + Math.abs(dy) !== 1) continue; const n = this.getParticle(x + dx, y + dy); const immune = [EMPTY, ACID, GLASS, GENERATOR, CRYSTAL]; if (n && !immune.includes(n.type)) { if (Math.random() < cPow * dtScale) { const tX = n.x; const tY = n.y; let dissolve = true; if (n.type === STONE && Math.random() < 0.3) { n.changeType(SAND); dissolve = false; } else if (n.type === CONCRETE && Math.random() < 0.4) { n.changeType(SAND); dissolve = false; } if (dissolve) { this.setParticle(tX, tY, new Particle(tX, tY, EMPTY)); const gasSpawnTemp = particle.temp * ACID_GAS_TEMP_FACTOR; const gX1 = tX; const gY1 = tY - 1; const target1 = this.getParticle(gX1, gY1); if (target1 && target1.type === EMPTY) { this.setParticle(gX1, gY1, new Particle(gX1, gY1, TOXIC_GAS, gasSpawnTemp)); } else { const gX2 = x; const gY2 = y - 1; const target2 = this.getParticle(gX2, gY2); if(target2 && target2.type === EMPTY){ this.setParticle(gX2, gY2, new Particle(gX2, gY2, TOXIC_GAS, gasSpawnTemp)); } } } if(Math.random() < 0.05 * dtScale) { this.setParticle(x, y, new Particle(x,y, EMPTY)); consumed = true; } if (consumed) return; break; } } } } }; // Added semicolon
+         }
+         else if (ptype === PLASMA) {
+             // Plasma effects - very hot, spreads energy, ionizes nearby materials
+             for (let dx = -2; dx <= 2; dx++) {
+                 for (let dy = -2; dy <= 2; dy++) {
+                     if (dx === 0 && dy === 0) continue;
+                     const n = this.getParticle(x + dx, y + dy);
+                     if (n && n.type !== EMPTY && n.type !== PLASMA) {
+                         const distance = Math.sqrt(dx*dx + dy*dy);
+                         const effect = 1.0 / (distance + 0.5);
+                         
+                         // Heat nearby particles extremely
+                         n.temp = Math.min(MAX_TEMP, n.temp + 200 * effect * dtScale);
+                         
+                         // Convert some materials at high temps
+                         if (n.temp > 2000 && Math.random() < 0.02 * dtScale) {
+                             if (n.type === WATER) n.changeType(STEAM);
+                             else if (n.type === STONE) n.changeType(LAVA);
+                             else if (n.type === SAND) n.changeType(GLASS);
+                         }
+                         
+                         n.invalidateColorCache();
+                     }
+                 }
+             }
+             
+             // Plasma spawns energy randomly
+             if (Math.random() < 0.1 * dtScale) {
+                 const directions = [[-1,0], [1,0], [0,-1], [0,1]];
+                 const dir = directions[Math.floor(Math.random() * directions.length)];
+                 const energyX = x + dir[0];
+                 const energyY = y + dir[1];
+                 const target = this.getParticle(energyX, energyY);
+                 if (target && target.type === EMPTY) {
+                     this.setParticle(energyX, energyY, new Particle(energyX, energyY, FIRE, 1500));
+                 }
+             }
+         }
+         else if (ptype === MERCURY) {
+             // Mercury special liquid properties - absorbs other liquids
+             for (let dx = -1; dx <= 1; dx++) {
+                 for (let dy = -1; dy <= 1; dy++) {
+                     if (Math.abs(dx) + Math.abs(dy) !== 1) continue;
+                     const n = this.getParticle(x + dx, y + dy);
+                     if (n && (n.type === WATER || n.type === OIL) && Math.random() < 0.05 * dtScale) {
+                         // Mercury "absorbs" other liquids, getting slightly warmer
+                         particle.temp = Math.min(particle.temp + 5, MAX_TEMP);
+                         n.changeType(MERCURY, (n.temp + particle.temp) / 2);
+                     }
+                 }
+             }
          }
          else if (ptype === PLANT) {
               // --- Revised Plant Growth/Spread Logic ---
@@ -909,8 +968,12 @@ class Simulation {
 
 // --- GLOBAL STATE ---
 const simulation = new Simulation(GRID_WIDTH, GRID_HEIGHT);
-let isDrawing = false; let currentMaterial = SAND; let brushSize = 3;
+let isDrawing = false; 
+let currentMaterial = SAND; 
+let brushSize = 3;
 let lastTime = 0;
+let visualizationMode = 'normal';
+let pressureField = Array(GRID_HEIGHT).fill().map(() => Array(GRID_WIDTH).fill(1.0));
 
 // --- UI UPDATE FUNCTIONS ---
 function updateUIText() {
@@ -919,6 +982,7 @@ function updateUIText() {
      document.querySelectorAll('#palette button').forEach(b => {
          b.classList.toggle('selected', parseInt(b.dataset.materialId) === currentMaterial);
      });
+     updateBrushPreview();
      faviconLink.href = faviconCanvas.toDataURL('image/png');
 }
 
@@ -972,17 +1036,24 @@ function gameLoop(timestamp) {
     // Clamp deltaTime to avoid large jumps if tab loses focus
     const dtClamped = Math.min(deltaTime, 0.1); // Max 100ms step
 
-    // FPS calculation
+    // FPS calculation and stats update
     frameCount++;
     fpsTimer += dtClamped;
     if (fpsTimer >= 1) {
         const fps = Math.round(frameCount / fpsTimer);
         const fpsElement = document.getElementById('fps-text');
+        const statFPS = document.getElementById('statFPS');
         if (fpsElement) {
             fpsElement.textContent = `${fps} FPS`;
         }
+        if (statFPS) {
+            statFPS.textContent = fps;
+        }
         frameCount = 0;
         fpsTimer = 0;
+        
+        // Update stats every second
+        updateStats();
     }
 
     // Update UI text (only if needed, maybe less frequently?)
@@ -996,8 +1067,8 @@ function gameLoop(timestamp) {
 
     // Update simulation with clamped delta time
     simulation.update(dtClamped);
-    // Draw simulation state
-    simulation.draw();
+    // Draw simulation state with visualization mode
+    drawSimulation();
     // Update favicon
     updateFavicon();
 
@@ -1005,13 +1076,167 @@ function gameLoop(timestamp) {
     requestAnimationFrame(gameLoop);
 }
 
+// --- ENHANCED DRAWING WITH VISUALIZATION MODES ---
+function drawSimulation() {
+    const imageData = ctx.createImageData(WIDTH, HEIGHT);
+    const data = imageData.data;
+
+    for (let y = 0; y < GRID_HEIGHT; y++) {
+        for (let x = 0; x < GRID_WIDTH; x++) {
+            const particle = simulation.getParticle(x, y);
+            let color = [0, 0, 0]; // Default black
+            
+            if (particle && particle.type !== EMPTY) {
+                if (visualizationMode === 'normal') {
+                    // Fast normal mode - use base colors with simple temp tinting
+                    const baseColor = particle.getProperties()[6];
+                    color = [baseColor[0], baseColor[1], baseColor[2]];
+                    
+                    // Simple temperature effect for performance
+                    if (particle.type !== FIRE && particle.type !== LAVA && particle.type !== STEAM) {
+                        const tempFactor = Math.max(-0.3, Math.min(0.8, (particle.temp - 20) / 200));
+                        if (tempFactor !== 0) {
+                            color[0] = Math.max(0, Math.min(255, color[0] + tempFactor * 20));
+                            color[1] = Math.max(0, Math.min(255, color[1] + tempFactor * 10));
+                            color[2] = Math.max(0, Math.min(255, color[2] - Math.abs(tempFactor) * 10));
+                        }
+                    }
+                } else if (visualizationMode === 'temperature') {
+                    const temp = particle.temp;
+                    let factor = Math.max(0, Math.min(1, (temp - 20) / 800));
+                    // Enhanced temperature visualization
+                    if (temp < 20) {
+                        // Cold - blue tones
+                        factor = Math.max(0, Math.min(1, (20 - temp) / 50));
+                        color = [20, 50 + factor * 100, 255 * factor];
+                    } else {
+                        // Hot - red/orange/white tones
+                        color = [255 * factor + 100 * (1-factor), 100 * (1 - factor) + 150 * factor, 50];
+                    }
+                } else if (visualizationMode === 'pressure') {
+                    // Enhanced pressure visualization based on particle density and neighbors
+                    let pressure = 1.0;
+                    const density = particle.getProperties()[0];
+                    
+                    // Calculate local pressure based on neighbors
+                    let neighborCount = 0;
+                    let totalDensity = density;
+                    for (let dx = -1; dx <= 1; dx++) {
+                        for (let dy = -1; dy <= 1; dy++) {
+                            if (dx === 0 && dy === 0) continue;
+                            const neighbor = simulation.getParticle(x + dx, y + dy);
+                            if (neighbor && neighbor.type !== EMPTY) {
+                                neighborCount++;
+                                totalDensity += neighbor.getProperties()[0];
+                            }
+                        }
+                    }
+                    
+                    pressure = (totalDensity / 9) + (neighborCount / 8);
+                    const factor = Math.max(0, Math.min(1, (pressure - 0.5) / 3));
+                    color = [80 + factor * 100, 120 + factor * 80, 160 + factor * 95];
+                } else if (visualizationMode === 'velocity') {
+                    // Velocity visualization based on movement patterns
+                    let velocity = 0;
+                    
+                    // Check if particle moved recently or has movement potential
+                    if (particle.movedThisStep) {
+                        velocity = 1.0;
+                    } else {
+                        // Calculate potential velocity based on density differences
+                        const density = particle.getProperties()[0];
+                        const below = simulation.getParticle(x, y + 1);
+                        const above = simulation.getParticle(x, y - 1);
+                        
+                        if (below && below.type !== EMPTY) {
+                            const belowDensity = below.getProperties()[0];
+                            if (density > belowDensity) velocity += 0.7;
+                        } else if (below && below.type === EMPTY) {
+                            velocity += 0.9;
+                        }
+                        
+                        if (above && above.type !== EMPTY) {
+                            const aboveDensity = above.getProperties()[0];
+                            if (density < aboveDensity) velocity += 0.5;
+                        }
+                    }
+                    
+                    const factor = Math.max(0, Math.min(1, velocity));
+                    color = [100 + factor * 155, 140 + factor * 100, 160 + factor * 95];
+                }
+            }
+
+            // Fill cell with calculated color
+            for (let py = 0; py < CELL_SIZE; py++) {
+                for (let px = 0; px < CELL_SIZE; px++) {
+                    const pixelX = x * CELL_SIZE + px;
+                    const pixelY = y * CELL_SIZE + py;
+                    const index = (pixelY * WIDTH + pixelX) * 4;
+                    
+                    data[index] = color[0];     // R
+                    data[index + 1] = color[1]; // G
+                    data[index + 2] = color[2]; // B
+                    data[index + 3] = 255;     // A
+                }
+            }
+        }
+    }
+
+    ctx.putImageData(imageData, 0, 0);
+}
+
+// --- ENHANCED UI UPDATE FUNCTIONS ---
+function updateBrushPreview() {
+    const brushPreview = document.getElementById('brushPreview');
+    if (!brushPreview) return;
+    
+    const size = Math.min(brushSize * 3, 50);
+    brushPreview.style.width = size + 'px';
+    brushPreview.style.height = size + 'px';
+}
+
+function updateStats() {
+    // Count particles and calculate stats
+    let particleCount = 0;
+    let totalTemp = 0;
+    let avgPressure = 0;
+    
+    for (let y = 0; y < GRID_HEIGHT; y++) {
+        for (let x = 0; x < GRID_WIDTH; x++) {
+            const particle = simulation.getParticle(x, y);
+            if (particle && particle.type !== EMPTY) {
+                particleCount++;
+                totalTemp += particle.temp;
+            }
+            avgPressure += pressureField[y][x];
+        }
+    }
+    
+    const avgTemp = particleCount > 0 ? Math.round(totalTemp / particleCount) : 20;
+    avgPressure = (avgPressure / (GRID_WIDTH * GRID_HEIGHT)).toFixed(1);
+    
+    // Update stats display
+    const statFPS = document.getElementById('statFPS');
+    const statParticles = document.getElementById('statParticles');
+    const statTemp = document.getElementById('statTemp');
+    const statPressure = document.getElementById('statPressure');
+    
+    if (statParticles) statParticles.textContent = particleCount.toLocaleString();
+    if (statTemp) statTemp.textContent = avgTemp + '°';
+    if (statPressure) statPressure.textContent = avgPressure;
+}
+
 // --- EVENT HANDLERS ---
 function getMousePos(canvas, evt) { const rect = canvas.getBoundingClientRect(); return { x: evt.clientX - rect.left, y: evt.clientY - rect.top }; }
 function handleDraw(event) {
     const pos = getMousePos(canvas, event);
-    const gX = Math.floor(pos.x / CELL_SIZE);
-    const gY = Math.floor(pos.y / CELL_SIZE);
+    const gX = Math.floor((pos.x / canvas.offsetWidth) * GRID_WIDTH);
+    const gY = Math.floor((pos.y / canvas.offsetHeight) * GRID_HEIGHT);
     updateCoordsText(gX, gY);
+    
+    // Draw custom cursor
+    drawCustomCursor(pos.x, pos.y);
+    
     if (!isDrawing) return;
 
     const sX = Math.max(0, gX - brushSize);
@@ -1043,20 +1268,153 @@ function handleDraw(event) {
         }
     }
 }
+
+function drawCustomCursor(x, y) {
+    // This will be drawn on the canvas overlay, but for now we'll use CSS cursor positioning
+    const cursorSize = Math.max(4, brushSize * 2);
+    
+    // Update a CSS cursor element if it exists
+    let cursor = document.getElementById('cursor-indicator');
+    if (!cursor) {
+        cursor = document.createElement('div');
+        cursor.id = 'cursor-indicator';
+        cursor.style.position = 'absolute';
+        cursor.style.border = '2px solid rgba(255, 255, 255, 0.8)';
+        cursor.style.borderRadius = '50%';
+        cursor.style.pointerEvents = 'none';
+        cursor.style.zIndex = '1000';
+        cursor.style.transform = 'translate(-50%, -50%)';
+        canvas.parentElement.appendChild(cursor);
+    }
+    
+    cursor.style.width = cursorSize + 'px';
+    cursor.style.height = cursorSize + 'px';
+    cursor.style.left = x + 'px';
+    cursor.style.top = y + 'px';
+}
 canvas.addEventListener('mousedown', (e) => { if (e.button === 0) { isDrawing = true; handleDraw(e); } });
-canvas.addEventListener('mousemove', (e) => { if(isDrawing) handleDraw(e); else { const pos = getMousePos(canvas, e); const gX = Math.floor(pos.x / CELL_SIZE); const gY = Math.floor(pos.y / CELL_SIZE); updateCoordsText(gX, gY); } });
+canvas.addEventListener('mouseenter', () => {
+    const cursor = document.getElementById('cursor-indicator');
+    if (cursor) cursor.style.display = 'block';
+});
+canvas.addEventListener('mousemove', (e) => { 
+    if(isDrawing) {
+        handleDraw(e);
+    } else {
+        const pos = getMousePos(canvas, e);
+        const gX = Math.floor((pos.x / canvas.offsetWidth) * GRID_WIDTH);
+        const gY = Math.floor((pos.y / canvas.offsetHeight) * GRID_HEIGHT);
+        updateCoordsText(gX, gY);
+        drawCustomCursor(pos.x, pos.y);
+    }
+});
 canvas.addEventListener('mouseup', (e) => { if (e.button === 0) { isDrawing = false; } });
-canvas.addEventListener('mouseleave', () => { isDrawing = false; updateCoordsText(-1,-1); });
+canvas.addEventListener('mouseleave', () => { 
+    isDrawing = false; 
+    updateCoordsText(-1,-1);
+    // Hide cursor
+    const cursor = document.getElementById('cursor-indicator');
+    if (cursor) cursor.style.display = 'none';
+});
 canvas.addEventListener('contextmenu', (e) => e.preventDefault());
-canvas.addEventListener('wheel', (e) => { e.preventDefault(); if (e.deltaY < 0) brushSize = Math.min(20, brushSize + 1); else brushSize = Math.max(0, brushSize - 1); updateUIText(); });
+// Global wheel event for brush size (anywhere on page)
+window.addEventListener('wheel', (e) => { 
+    e.preventDefault(); 
+    const oldSize = brushSize;
+    if (e.deltaY < 0) brushSize = Math.min(20, brushSize + 1); 
+    else brushSize = Math.max(0, brushSize - 1); 
+    
+    if (oldSize !== brushSize) {
+        updateUIText();
+        // Update slider position
+        const slider = document.getElementById('brushSize');
+        if (slider) slider.value = brushSize;
+    }
+}, { passive: false });
 window.addEventListener('keydown', (e) => { if (e.key === 'c' || e.key === 'C') { simulation.initGrid(); console.log("Grid cleared by keypress."); } });
 clearButton.addEventListener('click', () => { simulation.initGrid(); console.log("Grid cleared by button."); });
 
 // --- PALETTE GENERATION ---
-function populatePalette() { paletteDiv.innerHTML = ''; const eB = document.createElement('button'); eB.textContent = MATERIALS[ERASER][7]; eB.dataset.materialId = ERASER; eB.style.backgroundColor = `rgb(${C_ERASER.join(',')})`; eB.style.color = 'white'; eB.title = "Eraser Tool [E]"; eB.addEventListener('click', () => { currentMaterial = ERASER; updateUIText(); }); paletteDiv.appendChild(eB); const sM = Object.entries(MATERIALS).map(([id, props]) => ({ id: parseInt(id), name: props[7], props: props })).filter(m => m.id !== EMPTY && m.id !== ERASER).sort((a, b) => a.name.localeCompare(b.name)); for (const mat of sM) { const id = mat.id; const p = mat.props; const b = document.createElement('button'); b.textContent = p[7]; b.dataset.materialId = id; const cA = p[6]; b.style.backgroundColor = `rgb(${cA.join(',')})`; const br = (cA[0] * 299 + cA[1] * 587 + cA[2] * 114) / 1000; b.style.color = br < 128 ? 'white' : '#111'; b.title = `Select ${p[7]}`; b.addEventListener('click', () => { currentMaterial = id; updateUIText(); }); paletteDiv.appendChild(b); } }
+function populatePalette() {
+    paletteDiv.innerHTML = '';
+    
+    // Define material categories for logical organization
+    const materialOrder = [
+        // Solids
+        SAND, STONE, CONCRETE, GLASS, WOOD, COAL, ICE, CRYSTAL,
+        // Powders
+        ASH, GUNPOWDER, RUST,
+        // Liquids
+        WATER, OIL, ACID, GASOLINE, MERCURY, SLIME,
+        // Gases
+        STEAM, SMOKE, TOXIC_GAS,
+        // Energy/Special
+        FIRE, LAVA, PLASMA,
+        // Interactive
+        PLANT, FUSE, GENERATOR
+    ];
+    
+    // Create material buttons with more subtle colors
+    for (const matId of materialOrder) {
+        if (!MATERIALS[matId]) continue;
+        
+        const props = MATERIALS[matId];
+        const button = document.createElement('button');
+        button.textContent = props[7];
+        button.dataset.materialId = matId;
+        
+        // More subtle background colors - desaturated versions
+        const baseColor = props[6];
+        const desaturatedColor = baseColor.map(c => Math.floor(c * 0.3 + 60)); // Desaturate and darken
+        button.style.backgroundColor = `rgb(${desaturatedColor.join(',')})`;
+        
+        button.title = `Select ${props[7]}`;
+        button.addEventListener('click', () => {
+            currentMaterial = matId;
+            updateUIText();
+        });
+        
+        paletteDiv.appendChild(button);
+    }
+    
+    // Add eraser button at the bottom
+    const eraserButton = document.createElement('button');
+    eraserButton.textContent = 'Eraser';
+    eraserButton.dataset.materialId = ERASER;
+    eraserButton.className = 'eraser-button';
+    eraserButton.title = 'Eraser Tool [E]';
+    eraserButton.addEventListener('click', () => {
+        currentMaterial = ERASER;
+        updateUIText();
+    });
+    
+    paletteDiv.appendChild(eraserButton);
+}
+
+// --- SETUP ADDITIONAL EVENT HANDLERS ---
+function setupAdditionalEventHandlers() {
+    // Brush size slider
+    const brushSizeSlider = document.getElementById('brushSize');
+    if (brushSizeSlider) {
+        brushSizeSlider.addEventListener('input', (e) => {
+            brushSize = parseInt(e.target.value);
+            updateUIText();
+        });
+    }
+
+    // Visualization mode controls
+    document.querySelectorAll('.viz-mode').forEach(btn => {
+        btn.addEventListener('click', (e) => {
+            document.querySelectorAll('.viz-mode').forEach(b => b.classList.remove('active'));
+            e.target.classList.add('active');
+            visualizationMode = e.target.dataset.mode;
+        });
+    });
+}
 
 // --- START SIMULATION ---
 populatePalette();
+setupAdditionalEventHandlers();
 // Initial UI setup
 updateUIText();
 updateFavicon();
