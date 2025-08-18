@@ -961,6 +961,9 @@ function updateFavicon() {
 }
 
 // --- GAME LOOP --- Now uses Delta Time ---
+let frameCount = 0;
+let fpsTimer = 0;
+
 function gameLoop(timestamp) {
     // Calculate deltaTime in seconds
     const deltaTime = (timestamp - lastTime) / 1000;
@@ -968,6 +971,19 @@ function gameLoop(timestamp) {
 
     // Clamp deltaTime to avoid large jumps if tab loses focus
     const dtClamped = Math.min(deltaTime, 0.1); // Max 100ms step
+
+    // FPS calculation
+    frameCount++;
+    fpsTimer += dtClamped;
+    if (fpsTimer >= 1) {
+        const fps = Math.round(frameCount / fpsTimer);
+        const fpsElement = document.getElementById('fps-text');
+        if (fpsElement) {
+            fpsElement.textContent = `${fps} FPS`;
+        }
+        frameCount = 0;
+        fpsTimer = 0;
+    }
 
     // Update UI text (only if needed, maybe less frequently?)
     // Example: Update UI only every ~100ms
@@ -1042,8 +1058,6 @@ function populatePalette() { paletteDiv.innerHTML = ''; const eB = document.crea
 // --- START SIMULATION ---
 populatePalette();
 // Initial UI setup
-const fpsP = document.getElementById('fps-text');
-if (fpsP) fpsP.style.display = 'none'; // Hide FPS paragraph
 updateUIText();
 updateFavicon();
 lastTime = performance.now(); // Initialize lastTime

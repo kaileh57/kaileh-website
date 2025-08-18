@@ -3,34 +3,62 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Everything Falls</title>
-    <link rel="icon" href="#" id="favicon"> <!-- Placeholder for dynamic favicon -->
-    <link rel="stylesheet" href="style.css"> <!-- Link to external CSS -->
+    <title>Advanced Falling Sand Simulation</title>
+    <link rel="icon" type="image/png" id="favicon">
+    
+    <!-- Google Fonts - Same as portfolio -->
+    <link rel="preconnect" href="https://fonts.googleapis.com">
+    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+    <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700&family=JetBrains+Mono:wght@400;500&display=swap" rel="stylesheet">
+    
+    <link rel="stylesheet" href="style.css">
 </head>
 <body>
-
-    <div id="simulation-container">
-        <canvas id="simulationCanvas"></canvas>
-        <canvas id="faviconCanvas" width="16" height="16"></canvas> <!-- Hidden canvas for favicon -->
-    </div>
-
-    <!-- Right Panel containing Info and Palette -->
-    <div id="right-panel">
-        <div id="ui-info">
-            <p id="material-text">Brush: Sand (Size: 3)</p>
-            <p>Click Palette/Use Mouse Wheel for Size</p>
-            <p>Painting replaces existing material.</p>
-            <p id="coords-text">Coords: (0, 0)</p>
-            <p id="fps-text">FPS: calculating...</p>
-            <p><button id="clear-button">Clear [C]</button></p>
+    <div class="app-container">
+        <!-- Header -->
+        <div class="header">
+            <div class="header-left">
+                <div class="logo">Advanced Falling Sand</div>
+                <div class="simulation-controls">
+                    <button id="clear-button" class="control-btn">Reset</button>
+                </div>
+            </div>
+            <div class="header-right">
+                <div class="performance-display">
+                    <span id="fps-text">60 FPS</span>
+                </div>
+            </div>
         </div>
 
-        <div id="palette">
-            <!-- Buttons will be generated here by JavaScript -->
+        <!-- Material Palette -->
+        <div class="material-palette">
+            <div class="palette-header">
+                <div class="palette-title">Materials</div>
+                <div class="palette-info">
+                    <div id="material-text" style="font-size: 0.75rem; color: var(--text-secondary);">Brush: Sand (Size: 3)</div>
+                </div>
+            </div>
+            <div id="palette" class="material-grid">
+                <!-- Materials will be populated by JavaScript -->
+            </div>
+        </div>
+
+        <!-- Canvas -->
+        <div class="canvas-container">
+            <canvas id="simulationCanvas"></canvas>
+            <div class="canvas-overlay">
+                <div id="coords-text">Coords: (0, 0)</div>
+            </div>
+        </div>
+
+        <!-- Info Panel -->
+        <div class="info-panel">
         </div>
     </div>
 
-    <script src="script.js" defer></script> <!-- Link to external JS, defer execution -->
+    <!-- Hidden canvas for favicon -->
+    <canvas id="faviconCanvas" width="16" height="16" style="display: none;"></canvas>
 
+    <script src="script.js"></script>
 </body>
 </html>
