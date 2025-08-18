@@ -284,12 +284,13 @@ class BenchmarkInterface {
     }
 
     renderAnswerInput(question) {
-        if (question.answer_type === 'multipleChoice') {
+        // Check if question has choices (multiple choice)
+        if ((question.answer_type === 'multipleChoice' || question.choices) && question.choices && question.choices.length > 0) {
             return `
                 <div class="choices-container">
                     ${question.choices.map((choice, index) => `
                         <div class="choice-item" data-value="${this.extractChoiceValue(choice)}" data-index="${index}">
-                            ${choice}
+                            ${this.formatQuestionText(choice)}
                         </div>
                     `).join('')}
                 </div>
@@ -316,7 +317,7 @@ class BenchmarkInterface {
     setupQuestionEventListeners() {
         const question = this.currentQuestion;
 
-        if (question.answer_type === 'multipleChoice') {
+        if ((question.answer_type === 'multipleChoice' || question.choices) && question.choices && question.choices.length > 0) {
             document.querySelectorAll('.choice-item').forEach(choice => {
                 choice.addEventListener('click', () => {
                     if (this.isAnswered) return;
@@ -373,7 +374,7 @@ class BenchmarkInterface {
         const userAnswer = this.userAnswer.toString().trim();
         const correctAnswer = question.answer.toString().trim();
 
-        if (question.answer_type === 'multipleChoice') {
+        if ((question.answer_type === 'multipleChoice' || question.choices) && question.choices && question.choices.length > 0) {
             return userAnswer.toUpperCase() === correctAnswer.toUpperCase();
         } else {
             // Basic string comparison with some normalization
@@ -424,7 +425,7 @@ class BenchmarkInterface {
         container.style.display = 'block';
 
         // Highlight correct/incorrect choices for multiple choice
-        if (question.answer_type === 'multipleChoice') {
+        if ((question.answer_type === 'multipleChoice' || question.choices) && question.choices && question.choices.length > 0) {
             document.querySelectorAll('.choice-item').forEach(choice => {
                 choice.classList.add('disabled');
                 if (choice.dataset.value.toUpperCase() === question.answer.toUpperCase()) {
@@ -520,7 +521,8 @@ class BenchmarkInterface {
             case 'b':
             case 'c':
             case 'd':
-                if (this.currentQuestion?.answer_type === 'multipleChoice' && !this.isAnswered) {
+                const question = this.currentQuestion;
+                if (question && ((question.answer_type === 'multipleChoice' || question.choices) && question.choices && question.choices.length > 0) && !this.isAnswered) {
                     const choices = document.querySelectorAll('.choice-item');
                     let index = -1;
                     
@@ -570,6 +572,12 @@ class BenchmarkInterface {
         // Convert basic markdown
         text = text.replace(/\*\*(.*?)\*\*/g, '<strong>$1</strong>');
         text = text.replace(/\*(.*?)\*/g, '<em>$1</em>');
+        
+        // Handle LaTeX math expressions (preserve them for MathJax)
+        // Inline math: $...$
+        text = text.replace(/\$([^$]+)\$/g, '\\($1\\)');
+        // Display math: $$...$$
+        text = text.replace(/\$\$([^$]+)\$\$/g, '\\[$1\\]');
         
         // Convert newlines to HTML
         text = text.replace(/\n\n/g, '</p><p>');

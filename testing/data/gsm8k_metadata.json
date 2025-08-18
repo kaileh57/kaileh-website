@@ -3,10 +3,14 @@
   "description": "Grade school math word problems requiring multi-step reasoning and logical breakdown.",
   "category": "math",
   "difficulty": "easy",
-  "total_questions": 1319,
-  "human_performance": "~95%",
+  "total_questions": 8792,
+  "human_performance": "~80%",
   "domains": "Math",
   "github_url": "https://github.com/openai/grade-school-math",
   "created": "2024-12-15",
-  "version": "1.0"
+  "version": "1.0",
+  "splits": {
+    "train": 7473,
+    "test": 1319
+  }
 }
