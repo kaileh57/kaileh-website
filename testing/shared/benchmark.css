@@ -24,12 +24,12 @@
     --incorrect: #ef4444;
     --incorrect-bg: rgba(239, 68, 68, 0.1);
     
-    /* Benchmark specific */
-    --benchmark-math: #3b82f6;
-    --benchmark-code: #10b981;
-    --benchmark-knowledge: #8b5cf6;
-    --benchmark-reasoning: #f59e0b;
-    --benchmark-advanced: #ef4444;
+    /* Benchmark specific - subtle, dark theme colors */
+    --benchmark-math: #2563eb;
+    --benchmark-code: #059669;
+    --benchmark-knowledge: #7c3aed;
+    --benchmark-reasoning: #d97706;
+    --benchmark-advanced: #dc2626;
 }
 
 * {
@@ -112,18 +112,18 @@ body {
     letter-spacing: 0.05em;
 }
 
-.difficulty-easy { background: var(--benchmark-code); color: white; }
-.difficulty-medium { background: var(--benchmark-reasoning); color: white; }
-.difficulty-hard { background: var(--benchmark-advanced); color: white; }
-.difficulty-frontier { background: var(--benchmark-knowledge); color: white; }
-.difficulty-level_1, .difficulty-level_2, .difficulty-level_3 { background: var(--benchmark-reasoning); color: white; }
-.difficulty-level_4, .difficulty-level_5 { background: var(--benchmark-advanced); color: white; }
+.difficulty-easy { background: rgba(5, 150, 105, 0.15); color: #10b981; border: 1px solid rgba(5, 150, 105, 0.3); }
+.difficulty-medium { background: rgba(217, 119, 6, 0.15); color: #f59e0b; border: 1px solid rgba(217, 119, 6, 0.3); }
+.difficulty-hard { background: rgba(220, 38, 38, 0.15); color: #ef4444; border: 1px solid rgba(220, 38, 38, 0.3); }
+.difficulty-frontier { background: rgba(124, 58, 237, 0.15); color: #8b5cf6; border: 1px solid rgba(124, 58, 237, 0.3); }
+.difficulty-level_1, .difficulty-level_2, .difficulty-level_3 { background: rgba(217, 119, 6, 0.15); color: #f59e0b; border: 1px solid rgba(217, 119, 6, 0.3); }
+.difficulty-level_4, .difficulty-level_5 { background: rgba(220, 38, 38, 0.15); color: #ef4444; border: 1px solid rgba(220, 38, 38, 0.3); }
 
-.category-math { background: var(--benchmark-math); color: white; }
-.category-code { background: var(--benchmark-code); color: white; }
-.category-knowledge { background: var(--benchmark-knowledge); color: white; }
-.category-reasoning { background: var(--benchmark-reasoning); color: white; }
-.category-advanced { background: var(--benchmark-advanced); color: white; }
+.category-math { background: rgba(37, 99, 235, 0.15); color: #3b82f6; border: 1px solid rgba(37, 99, 235, 0.3); }
+.category-code { background: rgba(5, 150, 105, 0.15); color: #10b981; border: 1px solid rgba(5, 150, 105, 0.3); }
+.category-knowledge { background: rgba(124, 58, 237, 0.15); color: #8b5cf6; border: 1px solid rgba(124, 58, 237, 0.3); }
+.category-reasoning { background: rgba(217, 119, 6, 0.15); color: #f59e0b; border: 1px solid rgba(217, 119, 6, 0.3); }
+.category-advanced { background: rgba(220, 38, 38, 0.15); color: #ef4444; border: 1px solid rgba(220, 38, 38, 0.3); }
 
 /* Stats */
 .stats-container {
