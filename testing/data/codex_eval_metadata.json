@@ -1,0 +1,12 @@
+{
+  "name": "CodeX Eval",
+  "description": "Programming challenges testing algorithmic problem solving.",
+  "category": "code",
+  "difficulty": "hard",
+  "total_questions": 500,
+  "human_performance": "~85%",
+  "domains": "Algorithms",
+  "github_url": "https://github.com/openai/human-eval",
+  "created": "2024-12-15",
+  "version": "1.0"
+}

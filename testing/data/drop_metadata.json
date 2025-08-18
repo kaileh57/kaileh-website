@@ -1,0 +1,12 @@
+{
+  "name": "DROP",
+  "description": "Reading comprehension requiring discrete reasoning over paragraphs.",
+  "category": "reasoning",
+  "difficulty": "hard",
+  "total_questions": 9536,
+  "human_performance": "~96%",
+  "domains": "Reading & Math",
+  "github_url": "https://github.com/allenai/drop",
+  "created": "2024-12-15",
+  "version": "1.0"
+}

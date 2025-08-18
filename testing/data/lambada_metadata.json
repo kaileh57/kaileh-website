@@ -1,0 +1,12 @@
+{
+  "name": "LAMBADA",
+  "description": "Language modeling requiring understanding of broad context.",
+  "category": "knowledge",
+  "difficulty": "medium",
+  "total_questions": 5153,
+  "human_performance": "~95%",
+  "domains": "Language Modeling",
+  "github_url": "https://github.com/cybertronai/babi",
+  "created": "2024-12-15",
+  "version": "1.0"
+}

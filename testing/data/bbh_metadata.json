@@ -1,0 +1,12 @@
+{
+  "name": "Big-Bench Hard",
+  "description": "Challenging tasks from BIG-bench where current models perform below human level.",
+  "category": "reasoning",
+  "difficulty": "expert",
+  "total_questions": 6511,
+  "human_performance": "~84%",
+  "domains": "23 Hard Tasks",
+  "github_url": "https://github.com/suzgunmirac/BIG-Bench-Hard",
+  "created": "2024-12-15",
+  "version": "1.0"
+}

@@ -1,0 +1,12 @@
+{
+  "name": "BoolQ",
+  "description": "Yes/no questions about Wikipedia passages requiring reasoning.",
+  "category": "reasoning",
+  "difficulty": "easy",
+  "total_questions": 3270,
+  "human_performance": "~91%",
+  "domains": "Boolean QA",
+  "github_url": "https://github.com/google-research-datasets/boolean-questions",
+  "created": "2024-12-15",
+  "version": "1.0"
+}

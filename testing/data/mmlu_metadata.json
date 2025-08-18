@@ -1,0 +1,12 @@
+{
+  "name": "MMLU",
+  "description": "Massive multitask language understanding across 57 academic subjects from elementary to professional level.",
+  "category": "knowledge",
+  "difficulty": "medium",
+  "total_questions": 14042,
+  "human_performance": "89.8%",
+  "domains": "57 Subjects",
+  "github_url": "https://github.com/hendrycks/test",
+  "created": "2024-12-15",
+  "version": "1.0"
+}

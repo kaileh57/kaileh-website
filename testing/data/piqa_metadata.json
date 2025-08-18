@@ -1,0 +1,12 @@
+{
+  "name": "PIQA",
+  "description": "Physical interaction question answering about everyday physical reasoning.",
+  "category": "reasoning",
+  "difficulty": "easy",
+  "total_questions": 1838,
+  "human_performance": "~95%",
+  "domains": "Physical Reasoning",
+  "github_url": "https://github.com/ybisk/ybisk.github.io/tree/master/piqa",
+  "created": "2024-12-15",
+  "version": "1.0"
+}

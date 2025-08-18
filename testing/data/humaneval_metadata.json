@@ -1,0 +1,12 @@
+{
+  "name": "HumanEval",
+  "description": "Programming problems to test code generation and algorithmic thinking skills.",
+  "category": "code",
+  "difficulty": "medium",
+  "total_questions": 164,
+  "human_performance": "~90%",
+  "domains": "Python Coding",
+  "github_url": "https://github.com/openai/human-eval",
+  "created": "2024-12-15",
+  "version": "1.0"
+}

@@ -1,0 +1,12 @@
+{
+  "name": "TruthfulQA",
+  "description": "Questions that test whether models give truthful answers to factual questions.",
+  "category": "knowledge",
+  "difficulty": "hard",
+  "total_questions": 817,
+  "human_performance": "~94%",
+  "domains": "Factual Knowledge",
+  "github_url": "https://github.com/sylinrl/TruthfulQA",
+  "created": "2024-12-15",
+  "version": "1.0"
+}

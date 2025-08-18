@@ -1,0 +1,12 @@
+{
+  "name": "MATH Dataset",
+  "description": "Competition-level mathematics problems from AMC, AIME, and other contests.",
+  "category": "math",
+  "difficulty": "expert",
+  "total_questions": 5000,
+  "human_performance": "~40%",
+  "domains": "Advanced Math",
+  "github_url": "https://github.com/hendrycks/math",
+  "created": "2024-12-15",
+  "version": "1.0"
+}

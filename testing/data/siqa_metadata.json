@@ -1,0 +1,12 @@
+{
+  "name": "SocialIQA",
+  "description": "Social interaction understanding and reasoning about social situations.",
+  "category": "reasoning",
+  "difficulty": "medium",
+  "total_questions": 1954,
+  "human_performance": "~88%",
+  "domains": "Social Reasoning",
+  "github_url": "https://github.com/allenai/socialiqa",
+  "created": "2024-12-15",
+  "version": "1.0"
+}

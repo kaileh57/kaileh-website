@@ -1,0 +1,12 @@
+{
+  "name": "HellaSwag",
+  "description": "Commonsense reasoning about everyday situations and activities.",
+  "category": "reasoning",
+  "difficulty": "medium",
+  "total_questions": 10042,
+  "human_performance": "~95%",
+  "domains": "Commonsense",
+  "github_url": "https://github.com/rowanz/hellaswag",
+  "created": "2024-12-15",
+  "version": "1.0"
+}

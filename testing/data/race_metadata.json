@@ -1,0 +1,12 @@
+{
+  "name": "RACE",
+  "description": "Reading comprehension from English exams for Chinese students.",
+  "category": "knowledge",
+  "difficulty": "medium",
+  "total_questions": 25421,
+  "human_performance": "~94%",
+  "domains": "Reading Comprehension",
+  "github_url": "https://github.com/qizhex/RACE_AR_baselines",
+  "created": "2024-12-15",
+  "version": "1.0"
+}

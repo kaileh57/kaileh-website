@@ -1,0 +1,12 @@
+{
+  "name": "WinoGrande",
+  "description": "Pronoun resolution problems requiring commonsense reasoning.",
+  "category": "reasoning",
+  "difficulty": "medium",
+  "total_questions": 1767,
+  "human_performance": "~94%",
+  "domains": "Language Reasoning",
+  "github_url": "https://github.com/allenai/winogrande",
+  "created": "2024-12-15",
+  "version": "1.0"
+}

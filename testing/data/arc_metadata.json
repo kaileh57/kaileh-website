@@ -1,0 +1,12 @@
+{
+  "name": "ARC Challenge",
+  "description": "AI2 Reasoning Challenge with grade-school science questions requiring complex reasoning.",
+  "category": "reasoning",
+  "difficulty": "hard",
+  "total_questions": 1172,
+  "human_performance": "~85%",
+  "domains": "Science Reasoning",
+  "github_url": "https://allenai.org/data/arc",
+  "created": "2024-12-15",
+  "version": "1.0"
+}

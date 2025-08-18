@@ -1,0 +1,12 @@
+{
+  "name": "Humanity's Last Exam",
+  "description": "The most challenging benchmark available with extremely difficult questions across diverse academic domains.",
+  "category": "frontier",
+  "difficulty": "expert",
+  "total_questions": 2500,
+  "human_performance": "~0%",
+  "domains": "190+ Categories",
+  "github_url": "https://github.com/centerforaisafety/HLE",
+  "created": "2024-12-15",
+  "version": "1.0"
+}

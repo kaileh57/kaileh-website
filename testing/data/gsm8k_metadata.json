@@ -1,0 +1,12 @@
+{
+  "name": "GSM8K",
+  "description": "Grade school math word problems requiring multi-step reasoning and logical breakdown.",
+  "category": "math",
+  "difficulty": "easy",
+  "total_questions": 1319,
+  "human_performance": "~95%",
+  "domains": "Math",
+  "github_url": "https://github.com/openai/grade-school-math",
+  "created": "2024-12-15",
+  "version": "1.0"
+}

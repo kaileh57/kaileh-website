@@ -1,0 +1,12 @@
+{
+  "name": "OpenBookQA",
+  "description": "Elementary science questions requiring multi-step reasoning with facts.",
+  "category": "reasoning",
+  "difficulty": "medium",
+  "total_questions": 500,
+  "human_performance": "~92%",
+  "domains": "Science Facts",
+  "github_url": "https://github.com/allenai/OpenBookQA",
+  "created": "2024-12-15",
+  "version": "1.0"
+}
