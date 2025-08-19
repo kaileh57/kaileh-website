@@ -17,9 +17,9 @@ let faviconColorIndex = 0;
 
 
 // --- CONSTANTS ---
-const GRID_WIDTH = 500;
-const GRID_HEIGHT = 375;
-const CELL_SIZE = 2;
+let GRID_WIDTH = 500;
+let GRID_HEIGHT = 375;
+let CELL_SIZE = 2;
 
 const WIDTH = GRID_WIDTH * CELL_SIZE;
 const HEIGHT = GRID_HEIGHT * CELL_SIZE;
@@ -973,7 +973,45 @@ let currentMaterial = SAND;
 let brushSize = 3;
 let lastTime = 0;
 let visualizationMode = 'normal';
-let pressureField = Array(GRID_HEIGHT).fill().map(() => Array(GRID_WIDTH).fill(1.0));
+let pressureField = Array(GRID_HEIGHT).fill().map(() => Array(GRID_WIDTH).fill(0));
+
+// Update pressure field each frame
+function updatePressureField() {
+    for (let y = 0; y < GRID_HEIGHT; y++) {
+        for (let x = 0; x < GRID_WIDTH; x++) {
+            const particle = simulation.getParticle(x, y);
+            if (particle && particle.type !== EMPTY) {
+                let pressure = 0;
+                const density = particle.getProperties()[0];
+                
+                // Pressure from particles above
+                for (let checkY = 0; checkY < y; checkY++) {
+                    const above = simulation.getParticle(x, checkY);
+                    if (above && above.type !== EMPTY) {
+                        pressure += above.getProperties()[0] * 0.1;
+                    }
+                }
+                
+                // Confinement pressure
+                let solidNeighbors = 0;
+                for (let dx = -1; dx <= 1; dx++) {
+                    for (let dy = -1; dy <= 1; dy++) {
+                        if (dx === 0 && dy === 0) continue;
+                        const neighbor = simulation.getParticle(x + dx, y + dy);
+                        if (neighbor && neighbor.type !== EMPTY && neighbor.getProperties()[0] > density) {
+                            solidNeighbors++;
+                        }
+                    }
+                }
+                
+                pressure += solidNeighbors * 0.5;
+                pressureField[y][x] = pressure;
+            } else {
+                pressureField[y][x] = 0;
+            }
+        }
+    }
+}
 
 // --- UI UPDATE FUNCTIONS ---
 function updateUIText() {
@@ -1067,6 +1105,10 @@ function gameLoop(timestamp) {
 
     // Update simulation with clamped delta time
     simulation.update(dtClamped);
+    // Update pressure field for visualization
+    if (visualizationMode === 'pressure') {
+        updatePressureField();
+    }
     // Draw simulation state with visualization mode
     drawSimulation();
     // Update favicon
@@ -1103,38 +1145,73 @@ function drawSimulation() {
                     }
                 } else if (visualizationMode === 'temperature') {
                     const temp = particle.temp;
-                    let factor = Math.max(0, Math.min(1, (temp - 20) / 800));
-                    // Enhanced temperature visualization
-                    if (temp < 20) {
+                    // Much more vibrant temperature visualization
+                    if (temp < 0) {
+                        // Very cold - deep blue to cyan
+                        const factor = Math.max(0, Math.min(1, (0 - temp) / 100));
+                        color = [0, 100 + factor * 155, 255];
+                    } else if (temp < 20) {
                         // Cold - blue tones
-                        factor = Math.max(0, Math.min(1, (20 - temp) / 50));
-                        color = [20, 50 + factor * 100, 255 * factor];
+                        const factor = Math.max(0, Math.min(1, (20 - temp) / 20));
+                        color = [50 + factor * 50, 150 + factor * 105, 255];
+                    } else if (temp < 100) {
+                        // Room temp to warm - green to yellow
+                        const factor = Math.max(0, Math.min(1, (temp - 20) / 80));
+                        color = [100 + factor * 155, 255, 50 * (1 - factor)];
+                    } else if (temp < 500) {
+                        // Hot - yellow to orange
+                        const factor = Math.max(0, Math.min(1, (temp - 100) / 400));
+                        color = [255, 255 - factor * 100, 0];
+                    } else if (temp < 1000) {
+                        // Very hot - orange to red
+                        const factor = Math.max(0, Math.min(1, (temp - 500) / 500));
+                        color = [255, 155 - factor * 155, 0];
                     } else {
-                        // Hot - red/orange/white tones
-                        color = [255 * factor + 100 * (1-factor), 100 * (1 - factor) + 150 * factor, 50];
+                        // Extremely hot - red to white
+                        const factor = Math.max(0, Math.min(1, (temp - 1000) / 1500));
+                        color = [255, factor * 255, factor * 255];
                     }
                 } else if (visualizationMode === 'pressure') {
-                    // Enhanced pressure visualization based on particle density and neighbors
-                    let pressure = 1.0;
+                    // Real pressure calculation based on surrounding mass and confinement
                     const density = particle.getProperties()[0];
+                    let pressure = 0;
+                    let confinement = 0;
+                    let massAbove = 0;
                     
-                    // Calculate local pressure based on neighbors
-                    let neighborCount = 0;
-                    let totalDensity = density;
+                    // Count particles above for gravitational pressure
+                    for (let checkY = 0; checkY < y; checkY++) {
+                        const above = simulation.getParticle(x, checkY);
+                        if (above && above.type !== EMPTY) {
+                            massAbove += above.getProperties()[0];
+                        }
+                    }
+                    
+                    // Count solid neighbors for confinement pressure
                     for (let dx = -1; dx <= 1; dx++) {
                         for (let dy = -1; dy <= 1; dy++) {
                             if (dx === 0 && dy === 0) continue;
                             const neighbor = simulation.getParticle(x + dx, y + dy);
                             if (neighbor && neighbor.type !== EMPTY) {
-                                neighborCount++;
-                                totalDensity += neighbor.getProperties()[0];
+                                const nDensity = neighbor.getProperties()[0];
+                                if (nDensity > density) confinement += 1;
                             }
                         }
                     }
                     
-                    pressure = (totalDensity / 9) + (neighborCount / 8);
-                    const factor = Math.max(0, Math.min(1, (pressure - 0.5) / 3));
-                    color = [80 + factor * 100, 120 + factor * 80, 160 + factor * 95];
+                    // Pressure from weight above + confinement
+                    pressure = (massAbove * 0.1) + (confinement * 0.5) + (y * 0.01);
+                    
+                    // Vibrant pressure colors
+                    const factor = Math.max(0, Math.min(1, pressure / 10));
+                    if (factor < 0.3) {
+                        color = [0, 100 + factor * 155 / 0.3, 255]; // Blue to cyan
+                    } else if (factor < 0.7) {
+                        const f = (factor - 0.3) / 0.4;
+                        color = [f * 255, 255, 255 - f * 255]; // Cyan to yellow
+                    } else {
+                        const f = (factor - 0.7) / 0.3;
+                        color = [255, 255 - f * 155, 0]; // Yellow to red
+                    }
                 } else if (visualizationMode === 'velocity') {
                     // Velocity visualization based on movement patterns
                     let velocity = 0;
@@ -1199,7 +1276,8 @@ function updateStats() {
     // Count particles and calculate stats
     let particleCount = 0;
     let totalTemp = 0;
-    let avgPressure = 0;
+    let totalPressure = 0;
+    let pressureCount = 0;
     
     for (let y = 0; y < GRID_HEIGHT; y++) {
         for (let x = 0; x < GRID_WIDTH; x++) {
@@ -1207,13 +1285,19 @@ function updateStats() {
             if (particle && particle.type !== EMPTY) {
                 particleCount++;
                 totalTemp += particle.temp;
+                
+                // Only count pressure where there are particles
+                const pressure = pressureField[y][x];
+                if (pressure > 0) {
+                    totalPressure += pressure;
+                    pressureCount++;
+                }
             }
-            avgPressure += pressureField[y][x];
         }
     }
     
     const avgTemp = particleCount > 0 ? Math.round(totalTemp / particleCount) : 20;
-    avgPressure = (avgPressure / (GRID_WIDTH * GRID_HEIGHT)).toFixed(1);
+    const avgPressure = pressureCount > 0 ? (totalPressure / pressureCount).toFixed(1) : '0.0';
     
     // Update stats display
     const statFPS = document.getElementById('statFPS');
@@ -1229,13 +1313,16 @@ function updateStats() {
 // --- EVENT HANDLERS ---
 function getMousePos(canvas, evt) { const rect = canvas.getBoundingClientRect(); return { x: evt.clientX - rect.left, y: evt.clientY - rect.top }; }
 function handleDraw(event) {
-    const pos = getMousePos(canvas, event);
-    const gX = Math.floor((pos.x / canvas.offsetWidth) * GRID_WIDTH);
-    const gY = Math.floor((pos.y / canvas.offsetHeight) * GRID_HEIGHT);
-    updateCoordsText(gX, gY);
+    const rect = canvas.getBoundingClientRect();
+    const relativeX = event.clientX - rect.left;
+    const relativeY = event.clientY - rect.top;
     
-    // Draw custom cursor
-    drawCustomCursor(pos.x, pos.y);
+    // Calculate grid coordinates based on canvas size
+    const gX = Math.floor((relativeX / rect.width) * GRID_WIDTH);
+    const gY = Math.floor((relativeY / rect.height) * GRID_HEIGHT);
+    
+    updateCoordsText(gX, gY);
+    drawCustomCursor(relativeX, relativeY);
     
     if (!isDrawing) return;
 
@@ -1270,10 +1357,8 @@ function handleDraw(event) {
 }
 
 function drawCustomCursor(x, y) {
-    // This will be drawn on the canvas overlay, but for now we'll use CSS cursor positioning
-    const cursorSize = Math.max(4, brushSize * 2);
+    const cursorSize = Math.max(4, brushSize * (CELL_SIZE * 2));
     
-    // Update a CSS cursor element if it exists
     let cursor = document.getElementById('cursor-indicator');
     if (!cursor) {
         cursor = document.createElement('div');
@@ -1292,6 +1377,30 @@ function drawCustomCursor(x, y) {
     cursor.style.left = x + 'px';
     cursor.style.top = y + 'px';
 }
+
+function changeResolution(width, height, cellSize) {
+    console.log(`Changing resolution to ${width}x${height} with cell size ${cellSize}`);
+    
+    // Update global constants
+    GRID_WIDTH = width;
+    GRID_HEIGHT = height;
+    CELL_SIZE = cellSize;
+    
+    // Update canvas size
+    const WIDTH = GRID_WIDTH * CELL_SIZE;
+    const HEIGHT = GRID_HEIGHT * CELL_SIZE;
+    canvas.width = WIDTH;
+    canvas.height = HEIGHT;
+    
+    // Reinitialize simulation with new dimensions
+    Object.assign(simulation, new Simulation(GRID_WIDTH, GRID_HEIGHT));
+    simulation.initGrid();
+    
+    // Update pressure field
+    pressureField = Array(GRID_HEIGHT).fill().map(() => Array(GRID_WIDTH).fill(0));
+    
+    console.log(`Resolution changed to ${GRID_WIDTH}x${GRID_HEIGHT}`);
+}
 canvas.addEventListener('mousedown', (e) => { if (e.button === 0) { isDrawing = true; handleDraw(e); } });
 canvas.addEventListener('mouseenter', () => {
     const cursor = document.getElementById('cursor-indicator');
@@ -1301,11 +1410,15 @@ canvas.addEventListener('mousemove', (e) => {
     if(isDrawing) {
         handleDraw(e);
     } else {
-        const pos = getMousePos(canvas, e);
-        const gX = Math.floor((pos.x / canvas.offsetWidth) * GRID_WIDTH);
-        const gY = Math.floor((pos.y / canvas.offsetHeight) * GRID_HEIGHT);
+        const rect = canvas.getBoundingClientRect();
+        const relativeX = e.clientX - rect.left;
+        const relativeY = e.clientY - rect.top;
+        
+        const gX = Math.floor((relativeX / rect.width) * GRID_WIDTH);
+        const gY = Math.floor((relativeY / rect.height) * GRID_HEIGHT);
+        
         updateCoordsText(gX, gY);
-        drawCustomCursor(pos.x, pos.y);
+        drawCustomCursor(relativeX, relativeY);
     }
 });
 canvas.addEventListener('mouseup', (e) => { if (e.button === 0) { isDrawing = false; } });
@@ -1332,7 +1445,7 @@ window.addEventListener('wheel', (e) => {
     }
 }, { passive: false });
 window.addEventListener('keydown', (e) => { if (e.key === 'c' || e.key === 'C') { simulation.initGrid(); console.log("Grid cleared by keypress."); } });
-clearButton.addEventListener('click', () => { simulation.initGrid(); console.log("Grid cleared by button."); });
+// Clear button removed from header
 
 // --- PALETTE GENERATION ---
 function populatePalette() {
@@ -1340,18 +1453,11 @@ function populatePalette() {
     
     // Define material categories for logical organization
     const materialOrder = [
-        // Solids
-        SAND, STONE, CONCRETE, GLASS, WOOD, COAL, ICE, CRYSTAL,
-        // Powders
-        ASH, GUNPOWDER, RUST,
-        // Liquids
-        WATER, OIL, ACID, GASOLINE, MERCURY, SLIME,
-        // Gases
-        STEAM, SMOKE, TOXIC_GAS,
-        // Energy/Special
-        FIRE, LAVA, PLASMA,
-        // Interactive
-        PLANT, FUSE, GENERATOR
+        SAND, WATER, STONE, OIL, WOOD, FIRE,
+        GLASS, STEAM, CONCRETE, ACID, ICE, LAVA,
+        COAL, SMOKE, PLANT, TOXIC_GAS, GUNPOWDER, GASOLINE,
+        ASH, MERCURY, RUST, SLIME, CRYSTAL, PLASMA,
+        FUSE, GENERATOR
     ];
     
     // Create material buttons with more subtle colors
@@ -1363,10 +1469,10 @@ function populatePalette() {
         button.textContent = props[7];
         button.dataset.materialId = matId;
         
-        // More subtle background colors - desaturated versions
+        // Vibrant but not overwhelming colors
         const baseColor = props[6];
-        const desaturatedColor = baseColor.map(c => Math.floor(c * 0.3 + 60)); // Desaturate and darken
-        button.style.backgroundColor = `rgb(${desaturatedColor.join(',')})`;
+        const vibrantColor = baseColor.map(c => Math.floor(c * 0.6 + 40)); // More saturated
+        button.style.backgroundColor = `rgba(${vibrantColor.join(',')}, 0.8)`;
         
         button.title = `Select ${props[7]}`;
         button.addEventListener('click', () => {
@@ -1377,18 +1483,31 @@ function populatePalette() {
         paletteDiv.appendChild(button);
     }
     
-    // Add eraser button at the bottom
+    // Add eraser as last material in grid
     const eraserButton = document.createElement('button');
     eraserButton.textContent = 'Eraser';
     eraserButton.dataset.materialId = ERASER;
-    eraserButton.className = 'eraser-button';
+    eraserButton.style.backgroundColor = `rgba(255, 0, 255, 0.8)`;
+    eraserButton.style.gridColumn = '1 / -1';
     eraserButton.title = 'Eraser Tool [E]';
     eraserButton.addEventListener('click', () => {
         currentMaterial = ERASER;
         updateUIText();
     });
-    
     paletteDiv.appendChild(eraserButton);
+    
+    // Add reset button as full-width below grid
+    const resetButton = document.createElement('button');
+    resetButton.textContent = 'Reset Simulation';
+    resetButton.className = 'reset-button';
+    resetButton.style.gridColumn = '1 / -1';
+    resetButton.style.marginTop = '0.5rem';
+    resetButton.title = 'Clear all particles';
+    resetButton.addEventListener('click', () => {
+        simulation.initGrid();
+        console.log('Grid cleared by button.');
+    });
+    paletteDiv.appendChild(resetButton);
 }
 
 // --- SETUP ADDITIONAL EVENT HANDLERS ---
@@ -1410,6 +1529,22 @@ function setupAdditionalEventHandlers() {
             visualizationMode = e.target.dataset.mode;
         });
     });
+    
+    // Resolution dropdown
+    const resolutionSelect = document.getElementById('resolutionSelect');
+    if (resolutionSelect) {
+        const resolutions = [
+            { name: 'Low', width: 250, height: 188, cellSize: 4 },
+            { name: 'Medium', width: 400, height: 300, cellSize: 2 },
+            { name: 'High', width: 500, height: 375, cellSize: 2 }
+        ];
+        
+        resolutionSelect.addEventListener('change', (e) => {
+            const selectedIndex = parseInt(e.target.value);
+            const selectedRes = resolutions[selectedIndex];
+            changeResolution(selectedRes.width, selectedRes.height, selectedRes.cellSize);
+        });
+    }
 }
 
 // --- START SIMULATION ---

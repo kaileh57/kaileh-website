@@ -3,7 +3,17 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Advanced Falling Sand Simulation</title>
+    <title>Falling | Kellen Heraty</title>
+    <meta name="description" content="Interactive falling sand physics simulation with advanced materials, heat transfer, and pressure dynamics. Created by Kellen Heraty.">
+    <meta name="keywords" content="falling sand, physics simulation, particle simulation, interactive, materials, Kellen Heraty">
+    <meta name="author" content="Kellen Heraty">
+    <meta property="og:title" content="Falling Sand Simulation">
+    <meta property="og:description" content="Interactive physics simulation with advanced materials and realistic particle dynamics">
+    <meta property="og:type" content="website">
+    <meta property="og:url" content="https://kellenheraty.com/falling">
+    <meta name="twitter:card" content="summary">
+    <meta name="twitter:title" content="Falling Sand Simulation">
+    <meta name="twitter:description" content="Interactive physics simulation with advanced materials and realistic particle dynamics">
     <link rel="icon" type="image/png" id="favicon">
     
     <!-- Google Fonts - Same as portfolio -->
@@ -18,10 +28,7 @@
         <!-- Header -->
         <div class="header">
             <div class="header-left">
-                <div class="logo">Advanced Falling Sand</div>
-                <div class="simulation-controls">
-                    <button id="clear-button" class="control-btn">Reset</button>
-                </div>
+                <div class="logo">Falling Sand</div>
             </div>
             <div class="header-right">
                 <div class="performance-display">
@@ -99,6 +106,17 @@
                         <div class="stat-value" id="statPressure">1.0</div>
                         <div class="stat-label">Pressure</div>
                     </div>
+                </div>
+            </div>
+            
+            <div class="info-section">
+                <div class="info-title">Resolution</div>
+                <div class="resolution-controls">
+                    <select id="resolutionSelect" class="resolution-dropdown">
+                        <option value="0">Low</option>
+                        <option value="1">Medium</option>
+                        <option value="2" selected>High</option>
+                    </select>
                 </div>
             </div>
         </div>
