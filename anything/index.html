@@ -1,0 +1,195 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Entering the Portal...</title>
+    <link href="https://fonts.googleapis.com/css?family=Unica+One" rel="stylesheet">
+    <!-- Three.js library for 3D graphics -->
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/three.js/r128/three.min.js"></script>
+    <style>
+        /* Basic page setup */
+        * {
+            margin: 0;
+            padding: 0;
+            box-sizing: border-box;
+        }
+        body {
+            overflow: hidden;
+            background-color: #0a0a0a; /* Start with black as background image is removed on load */
+            font-family: "Unica One", sans-serif;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            height: 100vh;
+        }
+        /* The canvas for the 3D tunnel effect */
+        #tunnelCanvas {
+            position: absolute;
+            top: 0;
+            left: 0;
+            width: 100%;
+            height: 100%;
+        }
+        /* Container for the tunnel canvas */
+        #tunnelContainer {
+            position: absolute;
+            top: 0;
+            left: 0;
+            width: 100vw;
+            height: 100vh;
+            display: flex; /* Changed from none to be visible on load */
+            align-items: center;
+            justify-content: center;
+            z-index: 1;
+        }
+        /* Subtle credit link */
+        .credit {
+            position: fixed;
+            bottom: 15px;
+            right: 20px;
+            z-index: 100;
+        }
+        .credit a {
+            color: #666; /* Subtle grey */
+            text-decoration: none;
+            font-size: 14px;
+            font-family: "Unica One", sans-serif;
+            transition: color 0.3s ease;
+        }
+        .credit a:hover {
+            color: #999;
+        }
+    </style>
+</head>
+<body>
+    <!-- The container for the 3D tunnel animation -->
+    <div id="tunnelContainer">
+        <canvas id="tunnelCanvas"></canvas>
+    </div>
+
+    <!-- Subtle credit link -->
+    <div class="credit">
+        <a href="https://www.mattcannon.design/" target="_blank" rel="noopener noreferrer">Thank you Matt Cannon</a>
+    </div>
+
+    <script>
+    // --- Main Portal Animation and Redirect Logic ---
+    const canvasTunnel = document.getElementById("tunnelCanvas");
+    const tunnelContainer = document.getElementById("tunnelContainer");
+    
+    let w = window.innerWidth, h = window.innerHeight;
+    let renderer, scene, camera, path;
+    let lights = [];
+    let pct = 0; // Progress percentage through the tunnel
+    let renderFrameId;
+
+    // Automatically start the animation when the page loads
+    document.addEventListener('DOMContentLoaded', () => {
+        setTimeout(startPortal, 100); // A small delay for a smoother start
+    });
+    
+    // Function to kick off the animation sequence
+    function startPortal() {
+        document.body.style.background = "#000000"; // Ensure background is black
+        initTunnel(); // Setup the Three.js scene
+        render();     // Start the animation loop
+    }
+    
+    // Sets up the 3D scene, camera, lights, and tunnel geometry
+    function initTunnel() {
+        renderer = new THREE.WebGLRenderer({
+            canvas: canvasTunnel, antialias: true, alpha: true, powerPreference: "high-performance"
+        });
+        renderer.setSize(w, h);
+        scene = new THREE.Scene();
+        scene.fog = new THREE.FogExp2(0x000000, 0.005);
+        camera = new THREE.PerspectiveCamera(60, w / h, 0.1, 1000);
+        
+        // Starfield background
+        const starsGeometry = new THREE.BufferGeometry();
+        const starsPositions = new Float32Array(2000 * 3);
+        for (let i = 0; i < 2000; i++) {
+            starsPositions[i * 3] = THREE.MathUtils.randFloatSpread(1500);
+            starsPositions[i * 3 + 1] = THREE.MathUtils.randFloatSpread(1500);
+            starsPositions[i * 3 + 2] = THREE.MathUtils.randFloatSpread(1500);
+        }
+        starsGeometry.setAttribute("position", new THREE.BufferAttribute(starsPositions, 3));
+        const starsMaterial = new THREE.PointsMaterial({ color: 0xffffff, size: 1, transparent: true });
+        scene.add(new THREE.Points(starsGeometry, starsMaterial));
+
+        // --- MODIFICATION: Define a shorter path for the camera to travel along ---
+        const points = [
+            new THREE.Vector3(0, 0, 0), new THREE.Vector3(20, 10, -50),
+            new THREE.Vector3(40, -10, -100), new THREE.Vector3(60, 15, -150),
+            new THREE.Vector3(50, -5, -200), new THREE.Vector3(0, 0, -250),
+            new THREE.Vector3(-50, 10, -300)
+        ];
+        path = new THREE.CatmullRomCurve3(points);
+
+        // Create the tunnel geometry
+        const tubeGeometry = new THREE.TubeBufferGeometry(path, 1200, 3, 12, false);
+        const colors = [];
+        for (let i = 0; i < tubeGeometry.attributes.position.count; i++) {
+            const color = new THREE.Color(i % 2 === 0 ? "#00a3ff" : "#00ffaa");
+            colors.push(color.r, color.g, color.b);
+        }
+        tubeGeometry.setAttribute("color", new THREE.Float32BufferAttribute(colors, 3));
+        const material = new THREE.MeshLambertMaterial({
+            side: THREE.BackSide, vertexColors: true, wireframe: true,
+        });
+        scene.add(new THREE.Mesh(tubeGeometry, material));
+        
+        // Add lights that will move through the tunnel
+        scene.add(new THREE.AmbientLight(0x555555));
+        const lightColors = [0xffffff, 0x00a3ff, 0x00ffaa, 0x00a3ff, 0x00ffaa];
+        for (let i = 0; i < 5; i++) {
+            let l = new THREE.PointLight(lightColors[i], 1.2, 20);
+            lights.push(l);
+            scene.add(l);
+        }
+        
+        // Handle window resizing
+        window.onresize = function () {
+            w = window.innerWidth; h = window.innerHeight;
+            camera.aspect = w / h;
+            camera.updateProjectionMatrix();
+            renderer.setSize(w, h);
+        };
+    }
+    
+    // The main animation loop
+    function render() {
+        // Redirect at the very end of the tunnel
+        if (pct >= 0.99) {
+            // Stop the animation loop
+            cancelAnimationFrame(renderFrameId);
+            // Redirect to the destination
+            window.location.href = 'https://theuselessweb.com/';
+            return;
+        }
+
+        // --- MODIFICATION: Restored a slower, smoother speed ---
+        pct += 0.0015; 
+
+        // Get current position and a point slightly ahead to look at
+        const pt1 = path.getPointAt(pct);
+        const lookAheadPct = Math.min(pct + 0.01, 1);
+        const pt2 = path.getPointAt(lookAheadPct);
+        
+        camera.position.set(pt1.x, pt1.y, pt1.z);
+        camera.lookAt(pt2);
+
+        // Animate lights along the path
+        for (let i = 0; i < lights.length; i++) {
+            const offset = (i / lights.length + pct * 2) % 1;
+            const pos = path.getPointAt(offset);
+            lights[i].position.set(pos.x, pos.y, pos.z);
+        }
+        
+        renderer.render(scene, camera);
+        renderFrameId = requestAnimationFrame(render);
+    }
+    </script>
+</body>
+</html>
