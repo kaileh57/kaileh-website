@@ -1,0 +1,767 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Professional Clock | Kellen Heraty</title>
+    <meta name="description" content="Beautiful, professional animated clock with multiple styles.">
+    
+    <!-- Google Fonts -->
+    <link rel="preconnect" href="https://fonts.googleapis.com">
+    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+    <link href="https://fonts.googleapis.com/css2?family=Inter:wght@200;300;400;500;600;700&family=JetBrains+Mono:wght@300;400;500;600&display=swap" rel="stylesheet">
+    
+    <style>
+        /* Professional Color System */
+        :root {
+            /* Pure blacks for OLED */
+            --bg-primary: #000000;
+            --bg-secondary: #0a0a0a;
+            --bg-tertiary: #1a1a1a;
+            
+            /* High contrast text */
+            --text-primary: #ffffff;
+            --text-secondary: #e5e5e5;
+            --text-tertiary: #a1a1a1;
+            --text-quaternary: #525252;
+            
+            /* Subtle borders and dividers */
+            --border-primary: rgba(255, 255, 255, 0.1);
+            --border-secondary: rgba(255, 255, 255, 0.05);
+            
+            /* Accent colors */
+            --accent-blue: #3b82f6;
+            --accent-purple: #8b5cf6;
+            --accent-green: #10b981;
+            --accent-orange: #f59e0b;
+            --accent-red: #ef4444;
+            
+            /* Glow effects */
+            --glow-blue: rgba(59, 130, 246, 0.3);
+            --glow-purple: rgba(139, 92, 246, 0.3);
+            --glow-green: rgba(16, 185, 129, 0.3);
+            --glow-orange: rgba(245, 158, 11, 0.3);
+            --glow-red: rgba(239, 68, 68, 0.3);
+        }
+
+        * {
+            margin: 0;
+            padding: 0;
+            box-sizing: border-box;
+        }
+
+        body {
+            font-family: 'Inter', -apple-system, BlinkMacSystemFont, sans-serif;
+            background: var(--bg-primary);
+            color: var(--text-primary);
+            overflow: hidden;
+            height: 100vh;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            position: relative;
+            -webkit-font-smoothing: antialiased;
+            -moz-osx-font-smoothing: grayscale;
+        }
+
+        /* Background Animation */
+        .bg-animation {
+            position: fixed;
+            top: 0;
+            left: 0;
+            width: 100%;
+            height: 100%;
+            pointer-events: none;
+            z-index: -1;
+        }
+
+        .bg-grid {
+            position: absolute;
+            top: 0;
+            left: 0;
+            width: 100%;
+            height: 100%;
+            background-image: 
+                linear-gradient(rgba(255, 255, 255, 0.02) 1px, transparent 1px),
+                linear-gradient(90deg, rgba(255, 255, 255, 0.02) 1px, transparent 1px);
+            background-size: 50px 50px;
+            animation: gridMove 30s linear infinite;
+        }
+
+        @keyframes gridMove {
+            0% { transform: translate(0, 0); }
+            100% { transform: translate(50px, 50px); }
+        }
+
+        .bg-particles {
+            position: absolute;
+            width: 100%;
+            height: 100%;
+        }
+
+        .particle {
+            position: absolute;
+            width: 2px;
+            height: 2px;
+            background: var(--text-quaternary);
+            border-radius: 50%;
+            animation: particleFloat 8s ease-in-out infinite;
+        }
+
+        @keyframes particleFloat {
+            0%, 100% { 
+                opacity: 0.3;
+                transform: translateY(0px) scale(0.8);
+            }
+            50% { 
+                opacity: 0.8;
+                transform: translateY(-20px) scale(1.2);
+            }
+        }
+
+        /* Main Clock Container */
+        .clock-container {
+            position: relative;
+            z-index: 10;
+            text-align: center;
+            animation: fadeInScale 1.5s ease-out;
+        }
+
+        @keyframes fadeInScale {
+            0% {
+                opacity: 0;
+                transform: scale(0.8);
+            }
+            100% {
+                opacity: 1;
+                transform: scale(1);
+            }
+        }
+
+        /* Style Toggle */
+        .style-toggle {
+            position: fixed;
+            top: 1rem;
+            right: 2rem;
+            z-index: 100;
+            display: flex;
+            gap: 2rem;
+            opacity: 0.3;
+            transition: opacity 0.3s ease;
+        }
+
+        .style-toggle:hover {
+            opacity: 1;
+        }
+
+        @keyframes slideInTop {
+            from {
+                opacity: 0;
+                transform: translateY(-20px);
+            }
+            to {
+                opacity: 1;
+                transform: translateY(0);
+            }
+        }
+
+        .style-btn {
+            background: none;
+            color: var(--text-quaternary);
+            border: none;
+            cursor: pointer;
+            transition: all 0.3s ease;
+            font-size: 0.875rem;
+            font-weight: 400;
+            font-family: 'Inter', sans-serif;
+            text-transform: lowercase;
+            letter-spacing: 0.05em;
+        }
+
+        .style-btn:hover {
+            color: var(--text-secondary);
+        }
+
+        .style-btn.active {
+            color: var(--text-primary);
+        }
+
+        /* Time Format Toggle */
+        .time-toggle {
+            position: fixed;
+            bottom: 1rem;
+            left: 2rem;
+            z-index: 100;
+            display: flex;
+            gap: 1.5rem;
+            opacity: 0.3;
+            transition: opacity 0.3s ease;
+        }
+
+        .time-toggle:hover {
+            opacity: 1;
+        }
+
+        /* Motion Toggle */
+        .motion-toggle {
+            position: fixed;
+            bottom: 1rem;
+            right: 2rem;
+            z-index: 100;
+            display: flex;
+            gap: 1.5rem;
+            opacity: 0.3;
+            transition: opacity 0.3s ease;
+        }
+
+        .motion-toggle:hover {
+            opacity: 1;
+        }
+
+        /* Toggle Button Styles */
+        .toggle-btn {
+            background: none;
+            color: var(--text-quaternary);
+            border: none;
+            cursor: pointer;
+            transition: all 0.3s ease;
+            font-size: 0.875rem;
+            font-weight: 400;
+            font-family: 'Inter', sans-serif;
+            text-transform: lowercase;
+            letter-spacing: 0.05em;
+        }
+
+        .toggle-btn:hover {
+            color: var(--text-secondary);
+        }
+
+        .toggle-btn.active {
+            color: var(--text-primary);
+        }
+
+        /* Clock Styles */
+        .clock {
+            transition: color 0.3s ease, text-shadow 0.3s ease;
+        }
+
+        /* Style 1: Minimal Digital */
+        .clock.style-minimal {
+            font-family: 'JetBrains Mono', monospace;
+            font-weight: 300;
+            color: var(--text-primary);
+        }
+
+        .clock.style-minimal .time {
+            font-size: clamp(4rem, 15vw, 12rem);
+            line-height: 1;
+            letter-spacing: -0.05em;
+            margin-bottom: 1rem;
+            animation: digitalGlow 2s ease-in-out infinite alternate;
+        }
+
+        .clock.style-minimal .date {
+            font-size: clamp(1rem, 3vw, 2rem);
+            color: var(--text-tertiary);
+            font-weight: 400;
+            letter-spacing: 0.1em;
+            text-transform: uppercase;
+        }
+
+        @keyframes digitalGlow {
+            0% {
+                text-shadow: 0 0 10px rgba(255, 255, 255, 0.3);
+            }
+            100% {
+                text-shadow: 0 0 20px rgba(255, 255, 255, 0.5);
+            }
+        }
+
+        /* Style 2: Neon */
+        .clock.style-neon {
+            font-family: 'Inter', sans-serif;
+            font-weight: 600;
+        }
+
+        .clock.style-neon .time {
+            font-size: clamp(4rem, 15vw, 12rem);
+            line-height: 1;
+            letter-spacing: -0.02em;
+            margin-bottom: 1rem;
+            color: var(--accent-blue);
+            text-shadow: 
+                0 0 5px var(--glow-blue),
+                0 0 10px var(--glow-blue),
+                0 0 20px var(--glow-blue),
+                0 0 40px var(--glow-blue);
+            animation: neonPulse 3s ease-in-out infinite;
+        }
+
+        .clock.style-neon .date {
+            font-size: clamp(1rem, 3vw, 2rem);
+            color: var(--accent-purple);
+            font-weight: 500;
+            text-shadow: 
+                0 0 5px var(--glow-purple),
+                0 0 10px var(--glow-purple);
+            letter-spacing: 0.15em;
+            text-transform: uppercase;
+        }
+
+        @keyframes neonPulse {
+            0%, 100% {
+                text-shadow: 
+                    0 0 5px var(--glow-blue),
+                    0 0 10px var(--glow-blue),
+                    0 0 20px var(--glow-blue),
+                    0 0 40px var(--glow-blue);
+            }
+            50% {
+                text-shadow: 
+                    0 0 2px var(--glow-blue),
+                    0 0 5px var(--glow-blue),
+                    0 0 10px var(--glow-blue),
+                    0 0 20px var(--glow-blue);
+            }
+        }
+
+        /* Style 3: Corporate */
+        .clock.style-corporate {
+            font-family: 'Inter', sans-serif;
+            font-weight: 200;
+        }
+
+        .clock.style-corporate .time {
+            font-size: clamp(4rem, 15vw, 12rem);
+            line-height: 1;
+            letter-spacing: -0.08em;
+            margin-bottom: 2rem;
+            color: var(--text-primary);
+            font-weight: 200;
+            position: relative;
+        }
+
+        .clock.style-corporate .time::after {
+            content: '';
+            position: absolute;
+            bottom: -1rem;
+            left: 50%;
+            transform: translateX(-50%);
+            width: 200px;
+            height: 1px;
+            background: linear-gradient(90deg, transparent, var(--accent-blue), transparent);
+            animation: lineGrow 2s ease-in-out infinite alternate;
+        }
+
+        .clock.style-corporate .date {
+            font-size: clamp(1rem, 3vw, 2rem);
+            color: var(--text-secondary);
+            font-weight: 300;
+            letter-spacing: 0.2em;
+            text-transform: uppercase;
+        }
+
+        @keyframes lineGrow {
+            0% {
+                width: 100px;
+                opacity: 0.5;
+            }
+            100% {
+                width: 300px;
+                opacity: 1;
+            }
+        }
+
+        /* Style 4: Retro */
+        .clock.style-retro {
+            font-family: 'JetBrains Mono', monospace;
+            font-weight: 500;
+        }
+
+        .clock.style-retro .time {
+            font-size: clamp(4rem, 15vw, 12rem);
+            line-height: 1;
+            letter-spacing: 0.1em;
+            margin-bottom: 1rem;
+            color: var(--accent-green);
+            font-weight: 500;
+            text-shadow: 
+                2px 2px 0px rgba(0, 0, 0, 0.8),
+                0 0 20px var(--glow-green);
+            animation: retroFlicker 4s ease-in-out infinite;
+            position: relative;
+            white-space: nowrap;
+        }
+
+        .clock.style-retro .time::before {
+            content: attr(data-time);
+            position: absolute;
+            top: 2px;
+            left: 2px;
+            color: rgba(16, 185, 129, 0.3);
+            z-index: -1;
+            font-size: inherit;
+            font-family: inherit;
+            font-weight: inherit;
+            letter-spacing: inherit;
+            line-height: inherit;
+            white-space: nowrap;
+        }
+
+        .clock.style-retro .date {
+            font-size: clamp(1rem, 3vw, 2rem);
+            color: var(--accent-orange);
+            font-weight: 400;
+            letter-spacing: 0.1em;
+            text-transform: uppercase;
+            text-shadow: 0 0 10px var(--glow-orange);
+        }
+
+        @keyframes retroFlicker {
+            0%, 100% { opacity: 1; }
+            97% { opacity: 1; }
+            98% { opacity: 0.96; }
+            99% { opacity: 1; }
+        }
+
+        /* Additional Elements */
+
+        .timezone {
+            margin-top: 2rem;
+            color: var(--text-quaternary);
+            font-size: clamp(0.875rem, 2vw, 1.25rem);
+            font-weight: 400;
+            letter-spacing: 0.1em;
+        }
+
+        /* Responsive Design */
+        @media (max-width: 768px) {
+            .style-toggle {
+                top: 1rem;
+                right: 1rem;
+                gap: 1.5rem;
+            }
+
+            .style-btn {
+                font-size: 0.75rem;
+            }
+
+            .time-toggle {
+                bottom: 1rem;
+                left: 1rem;
+                gap: 1rem;
+            }
+
+            .motion-toggle {
+                bottom: 1rem;
+                right: 1rem;
+                gap: 1rem;
+            }
+
+            .toggle-btn {
+                font-size: 0.75rem;
+            }
+
+            .timezone {
+                margin-top: 1rem;
+                font-size: 0.875rem;
+            }
+        }
+
+        /* Performance optimizations */
+        .clock-container {
+            will-change: transform;
+        }
+
+        .time {
+            will-change: contents;
+        }
+    </style>
+</head>
+<body>
+    <!-- Background Animation -->
+    <div class="bg-animation">
+        <div class="bg-grid"></div>
+        <div class="bg-particles" id="particles"></div>
+    </div>
+
+    <!-- Style Toggle -->
+    <div class="style-toggle">
+        <button class="style-btn active" data-style="minimal">minimal</button>
+        <button class="style-btn" data-style="neon">neon</button>
+        <button class="style-btn" data-style="corporate">corporate</button>
+        <button class="style-btn" data-style="retro">retro</button>
+    </div>
+
+    <!-- Time Format Toggle -->
+    <div class="time-toggle">
+        <button class="toggle-btn active" data-format="12">12h</button>
+        <button class="toggle-btn" data-format="24">24h</button>
+    </div>
+
+    <!-- Motion Toggle -->
+    <div class="motion-toggle">
+        <button class="toggle-btn active" data-motion="on">motion</button>
+        <button class="toggle-btn" data-motion="off">static</button>
+    </div>
+
+    <!-- Main Clock -->
+    <div class="clock-container">
+        <div class="clock style-minimal" id="clock">
+            <div class="time" id="time">12:00:00 AM</div>
+            <div class="date" id="date">Monday, January 1</div>
+            <div class="timezone" id="timezone">PST</div>
+        </div>
+    </div>
+
+
+    <script>
+        class ProfessionalClock {
+            constructor() {
+                this.timeElement = document.getElementById('time');
+                this.dateElement = document.getElementById('date');
+                this.timezoneElement = document.getElementById('timezone');
+                this.clockElement = document.getElementById('clock');
+                this.currentStyle = 'minimal';
+                this.timeFormat = 12; // 12 or 24 hour format
+                this.motionEnabled = true;
+                
+                this.init();
+                this.createParticles();
+                this.setupEventListeners();
+                this.startClock();
+            }
+
+            init() {
+                // Set initial timezone
+                this.updateTimezone();
+                
+                // Update time immediately
+                this.updateTime();
+            }
+
+            createParticles() {
+                const particlesContainer = document.getElementById('particles');
+                const particleCount = 50;
+
+                for (let i = 0; i < particleCount; i++) {
+                    const particle = document.createElement('div');
+                    particle.classList.add('particle');
+                    
+                    // Random positioning
+                    particle.style.left = Math.random() * 100 + '%';
+                    particle.style.top = Math.random() * 100 + '%';
+                    
+                    // Random animation delay
+                    particle.style.animationDelay = Math.random() * 8 + 's';
+                    
+                    // Random animation duration
+                    particle.style.animationDuration = (6 + Math.random() * 4) + 's';
+                    
+                    particlesContainer.appendChild(particle);
+                }
+            }
+
+            updateTime() {
+                const now = new Date();
+                
+                // Format time based on current format setting
+                const timeString = now.toLocaleTimeString('en-US', {
+                    hour12: this.timeFormat === 12,
+                    hour: '2-digit',
+                    minute: '2-digit',
+                    second: '2-digit'
+                });
+
+                // Format date
+                const dateString = now.toLocaleDateString('en-US', {
+                    weekday: 'long',
+                    year: 'numeric',
+                    month: 'long',
+                    day: 'numeric'
+                });
+
+                // Update elements
+                this.timeElement.textContent = timeString;
+                this.timeElement.setAttribute('data-time', timeString);
+                this.dateElement.textContent = dateString;
+
+                // Add subtle animation on second change (only if motion enabled)
+                if (this.motionEnabled) {
+                    this.timeElement.style.transform = 'scale(1.01)';
+                    setTimeout(() => {
+                        this.timeElement.style.transform = 'scale(1)';
+                    }, 100);
+                }
+            }
+
+            updateTimezone() {
+                try {
+                    const now = new Date();
+                    const timezone = Intl.DateTimeFormat().resolvedOptions().timeZone;
+                    
+                    // Get timezone abbreviation
+                    const short = now.toLocaleTimeString('en', {timeZoneName:'short'}).split(' ')[2];
+                    this.timezoneElement.textContent = short;
+                } catch (e) {
+                    this.timezoneElement.textContent = 'Local Time';
+                }
+            }
+
+            changeStyle(styleName) {
+                if (this.currentStyle === styleName) return;
+
+                // Remove current style and add new style immediately
+                this.clockElement.classList.remove(`style-${this.currentStyle}`);
+                this.clockElement.classList.add(`style-${styleName}`);
+                this.currentStyle = styleName;
+
+                // Update active button
+                document.querySelectorAll('.style-btn').forEach(btn => {
+                    btn.classList.remove('active');
+                });
+                document.querySelector(`[data-style="${styleName}"]`).classList.add('active');
+            }
+
+            changeTimeFormat(format) {
+                if (this.timeFormat === parseInt(format)) return;
+
+                this.timeFormat = parseInt(format);
+
+                // Update active button
+                document.querySelectorAll('.time-toggle .toggle-btn').forEach(btn => {
+                    btn.classList.remove('active');
+                });
+                document.querySelector(`[data-format="${format}"]`).classList.add('active');
+
+                // Update time immediately to reflect new format
+                this.updateTime();
+            }
+
+            toggleMotion(enabled) {
+                const isEnabled = enabled === 'on';
+                if (this.motionEnabled === isEnabled) return;
+
+                this.motionEnabled = isEnabled;
+
+                // Update active button
+                document.querySelectorAll('.motion-toggle .toggle-btn').forEach(btn => {
+                    btn.classList.remove('active');
+                });
+                document.querySelector(`[data-motion="${enabled}"]`).classList.add('active');
+
+                // Toggle animations on background elements
+                const bgAnimation = document.querySelector('.bg-animation');
+                if (bgAnimation) {
+                    bgAnimation.style.animationPlayState = isEnabled ? 'running' : 'paused';
+                }
+
+                // Toggle particle animations
+                document.querySelectorAll('.particle').forEach(particle => {
+                    particle.style.animationPlayState = isEnabled ? 'running' : 'paused';
+                });
+
+                // Toggle clock-specific animations based on current style
+                this.updateStyleAnimations();
+            }
+
+            updateStyleAnimations() {
+                const timeEl = this.timeElement;
+                if (!this.motionEnabled) {
+                    timeEl.style.animation = 'none';
+                    timeEl.style.textShadow = timeEl.style.textShadow.replace(/0 0 \d+px[^,)]+[,)]/g, '');
+                } else {
+                    // Re-enable animations based on current style
+                    timeEl.className = timeEl.className; // Trigger style recalculation
+                }
+            }
+
+            setupEventListeners() {
+                // Style toggle buttons
+                document.querySelectorAll('.style-btn').forEach(btn => {
+                    btn.addEventListener('click', (e) => {
+                        const style = e.target.getAttribute('data-style');
+                        this.changeStyle(style);
+                    });
+                });
+
+                // Time format toggle buttons
+                document.querySelectorAll('.time-toggle .toggle-btn').forEach(btn => {
+                    btn.addEventListener('click', (e) => {
+                        const format = e.target.getAttribute('data-format');
+                        this.changeTimeFormat(format);
+                    });
+                });
+
+                // Motion toggle buttons
+                document.querySelectorAll('.motion-toggle .toggle-btn').forEach(btn => {
+                    btn.addEventListener('click', (e) => {
+                        const motion = e.target.getAttribute('data-motion');
+                        this.toggleMotion(motion);
+                    });
+                });
+
+                // Keyboard shortcuts
+                document.addEventListener('keydown', (e) => {
+                    switch(e.key) {
+                        case 'Escape':
+                            window.location.href = '/';
+                            break;
+                        case '1':
+                            this.changeStyle('minimal');
+                            break;
+                        case '2':
+                            this.changeStyle('neon');
+                            break;
+                        case '3':
+                            this.changeStyle('corporate');
+                            break;
+                        case '4':
+                            this.changeStyle('retro');
+                            break;
+                        case 't':
+                        case 'T':
+                            // Toggle between 12h and 24h
+                            this.changeTimeFormat(this.timeFormat === 12 ? '24' : '12');
+                            break;
+                        case 'm':
+                        case 'M':
+                            // Toggle motion
+                            this.toggleMotion(this.motionEnabled ? 'off' : 'on');
+                            break;
+                    }
+                });
+
+                // Handle visibility change (pause animations when tab is hidden)
+                document.addEventListener('visibilitychange', () => {
+                    if (document.hidden) {
+                        document.body.style.animationPlayState = 'paused';
+                    } else {
+                        document.body.style.animationPlayState = 'running';
+                    }
+                });
+            }
+
+            startClock() {
+                // Update every second
+                setInterval(() => {
+                    this.updateTime();
+                }, 1000);
+
+                // Update timezone every minute (in case it changes)
+                setInterval(() => {
+                    this.updateTimezone();
+                }, 60000);
+            }
+        }
+
+        // Initialize clock when DOM is loaded
+        document.addEventListener('DOMContentLoaded', () => {
+            new ProfessionalClock();
+        });
+
+        // Prevent context menu for cleaner experience
+        document.addEventListener('contextmenu', e => e.preventDefault());
+    </script>
+</body>
+</html>
