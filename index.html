@@ -999,6 +999,11 @@
     <script>
         // Professional smooth scrolling and interaction observers
         document.addEventListener('DOMContentLoaded', () => {
+            // Clean up URL if someone visits kaileh.dev/index.html
+            if (window.location.pathname === '/index.html') {
+                window.history.replaceState({}, document.title, '/');
+            }
+            
             // Simple static favicon - clean white K
             const faviconCanvas = document.createElement('canvas');
             faviconCanvas.width = 32;
