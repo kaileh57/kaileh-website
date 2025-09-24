@@ -5,6 +5,7 @@
         <meta charset="UTF-8">
         <meta name="viewport" content="width=device-width, initial-scale=1.0">
         <title>MMLU Evaluation Results</title>
+        <link rel="icon" type="image/png" id="favicon">
         <script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
         <style>
             body {
@@ -822,6 +823,29 @@
         <footer>
             <p>Generated on {datetime.now().strftime('%Y-%m-%d %H:%M:%S')}</p>
         </footer>
+        
+        <script>
+            // Generate K favicon
+            document.addEventListener('DOMContentLoaded', () => {
+                const faviconCanvas = document.createElement('canvas');
+                faviconCanvas.width = 32;
+                faviconCanvas.height = 32;
+                const ctx = faviconCanvas.getContext('2d');
+                
+                // Draw stylized white K
+                ctx.textAlign = 'center';
+                ctx.textBaseline = 'middle';
+                ctx.font = 'bold 24px "SF Pro Display", -apple-system, BlinkMacSystemFont, "Segoe UI", system-ui, sans-serif';
+                ctx.fillStyle = '#ffffff';
+                ctx.fillText('K', 16, 18);
+                
+                // Set favicon
+                const faviconLink = document.getElementById('favicon');
+                if (faviconLink) {
+                    faviconLink.href = faviconCanvas.toDataURL('image/png');
+                }
+            });
+        </script>
     </body>
     </html>
     

@@ -30,6 +30,7 @@
     <meta name="twitter:description" content="AI moves fast! OpenAI's 12 Days event, Amazon's Nova models, Meta's Llama 3.3, and Alibaba's QwQ reasoning model.">
     <meta name="twitter:creator" content="@kaileh57">
     
+    <link rel="icon" type="image/png" id="favicon">
     <link rel="stylesheet" href="../blog.css" />
     <link href="https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;700&display=swap" rel="stylesheet" />
 </head>
@@ -77,5 +78,27 @@
         </div>
     </footer>
     <script src="../blog.js"></script>
+    <script>
+        // Generate K favicon
+        document.addEventListener('DOMContentLoaded', () => {
+            const faviconCanvas = document.createElement('canvas');
+            faviconCanvas.width = 32;
+            faviconCanvas.height = 32;
+            const ctx = faviconCanvas.getContext('2d');
+            
+            // Draw stylized white K
+            ctx.textAlign = 'center';
+            ctx.textBaseline = 'middle';
+            ctx.font = 'bold 24px "SF Pro Display", -apple-system, BlinkMacSystemFont, "Segoe UI", system-ui, sans-serif';
+            ctx.fillStyle = '#ffffff';
+            ctx.fillText('K', 16, 18);
+            
+            // Set favicon
+            const faviconLink = document.getElementById('favicon');
+            if (faviconLink) {
+                faviconLink.href = faviconCanvas.toDataURL('image/png');
+            }
+        });
+    </script>
 </body>
 </html> 

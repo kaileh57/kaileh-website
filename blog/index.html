@@ -24,6 +24,7 @@
     <meta name="twitter:description" content="AI insights, tech analysis, and breaking news from the frontier of artificial intelligence.">
     <meta name="twitter:creator" content="@kaileh57">
     
+    <link rel="icon" type="image/png" id="favicon">
     <link rel="stylesheet" href="blog.css" />
     <link href="https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;700&display=swap" rel="stylesheet" />
 </head>
@@ -272,5 +273,28 @@
             <p>&copy; 2025 Kellen.H. All&nbsp;rights&nbsp;reserved.</p>
         </div>
     </footer>
+    
+    <script>
+        // Generate K favicon
+        document.addEventListener('DOMContentLoaded', () => {
+            const faviconCanvas = document.createElement('canvas');
+            faviconCanvas.width = 32;
+            faviconCanvas.height = 32;
+            const ctx = faviconCanvas.getContext('2d');
+            
+            // Draw stylized white K
+            ctx.textAlign = 'center';
+            ctx.textBaseline = 'middle';
+            ctx.font = 'bold 24px "SF Pro Display", -apple-system, BlinkMacSystemFont, "Segoe UI", system-ui, sans-serif';
+            ctx.fillStyle = '#ffffff';
+            ctx.fillText('K', 16, 18);
+            
+            // Set favicon
+            const faviconLink = document.getElementById('favicon');
+            if (faviconLink) {
+                faviconLink.href = faviconCanvas.toDataURL('image/png');
+            }
+        });
+    </script>
 </body>
 </html> 
