@@ -1,0 +1,958 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>P(DOOM) — They're Building It Anyway</title>
+    <meta name="description" content="Leading AI researchers estimate 5-99% chance of human extinction from AI. The median: 5%. The mean: 14.4%. Development hasn't stopped.">
+    <link rel="preconnect" href="https://fonts.googleapis.com">
+    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+    <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700;900&family=JetBrains+Mono:wght@400;500;700&display=swap" rel="stylesheet">
+    <style>
+        :root {
+            --bg-void: #000000;
+            --bg-abyss: #0a0000;
+            --text-ghost: #fafafa;
+            --text-dim: #808080;
+            --text-dying: #4a4a4a;
+            --red-doom: #ff0000;
+            --red-warning: #ff3333;
+            --red-glow: rgba(255, 0, 0, 0.2);
+            --red-faint: rgba(255, 0, 0, 0.05);
+        }
+
+        * {
+            margin: 0;
+            padding: 0;
+            box-sizing: border-box;
+        }
+
+        body {
+            font-family: 'Inter', -apple-system, BlinkMacSystemFont, sans-serif;
+            background: var(--bg-void);
+            color: var(--text-ghost);
+            overflow-x: hidden;
+            line-height: 1.6;
+        }
+
+        .noise {
+            position: fixed;
+            top: 0;
+            left: 0;
+            width: 100%;
+            height: 100%;
+            pointer-events: none;
+            opacity: 0.03;
+            z-index: 1000;
+            background-image: url("data:image/svg+xml,%3Csvg viewBox='0 0 400 400' xmlns='http://www.w3.org/2000/svg'%3E%3Cfilter id='noiseFilter'%3E%3CfeTurbulence type='fractalNoise' baseFrequency='0.9' numOctaves='4' stitchTiles='stitch'/%3E%3C/filter%3E%3Crect width='100%25' height='100%25' filter='url(%23noiseFilter)'/%3E%3C/svg%3E");
+        }
+
+        .vignette {
+            position: fixed;
+            top: 0;
+            left: 0;
+            width: 100%;
+            height: 100%;
+            pointer-events: none;
+            background: radial-gradient(circle at center, transparent 0%, rgba(0, 0, 0, 0.7) 100%);
+            z-index: 999;
+        }
+
+        /* Hero Section */
+        .hero {
+            min-height: 100vh;
+            display: flex;
+            flex-direction: column;
+            align-items: center;
+            justify-content: center;
+            padding: 2rem;
+            position: relative;
+        }
+
+        .glitch {
+            font-size: clamp(2rem, 10vw, 6rem);
+            font-weight: 900;
+            text-transform: uppercase;
+            position: relative;
+            letter-spacing: 0.05em;
+            color: var(--red-doom);
+            text-shadow: 
+                0 0 10px var(--red-glow),
+                0 0 20px var(--red-glow),
+                0 0 40px var(--red-glow);
+            animation: flicker 3s infinite;
+        }
+
+        @keyframes flicker {
+            0%, 19%, 21%, 23%, 25%, 54%, 56%, 100% {
+                text-shadow: 
+                    0 0 10px var(--red-glow),
+                    0 0 20px var(--red-glow),
+                    0 0 40px var(--red-glow);
+                opacity: 1;
+            }
+            20%, 24%, 55% {
+                text-shadow: none;
+                opacity: 0.8;
+            }
+        }
+
+        .subtitle {
+            font-size: clamp(1rem, 3vw, 1.5rem);
+            color: var(--text-dim);
+            text-align: center;
+            margin-top: 2rem;
+            max-width: 800px;
+            font-weight: 500;
+        }
+
+        /* Stats Grid */
+        .stats-section {
+            padding: 6rem 2rem;
+            max-width: 1400px;
+            margin: 0 auto;
+        }
+
+        .section-title {
+            font-size: clamp(2rem, 5vw, 3rem);
+            font-weight: 700;
+            text-align: center;
+            margin-bottom: 1rem;
+            color: var(--text-ghost);
+        }
+
+        .section-desc {
+            text-align: center;
+            color: var(--text-dim);
+            max-width: 800px;
+            margin: 0 auto 4rem;
+            font-size: 1.125rem;
+        }
+
+        .severity-label {
+            font-size: 0.875rem;
+            font-weight: 700;
+            text-transform: uppercase;
+            letter-spacing: 0.1em;
+            color: var(--red-doom);
+            margin-bottom: 2rem;
+            text-align: center;
+        }
+
+        .doom-grid {
+            display: grid;
+            grid-template-columns: repeat(auto-fit, minmax(300px, 1fr));
+            gap: 1.5rem;
+            margin-bottom: 4rem;
+        }
+
+        .doom-card {
+            background: linear-gradient(135deg, var(--bg-abyss) 0%, var(--bg-void) 100%);
+            border: 1px solid rgba(255, 0, 0, 0.2);
+            padding: 2rem;
+            border-radius: 1rem;
+            transition: all 0.3s ease;
+            position: relative;
+            overflow: hidden;
+        }
+
+        .doom-card::before {
+            content: '';
+            position: absolute;
+            top: 0;
+            left: 0;
+            right: 0;
+            height: 2px;
+            background: linear-gradient(90deg, transparent, var(--red-doom), transparent);
+            opacity: 0;
+            transition: opacity 0.3s;
+        }
+
+        .doom-card:hover {
+            border-color: var(--red-doom);
+            transform: translateY(-2px);
+            box-shadow: 0 8px 32px var(--red-glow);
+        }
+
+        .doom-card:hover::before {
+            opacity: 1;
+        }
+
+        .doom-percentage {
+            font-size: clamp(2.5rem, 5vw, 4rem);
+            font-weight: 900;
+            font-family: 'JetBrains Mono', monospace;
+            color: var(--red-doom);
+            margin-bottom: 0.5rem;
+            text-shadow: 0 0 20px var(--red-glow);
+        }
+
+        .doom-name {
+            font-size: 1.25rem;
+            font-weight: 600;
+            color: var(--text-ghost);
+            margin-bottom: 0.5rem;
+        }
+
+        .doom-title {
+            font-size: 0.875rem;
+            color: var(--text-dim);
+            line-height: 1.4;
+            margin-bottom: 0.5rem;
+        }
+
+        .doom-context {
+            font-size: 0.75rem;
+            color: var(--text-dying);
+            font-family: 'JetBrains Mono', monospace;
+            margin-top: 1rem;
+            padding-top: 1rem;
+            border-top: 1px solid rgba(255, 255, 255, 0.05);
+        }
+
+        /* Bar Layout */
+        .doom-list {
+            max-width: 1200px;
+            margin: 0 auto;
+            display: flex;
+            flex-direction: column;
+            gap: 0;
+        }
+
+        .doom-bar {
+            background: var(--bg-card);
+            border-left: 3px solid var(--red-doom);
+            transition: all 0.3s ease;
+            position: relative;
+            overflow: hidden;
+        }
+
+        .doom-bar::before {
+            content: '';
+            position: absolute;
+            left: 0;
+            top: 0;
+            bottom: 0;
+            width: 0;
+            background: rgba(255, 0, 0, 0.05);
+            transition: width 0.3s ease;
+        }
+
+        .doom-bar:hover {
+            background: var(--bg-card-hover);
+            border-left-color: var(--red-warning);
+        }
+
+        .doom-bar:hover::before {
+            width: 100%;
+        }
+
+        .bar-content {
+            padding: 1.5rem 2rem;
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            gap: 2rem;
+            position: relative;
+            z-index: 1;
+        }
+
+        .bar-left {
+            flex: 1;
+        }
+
+        .bar-name {
+            font-size: 1.5rem;
+            font-weight: 700;
+            color: var(--text-ghost);
+            margin-bottom: 0.5rem;
+            display: flex;
+            align-items: center;
+            gap: 0.75rem;
+        }
+
+        .bar-title {
+            font-size: 0.875rem;
+            color: var(--text-dim);
+            line-height: 1.5;
+        }
+
+        .bar-right {
+            flex-shrink: 0;
+        }
+
+        .bar-percentage {
+            font-size: 2.5rem;
+            font-weight: 900;
+            font-family: 'JetBrains Mono', monospace;
+            color: var(--red-doom);
+            text-align: right;
+            white-space: nowrap;
+        }
+
+        .revision-indicator {
+            font-size: 1rem;
+            font-weight: 900;
+        }
+
+        .revision-indicator.up {
+            color: var(--red-doom);
+        }
+
+        .revision-indicator.down {
+            color: var(--success);
+        }
+
+        /* Comparison Chart */
+        .comparison-chart {
+            padding: 6rem 2rem;
+            background: var(--bg-abyss);
+        }
+
+        .chart-container {
+            max-width: 900px;
+            margin: 3rem auto 0;
+            display: flex;
+            flex-direction: column;
+            gap: 2rem;
+        }
+
+        .chart-row {
+            display: flex;
+            align-items: center;
+            gap: 2rem;
+        }
+
+        .chart-label {
+            min-width: 200px;
+            font-size: 1rem;
+            font-weight: 600;
+            color: var(--text-ghost);
+            text-align: right;
+        }
+
+        .chart-bar-container {
+            flex: 1;
+            height: 40px;
+            background: var(--bg-card);
+            border: 1px solid rgba(255, 0, 0, 0.2);
+            border-radius: 0.25rem;
+            position: relative;
+            overflow: hidden;
+        }
+
+        .chart-bar {
+            height: 100%;
+            background: linear-gradient(90deg, var(--red-doom), var(--red-warning));
+            transition: width 1s ease-out;
+            display: flex;
+            align-items: center;
+            justify-content: flex-end;
+            padding-right: 1rem;
+        }
+
+        .chart-value {
+            position: absolute;
+            right: 1rem;
+            top: 50%;
+            transform: translateY(-50%);
+            font-family: 'JetBrains Mono', monospace;
+            font-weight: 700;
+            font-size: 0.875rem;
+            color: var(--text-ghost);
+        }
+
+        /* Reality Check Section */
+        .reality-check {
+            padding: 6rem 2rem;
+            background: var(--bg-abyss);
+            border-top: 1px solid var(--red-doom);
+            border-bottom: 1px solid var(--red-doom);
+        }
+
+        .reality-grid {
+            max-width: 1200px;
+            margin: 0 auto;
+            display: grid;
+            grid-template-columns: repeat(auto-fit, minmax(250px, 1fr));
+            gap: 3rem;
+        }
+
+        .reality-stat {
+            text-align: center;
+        }
+
+        .reality-number {
+            font-size: 4rem;
+            font-weight: 900;
+            color: var(--red-doom);
+            font-family: 'JetBrains Mono', monospace;
+            text-shadow: 0 0 30px var(--red-glow);
+            margin-bottom: 1rem;
+        }
+
+        .reality-label {
+            font-size: 1rem;
+            color: var(--text-dim);
+        }
+
+        /* Quote Section */
+        .quote-section {
+            padding: 6rem 2rem;
+            background: var(--bg-void);
+        }
+
+        .quote {
+            max-width: 800px;
+            margin: 0 auto;
+            text-align: center;
+        }
+
+        .quote-text {
+            font-size: clamp(1.25rem, 3vw, 2rem);
+            font-weight: 500;
+            color: var(--text-ghost);
+            line-height: 1.6;
+            margin-bottom: 2rem;
+            font-style: italic;
+        }
+
+        .quote-author {
+            font-size: 1.125rem;
+            color: var(--text-dim);
+            font-weight: 600;
+        }
+
+        .quote-role {
+            font-size: 0.875rem;
+            color: var(--text-dying);
+            margin-top: 0.5rem;
+        }
+
+        /* Final Message */
+        .final-message {
+            padding: 4rem 2rem;
+            text-align: center;
+            background: var(--bg-abyss);
+        }
+
+        .sources {
+            margin-top: 0;
+            padding-top: 0;
+            border-top: none;
+        }
+
+        .sources-title {
+            font-size: 0.75rem;
+            font-weight: 400;
+            letter-spacing: 0.05em;
+            color: var(--text-dying);
+            text-align: center;
+        }
+
+        @media (max-width: 768px) {
+            .doom-grid {
+                grid-template-columns: 1fr;
+            }
+            
+            .reality-grid {
+                grid-template-columns: 1fr;
+                gap: 2rem;
+            }
+
+            .glitch {
+                font-size: 3rem;
+            }
+
+            .bar-content {
+                flex-direction: column;
+                align-items: flex-start;
+                gap: 1rem;
+                padding: 1.25rem 1.5rem;
+            }
+
+            .bar-name {
+                font-size: 1.25rem;
+            }
+
+            .bar-percentage {
+                font-size: 2rem;
+            }
+
+            .chart-row {
+                flex-direction: column;
+                align-items: flex-start;
+                gap: 0.5rem;
+            }
+
+            .chart-label {
+                min-width: auto;
+                text-align: left;
+                font-size: 0.875rem;
+            }
+
+            .chart-bar-container {
+                width: 100%;
+            }
+        }
+
+        /* Number animation */
+        @keyframes countUp {
+            from {
+                opacity: 0;
+                transform: translateY(10px);
+            }
+            to {
+                opacity: 1;
+                transform: translateY(0);
+            }
+        }
+
+        .doom-percentage.animated {
+            animation: countUp 0.8s ease-out;
+        }
+    </style>
+</head>
+<body>
+    <div class="noise"></div>
+    <div class="vignette"></div>
+
+    <!-- Hero -->
+    <section class="hero">
+        <h1 class="glitch">P(DOOM)</h1>
+        <p class="subtitle">
+            The probability that artificial intelligence will cause human extinction or permanent disempowerment.
+            <br>According to the people building it.
+        </p>
+    </section>
+
+    <!-- Doom List -->
+    <section class="stats-section">
+        <div class="doom-list">
+            <!-- Yampolskiy -->
+            <div class="doom-bar">
+                <div class="bar-content">
+                    <div class="bar-left">
+                        <div class="bar-name">Roman Yampolskiy</div>
+                        <div class="bar-title">AI Safety Researcher, Director of Cyber Security Lab, University of Louisville</div>
+                    </div>
+                    <div class="bar-right">
+                        <div class="bar-percentage">99.999999%</div>
+                    </div>
+                </div>
+            </div>
+
+            <!-- Yudkowsky -->
+            <div class="doom-bar">
+                <div class="bar-content">
+                    <div class="bar-left">
+                        <div class="bar-name">Eliezer Yudkowsky</div>
+                        <div class="bar-title">Founder of Machine Intelligence Research Institute (MIRI)</div>
+                    </div>
+                    <div class="bar-right">
+                        <div class="bar-percentage">&gt;95%</div>
+                    </div>
+                </div>
+            </div>
+
+            <!-- Hendrycks -->
+            <div class="doom-bar">
+                <div class="bar-content">
+                    <div class="bar-left">
+                        <div class="bar-name">Dan Hendrycks <span class="revision-indicator up">▲ from 20%</span></div>
+                        <div class="bar-title">Director, Center for AI Safety</div>
+                    </div>
+                    <div class="bar-right">
+                        <div class="bar-percentage">&gt;80%</div>
+                    </div>
+                </div>
+            </div>
+
+            <!-- Kokotajlo -->
+            <div class="doom-bar">
+                <div class="bar-content">
+                    <div class="bar-left">
+                        <div class="bar-name">Daniel Kokotajlo</div>
+                        <div class="bar-title">Forecaster & Former OpenAI Researcher</div>
+                    </div>
+                    <div class="bar-right">
+                        <div class="bar-percentage">70%</div>
+                    </div>
+                </div>
+            </div>
+
+            <!-- Mowshowitz -->
+            <div class="doom-bar">
+                <div class="bar-content">
+                    <div class="bar-left">
+                        <div class="bar-name">Zvi Mowshowitz</div>
+                        <div class="bar-title">Independent AI Safety Journalist</div>
+                    </div>
+                    <div class="bar-right">
+                        <div class="bar-percentage">60%</div>
+                    </div>
+                </div>
+            </div>
+
+            <!-- Mostaque -->
+            <div class="doom-bar">
+                <div class="bar-content">
+                    <div class="bar-left">
+                        <div class="bar-name">Emad Mostaque</div>
+                        <div class="bar-title">Founder of Stability AI</div>
+                    </div>
+                    <div class="bar-right">
+                        <div class="bar-percentage">50%</div>
+                    </div>
+                </div>
+            </div>
+
+            <!-- Hinton -->
+            <div class="doom-bar">
+                <div class="bar-content">
+                    <div class="bar-left">
+                        <div class="bar-name">Geoffrey Hinton <span class="revision-indicator up">▲ from 10%</span></div>
+                        <div class="bar-title">Turing Award Winner, Nobel Prize Winner, "Godfather of AI"</div>
+                    </div>
+                    <div class="bar-right">
+                        <div class="bar-percentage">10-50%</div>
+                    </div>
+                </div>
+            </div>
+
+            <!-- Christiano -->
+            <div class="doom-bar">
+                <div class="bar-content">
+                    <div class="bar-left">
+                        <div class="bar-name">Paul Christiano</div>
+                        <div class="bar-title">Head of AI Safety, US AI Safety Institute, Formerly OpenAI</div>
+                    </div>
+                    <div class="bar-right">
+                        <div class="bar-percentage">46%</div>
+                    </div>
+                </div>
+            </div>
+
+            <!-- AI Engineers Survey -->
+            <div class="doom-bar">
+                <div class="bar-content">
+                    <div class="bar-left">
+                        <div class="bar-name">AI Engineers (Survey Mean)</div>
+                        <div class="bar-title">Practicing AI engineers building current systems</div>
+                    </div>
+                    <div class="bar-right">
+                        <div class="bar-percentage">40%</div>
+                    </div>
+                </div>
+            </div>
+
+            <!-- Lifland -->
+            <div class="doom-bar">
+                <div class="bar-content">
+                    <div class="bar-left">
+                        <div class="bar-name">Eli Lifland</div>
+                        <div class="bar-title">Top Competitive Forecaster</div>
+                    </div>
+                    <div class="bar-right">
+                        <div class="bar-percentage">35%</div>
+                    </div>
+                </div>
+            </div>
+
+            <!-- Scott Alexander -->
+            <div class="doom-bar">
+                <div class="bar-content">
+                    <div class="bar-left">
+                        <div class="bar-name">Scott Alexander</div>
+                        <div class="bar-title">Astral Codex Ten</div>
+                    </div>
+                    <div class="bar-right">
+                        <div class="bar-percentage">33%</div>
+                    </div>
+                </div>
+            </div>
+
+            <!-- AI Safety Researchers -->
+            <div class="doom-bar">
+                <div class="bar-content">
+                    <div class="bar-left">
+                        <div class="bar-name">AI Safety Researchers (Mean)</div>
+                        <div class="bar-title">44 researchers dedicated to solving alignment (2021)</div>
+                    </div>
+                    <div class="bar-right">
+                        <div class="bar-percentage">30%</div>
+                    </div>
+                </div>
+            </div>
+
+            <!-- Amodei -->
+            <div class="doom-bar">
+                <div class="bar-content">
+                    <div class="bar-left">
+                        <div class="bar-name">Dario Amodei <span class="revision-indicator up">▲ from 10-25%</span></div>
+                        <div class="bar-title">CEO of Anthropic</div>
+                    </div>
+                    <div class="bar-right">
+                        <div class="bar-percentage">25%</div>
+                    </div>
+                </div>
+            </div>
+
+            <!-- Bengio -->
+            <div class="doom-bar">
+                <div class="bar-content">
+                    <div class="bar-left">
+                        <div class="bar-name">Yoshua Bengio</div>
+                        <div class="bar-title">Turing Award Winner, "Godfather of AI", Pioneer of Deep Learning</div>
+                    </div>
+                    <div class="bar-right">
+                        <div class="bar-percentage">20%</div>
+                    </div>
+                </div>
+            </div>
+
+            <!-- Musk -->
+            <div class="doom-bar">
+                <div class="bar-content">
+                    <div class="bar-left">
+                        <div class="bar-name">Elon Musk</div>
+                        <div class="bar-title">CEO of Tesla, SpaceX, xAI</div>
+                    </div>
+                    <div class="bar-right">
+                        <div class="bar-percentage">10-20%</div>
+                    </div>
+                </div>
+            </div>
+
+            <!-- Lina Khan -->
+            <div class="doom-bar">
+                <div class="bar-content">
+                    <div class="bar-left">
+                        <div class="bar-name">Lina Khan</div>
+                        <div class="bar-title">Chair of Federal Trade Commission</div>
+                    </div>
+                    <div class="bar-right">
+                        <div class="bar-percentage">15%</div>
+                    </div>
+                </div>
+            </div>
+
+            <!-- ML Researchers Survey -->
+            <div class="doom-bar">
+                <div class="bar-content">
+                    <div class="bar-left">
+                        <div class="bar-name">ML Researchers (Mean/Median)</div>
+                        <div class="bar-title">2,788 researchers surveyed in 2023</div>
+                    </div>
+                    <div class="bar-right">
+                        <div class="bar-percentage">14.4% / 5%</div>
+                    </div>
+                </div>
+            </div>
+
+            <!-- Vitalik -->
+            <div class="doom-bar">
+                <div class="bar-content">
+                    <div class="bar-left">
+                        <div class="bar-name">Vitalik Buterin</div>
+                        <div class="bar-title">Ethereum Co-founder</div>
+                    </div>
+                    <div class="bar-right">
+                        <div class="bar-percentage">10%</div>
+                    </div>
+                </div>
+            </div>
+
+            <!-- Superforecasters -->
+            <div class="doom-bar">
+                <div class="bar-content">
+                    <div class="bar-left">
+                        <div class="bar-name">Superforecasters</div>
+                        <div class="bar-title">Forecasting Research Institute</div>
+                    </div>
+                    <div class="bar-right">
+                        <div class="bar-percentage">2%</div>
+                    </div>
+                </div>
+            </div>
+
+            <!-- LeCun -->
+            <div class="doom-bar">
+                <div class="bar-content">
+                    <div class="bar-left">
+                        <div class="bar-name">Yann LeCun <span class="revision-indicator down">▼</span></div>
+                        <div class="bar-title">Turing Award Winner, Chief AI Scientist at Meta, "Godfather of AI"</div>
+                    </div>
+                    <div class="bar-right">
+                        <div class="bar-percentage">&lt;0.01%</div>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </section>
+
+    <!-- Comparison Chart -->
+    <section class="comparison-chart">
+        <h2 class="section-title">For Context</h2>
+        <p class="section-desc">
+            How AI extinction risk compares to other civilizational threats
+        </p>
+        <div class="chart-container">
+            <div class="chart-row">
+                <div class="chart-label">Asteroid Impact</div>
+                <div class="chart-bar-container">
+                    <div class="chart-bar" style="width: 0.1%;"></div>
+                    <div class="chart-value">0.001%</div>
+                </div>
+            </div>
+            <div class="chart-row">
+                <div class="chart-label">Nuclear War (Cold War)</div>
+                <div class="chart-bar-container">
+                    <div class="chart-bar" style="width: 10%;"></div>
+                    <div class="chart-value">~1%</div>
+                </div>
+            </div>
+            <div class="chart-row">
+                <div class="chart-label">AI (Mean Estimate)</div>
+                <div class="chart-bar-container">
+                    <div class="chart-bar" style="width: 100%;"></div>
+                    <div class="chart-value">14.4%</div>
+                </div>
+            </div>
+        </div>
+    </section>
+
+    <!-- Quote -->
+    <section class="quote-section">
+        <div class="quote">
+            <p class="quote-text" style="font-size: clamp(1.5rem, 4vw, 2.5rem);">
+                "Mitigating the risk of extinction from AI should be a global priority alongside other societal-scale risks such as pandemics and nuclear war."
+            </p>
+            <div class="quote-author">Nearly 400 AI Experts and Tech Leaders</div>
+            <div class="quote-role">Public Statement, 2023</div>
+        </div>
+    </section>
+
+    <!-- Quote 2 -->
+    <section class="quote-section" style="background: var(--bg-abyss);">
+        <div class="quote">
+            <p class="quote-text">
+                "We don't know what is going to happen. It may be amazingly good, or it may be amazingly bad. Things aren't going to stay like they are."
+            </p>
+            <div class="quote-author">Geoffrey Hinton</div>
+            <div class="quote-role">Nobel Prize Winner in Physics, Turing Award Winner</div>
+        </div>
+    </section>
+
+    <!-- Quote 3 -->
+    <section class="quote-section">
+        <div class="quote">
+            <p class="quote-text">
+                "The thing with catastrophic events like extinction is that they're so bad that even if there was only a 1% chance it could happen, it's not acceptable."
+            </p>
+            <div class="quote-author">Yoshua Bengio</div>
+            <div class="quote-role">Turing Award Winner, Pioneer of Deep Learning</div>
+        </div>
+    </section>
+
+    <!-- Quote 3 -->
+    <section class="quote-section">
+        <div class="quote">
+            <p class="quote-text">
+                "The thing with catastrophic events like extinction is that they're so bad that even if there was only a 1% chance it could happen, it's not acceptable."
+            </p>
+            <div class="quote-author">Yoshua Bengio</div>
+            <div class="quote-role">Turing Award Winner, Pioneer of Deep Learning</div>
+        </div>
+    </section>
+
+    <!-- What's Being Done -->
+    <section class="reality-check" style="border-top: none; background: var(--bg-abyss);">
+        <h2 class="section-title">What's Being Done About It?</h2>
+        <p class="section-desc">
+            Despite these warnings from experts
+        </p>
+        <div class="reality-grid">
+            <div class="reality-stat">
+                <div class="reality-number">0</div>
+                <div class="reality-label">Binding international AI safety treaties in force</div>
+            </div>
+            <div class="reality-stat">
+                <div class="reality-number">↑ 44.5%</div>
+                <div class="reality-label">Increase in global private AI investment in 2024/2025</div>
+            </div>
+            <div class="reality-stat">
+                <div class="reality-number">~50%</div>
+                <div class="reality-label">Of AI safety researchers who left major labs in 2024/2025</div>
+            </div>
+        </div>
+    </section>
+
+    <!-- Final Message -->
+    <section class="final-message">
+        <div class="sources">
+            <div class="sources-title">sources</div>
+            <div style="margin-top: 2rem; max-width: 1000px; margin-left: auto; margin-right: auto; text-align: left; color: var(--text-dim); font-size: 0.875rem; line-height: 1.8;">
+                <p style="margin-bottom: 1.5rem;">
+                    <strong style="color: var(--text-ghost);">P(doom) Estimates:</strong><br>
+                    Grace, K., et al. (2024). "Thousands of AI Authors on the Future of AI." <em>AI Impacts 2023 Expert Survey</em>. arXiv:2401.02843 [Mean: 14.4%, Median: 5%, N=2,788]<br>
+                    Amodei, D. (2025). Interview at Axios AI+ DC Summit (September 17, 2025) [Updated to 25%]<br>
+                    Hendrycks, D. (2023). Center for AI Safety [Updated from 20% to >80%]<br>
+                    Hinton, G. (2024). METR Q&A Session (July 2024) [>50%, adjusts to 10-50% accounting for others]<br>
+                    Various individual estimates compiled from public statements, interviews, and surveys (2023-2025)
+                </p>
+                <p style="margin-bottom: 1.5rem;">
+                    <strong style="color: var(--text-ghost);">AI Investment Data:</strong><br>
+                    Stanford HAI (2025). "AI Index Report 2025" [Corporate AI investment: $252.3B in 2024, private investment up 44.5%]
+                </p>
+                <p style="margin-bottom: 1.5rem;">
+                    <strong style="color: var(--text-ghost);">Safety Researchers:</strong><br>
+                    Kokotajlo, D. (2024). Interview with Fortune (August 2024) [~50% of AGI safety staff left OpenAI]<br>
+                    OpenAI Wikipedia (2025). "Throughout 2024, roughly half of then-employed AI safety researchers left OpenAI"<br>
+                    Multiple news reports: TechCrunch, The Decoder, PC Gamer (2024-2025)
+                </p>
+                <p>
+                    <strong style="color: var(--text-ghost);">Additional References:</strong><br>
+                    Future of Life Institute (2023). Public statement signed by ~400 AI experts and tech leaders<br>
+                    Council of Europe (2024). Framework Convention on AI [Signed but not yet in force]<br>
+                    Various individual researcher statements and interviews compiled from public sources
+                </p>
+            </div>
+        </div>
+    </section>
+
+    <script>
+        // Subtle parallax effect on scroll
+        window.addEventListener('scroll', () => {
+            const scrolled = window.pageYOffset;
+            const vignette = document.querySelector('.vignette');
+            if (vignette) {
+                vignette.style.opacity = Math.min(1, scrolled / 500);
+            }
+        });
+
+        // Observer for bars
+        const observer = new IntersectionObserver((entries) => {
+            entries.forEach(entry => {
+                if (entry.isIntersecting) {
+                    entry.target.style.opacity = '1';
+                    entry.target.style.transform = 'translateY(0)';
+                    
+                    // Animate percentage numbers
+                    const percentage = entry.target.querySelector('.bar-percentage');
+                    if (percentage && !percentage.classList.contains('animated')) {
+                        percentage.classList.add('animated');
+                    }
+                }
+            });
+        }, { threshold: 0.1 });
+
+        document.querySelectorAll('.doom-bar').forEach(bar => {
+            bar.style.opacity = '0';
+            bar.style.transform = 'translateY(20px)';
+            bar.style.transition = 'all 0.6s ease';
+            observer.observe(bar);
+        });
+    </script>
+</body>
+</html>
