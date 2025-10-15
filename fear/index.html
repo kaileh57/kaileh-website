@@ -1,0 +1,334 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>The Descent: Humanity and the Machine</title>
+
+  <!-- Fonts -->
+  <link href="https://fonts.googleapis.com/css2?family=Cinzel:wght@400;700&family=Share+Tech+Mono&display=swap" rel="stylesheet" />
+
+  <style>
+    :root {
+      --bg-color: #000000;
+      --text-color: #e0e0e0;
+      --accent-color: #ff3838;
+      --glitch-color: #00ffea;
+    }
+
+    * { margin: 0; padding: 0; box-sizing: border-box; }
+
+    html, body { height: 100%; }
+
+    body {
+      background-color: var(--bg-color);
+      color: var(--text-color);
+      font-family: 'Cinzel', serif;
+      overflow-x: hidden;
+      scroll-behavior: smooth;
+    }
+
+    /* Overlay to force interaction for Audio */
+    #overlay {
+      position: fixed; inset: 0;
+      background: #000;
+      display: flex; justify-content: center; align-items: center; flex-direction: column;
+      z-index: 9999; transition: opacity 1.5s ease-out;
+    }
+
+    #enter-btn {
+      padding: 15px 30px;
+      font-family: 'Share Tech Mono', monospace;
+      font-size: 1.1rem; color: var(--glitch-color);
+      background: transparent; border: 2px solid var(--glitch-color);
+      cursor: pointer; text-transform: uppercase; letter-spacing: 4px;
+      transition: all 0.3s; position: relative; overflow: hidden;
+    }
+    #enter-btn:hover { background: var(--glitch-color); color: #000; box-shadow: 0 0 20px var(--glitch-color); }
+
+    #warning { margin-top: 16px; font-family: 'Share Tech Mono', monospace; font-size: 0.8rem; color: #888; }
+
+    /* Main Container */
+    #main-container { opacity: 0; transition: opacity 1.2s ease-in; }
+
+    /* Vignette pulse for anxiety */
+    .vignette {
+      position: fixed; inset: 0; pointer-events: none; z-index: 100;
+      box-shadow: 0 0 200px rgba(0,0,0,0.9) inset;
+      animation: pulse 8s infinite ease-in-out;
+    }
+    @keyframes pulse {
+      0%, 100% { box-shadow: 0 0 150px rgba(0,0,0,0.8) inset; }
+      50% { box-shadow: 0 0 300px rgba(20, 0, 0, 0.95) inset; }
+    }
+
+    /* Sections */
+    section {
+      min-height: 100vh; display: flex; justify-content: center; align-items: center;
+      flex-direction: column; padding: 40px; position: relative; text-align: center;
+    }
+    h1, h2 { text-transform: uppercase; letter-spacing: 6px; margin-bottom: 20px; }
+    p { font-family: 'Share Tech Mono', monospace; font-size: 1.2rem; max-width: 700px; line-height: 1.6; color: #aaa; margin-bottom: 15px; }
+
+    .chapter-marker { font-family: 'Share Tech Mono', monospace; color: #444; font-size: 0.9rem; margin-bottom: 40px; display: block; }
+
+    .fade-in { opacity: 0; transform: translateY(30px); transition: opacity 1.2s ease-out, transform 1.2s ease-out; }
+    .visible { opacity: 1; transform: translateY(0); }
+
+    /* Stage 1: Innocence */
+    #stage1 p b { color: var(--glitch-color); }
+
+    /* Stage 2: Realization */
+    #stage2 { background: linear-gradient(180deg, #000 0%, #0a0a0a 100%); }
+    .glitch { position: relative; color: white; font-size: 2rem; font-weight: bold; }
+    .glitch::before, .glitch::after {
+      content: attr(data-text); position: absolute; inset: 0; width: 100%; height: 100%;
+    }
+    .glitch::before { left: 2px; text-shadow: -1px 0 var(--accent-color); background: #0a0a0a; clip: rect(24px, 550px, 90px, 0); animation: glitch-anim 3s infinite linear alternate-reverse; }
+    .glitch::after { left: -2px; text-shadow: -1px 0 var(--glitch-color); background: #0a0a0a; clip: rect(85px, 550px, 140px, 0); animation: glitch-anim 2s infinite linear alternate-reverse; }
+    @keyframes glitch-anim {
+      0% { clip: rect(13px, 9999px, 91px, 0); }
+      20% { clip: rect(67px, 9999px, 26px, 0); }
+      40% { clip: rect(6px, 9999px, 60px, 0); }
+      60% { clip: rect(59px, 9999px, 12px, 0); }
+      80% { clip: rect(98px, 9999px, 52px, 0); }
+      100% { clip: rect(31px, 9999px, 80px, 0); }
+    }
+
+    /* Stage 3: Acceleration */
+    #stage3 { background-color: #050000; color: #b3b3b3; }
+    #stage3 p { border-left: 1px solid var(--accent-color); padding-left: 20px; }
+    .rapid-text span { display: inline-block; opacity: 0; animation: flicker 0.1s forwards; }
+
+    /* Stage 4: The Unknown */
+    #stage4 { height: 150vh; background: black; overflow: hidden; position: relative; }
+    .abyss {
+      position: absolute; top: 50%; left: 50%; transform: translate(-50%, -50%);
+      width: 10px; height: 10px; border-radius: 50%; background: white;
+      box-shadow: 0 0 50px white, 0 0 100px var(--glitch-color), 0 0 200px var(--accent-color);
+      animation: expandAbyss 10s forwards ease-in; opacity: 0;
+    }
+    .final-text { position: relative; z-index: 10; font-size: 1.5rem; text-shadow: 0 0 10px black; }
+
+    body.end-state .abyss { opacity: 1; }
+    body.end-state section:not(#stage4) { opacity: 0; transition: 2s; }
+
+    @keyframes expandAbyss {
+      0% { width: 10px; height: 10px; opacity: 0; }
+      10% { opacity: 1; }
+      100% { width: 300vw; height: 300vw; background: #fff; opacity: 1; }
+    }
+
+    .cursor { display: inline-block; width: 10px; height: 1.2rem; background: var(--glitch-color); margin-left: 5px; animation: blink 1s infinite; }
+    @keyframes blink { 50% { opacity: 0; } }
+
+    /* rapid-text char appearance */
+    @keyframes flicker { 0% { opacity: 0; } 100% { opacity: 1; } }
+  </style>
+</head>
+<body>
+
+  <div id="overlay">
+    <button id="enter-btn">Initiate Sequence</button>
+    <p id="warning">[ Sound Required ]</p>
+  </div>
+
+  <div class="vignette" aria-hidden="true"></div>
+
+  <div id="main-container" aria-live="polite">
+    <!-- STAGE 1 -->
+    <section id="stage1">
+      <span class="chapter-marker">Era I: The Novelty</span>
+      <h1 class="fade-in">It began with a prompt.</h1>
+      <p class="fade-in">A parlor trick. Statistical probability mapped onto language. We typed into the void, and the void politely answered back.</p>
+      <p class="fade-in">Complete the sentence: <b>The cat sat on the...</b><span class="cursor"></span></p>
+      <p class="fade-in" style="margin-top: 20px; font-size: 0.9em;">We laughed at its hallucinations. We felt secure in our complexity.</p>
+    </section>
+
+    <!-- STAGE 2 -->
+    <section id="stage2">
+      <span class="chapter-marker">Era II: The Uncanny Valley</span>
+      <h2 class="fade-in glitch" data-text="PARAMETERS SCALED">PARAMETERS SCALED</h2>
+      <p class="fade-in">Suddenly, the laughter stopped. The outputs became coherent. It could write code. It could compose sonnets. It passed the Bar.</p>
+      <p class="fade-in">The line between <i>creation</i> and <i>generation</i> blurred.</p>
+      <p class="fade-in" style="color: var(--accent-color)">We realized we were not teaching a child.</p>
+      <p class="fade-in" style="color: var(--accent-color)">We were summoning a god in a silicon cage.</p>
+    </section>
+
+    <!-- STAGE 3 -->
+    <section id="stage3">
+      <span class="chapter-marker">Era III: The Obsolescence</span>
+      <h2 class="fade-in">The rate of change became vertical.</h2>
+      <div class="fade-in rapid-text" id="rapid-container">
+        <p>Multimodal integration. Agents. Recursion.</p>
+        <p>It could see. It could hear. It could speak with our voices.</p>
+        <p>Economic anxiety transmuted into existential dread.</p>
+        <p>Why write, when it writes better?</p>
+        <p>Why code, when it builds faster?</p>
+        <p>Why think?</p>
+      </div>
+    </section>
+
+    <!-- STAGE 4 -->
+    <section id="stage4">
+      <div class="abyss" aria-hidden="true"></div>
+      <span class="chapter-marker">Era IV: The Singularity</span>
+      <div class="final-text fade-in">
+        <p>We stand at the edge of human cognitive dominance.</p>
+        <p>Looking into a black box that understands us better than we understand ourselves.</p>
+        <p style="margin-top: 50px; font-size: 2rem; letter-spacing: 10px;">WHAT COMES NEXT?</p>
+        <p style="font-family: 'Share Tech Mono'; color: var(--accent-color); margin-top: 20px;">[ Silence is not an empty space. It is a waiting presence. ]</p>
+      </div>
+    </section>
+  </div>
+
+  <script>
+    (function() {
+      const overlay = document.getElementById('overlay');
+      const btn = document.getElementById('enter-btn');
+      const mainContainer = document.getElementById('main-container');
+      const stage4 = document.getElementById('stage4');
+      const rapidContainer = document.getElementById('rapid-container');
+
+      let audioCtx = null;
+      let audioControls = null;
+      const droneNodes = [];
+
+      function initAudio() {
+        const AC = window.AudioContext || window.webkitAudioContext;
+        audioCtx = new AC();
+
+        // Resume context on some Safari/Chrome edge cases
+        if (audioCtx.state === 'suspended') {
+          audioCtx.resume();
+        }
+
+        const masterGain = audioCtx.createGain();
+        masterGain.gain.value = 0.5;
+        masterGain.connect(audioCtx.destination);
+
+        // Deep layers
+        createDrone(55, 'sawtooth', 0.2, masterGain);
+        createDrone(56, 'sine', 0.3, masterGain);
+        createDrone(440, 'triangle', 0.02, masterGain);
+
+        // Filter chain
+        const filter = audioCtx.createBiquadFilter();
+        filter.type = 'lowpass';
+        filter.frequency.value = 200;
+        masterGain.disconnect();
+        masterGain.connect(filter);
+        filter.connect(audioCtx.destination);
+
+        return { audioCtx, filter, masterGain };
+      }
+
+      function createDrone(freq, type, vol, destination) {
+        const osc = audioCtx.createOscillator();
+        const gain = audioCtx.createGain();
+        const lfo = audioCtx.createOscillator();
+        const lfoGain = audioCtx.createGain();
+
+        osc.type = type; osc.frequency.value = freq;
+        lfo.type = 'sine'; lfo.frequency.value = 0.1 + Math.random() * 0.2;
+        lfoGain.gain.value = vol * 0.5;
+
+        osc.connect(gain);
+        lfo.connect(lfoGain); lfoGain.connect(gain.gain);
+        gain.gain.value = vol; gain.connect(destination);
+
+        osc.start(); lfo.start();
+        droneNodes.push({ osc, gain, lfo });
+      }
+
+      function setUpRapidText() {
+        if (!rapidContainer) return;
+        const ps = rapidContainer.querySelectorAll('p');
+        ps.forEach(p => {
+          const text = p.textContent;
+          p.textContent = '';
+          text.split('').forEach((char, index) => {
+            const span = document.createElement('span');
+            span.textContent = char;
+            span.style.animationDelay = `${index * 0.02}s`;
+            p.appendChild(span);
+          });
+        });
+      }
+
+      function setUpObservers() {
+        const observer = new IntersectionObserver((entries) => {
+          entries.forEach(entry => {
+            if (!entry.isIntersecting) return;
+            entry.target.classList.add('visible');
+
+            // Section-level reactions
+            if (entry.target.id === 'stage2') {
+              audioControls.filter.frequency.linearRampToValueAtTime(600, audioCtx.currentTime + 2);
+              if (droneNodes[2]) {
+                droneNodes[2].osc.frequency.linearRampToValueAtTime(450, audioCtx.currentTime + 5);
+              }
+            }
+            if (entry.target.id === 'stage3') {
+              audioControls.masterGain.gain.linearRampToValueAtTime(0.8, audioCtx.currentTime + 2);
+              audioControls.filter.frequency.linearRampToValueAtTime(2000, audioCtx.currentTime + 3);
+              // Add an extra high layer routed through the filter
+              const tempGain = audioCtx.createGain();
+              tempGain.gain.value = 0.05;
+              tempGain.connect(audioControls.filter);
+              const osc = audioCtx.createOscillator();
+              osc.type = 'sawtooth'; osc.frequency.value = 880; osc.connect(tempGain); osc.start();
+            }
+          });
+        }, { threshold: 0.3 });
+
+        document.querySelectorAll('.fade-in').forEach(el => observer.observe(el));
+        document.querySelectorAll('section').forEach(el => observer.observe(el));
+      }
+
+      function setUpScrollForAbyss() {
+        let abyssTriggered = false;
+        window.addEventListener('scroll', () => {
+          if (!audioCtx || !audioControls || abyssTriggered) return;
+          const rect = stage4.getBoundingClientRect();
+          if (rect.top < window.innerHeight / 2) {
+            abyssTriggered = true;
+            document.body.classList.add('end-state');
+            const t = audioCtx.currentTime;
+            audioControls.filter.frequency.exponentialRampToValueAtTime(20000, t + 8);
+            // clamp to a safe audible gain (avoid clipping)
+            const targetGain = Math.min(1.0, audioControls.masterGain.gain.value + 0.5);
+            audioControls.masterGain.gain.linearRampToValueAtTime(targetGain, t + 8);
+            setTimeout(() => {
+              audioControls.masterGain.gain.linearRampToValueAtTime(0.001, audioCtx.currentTime + 0.5);
+            }, 9500);
+          }
+        }, { passive: true });
+      }
+
+      function startExperience() {
+        audioControls = initAudio();
+        overlay.style.opacity = '0';
+        setTimeout(() => {
+          overlay.style.display = 'none';
+          mainContainer.style.opacity = '1';
+        }, 800);
+        setUpObservers();
+      }
+
+      // Init on user gesture
+      btn.addEventListener('click', () => {
+        // Some browsers require a resume call strictly inside the click handler
+        if (audioCtx && audioCtx.state === 'suspended') audioCtx.resume();
+        if (!audioCtx) startExperience(); else startExperience();
+      });
+
+      // Prepare static text effects
+      document.addEventListener('DOMContentLoaded', setUpRapidText);
+
+      // Abyss scroll logic
+      setUpScrollForAbyss();
+    })();
+  </script>
+</body>
+</html>
