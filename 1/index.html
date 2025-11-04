@@ -1,0 +1,764 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="utf-8" />
+<meta name="viewport" content="width=device-width,initial-scale=1" />
+<title>3D Disk Fluid — Circular Gravity (single‑file)</title>
+<style>
+  :root {
+    --panel-bg: rgba(10,10,14,0.72);
+    --panel-border: rgba(255,255,255,0.12);
+    --accent: #8fd3ff;
+  }
+  html, body { margin:0; height:100%; background:#000; color:#e7e7e7; font: 14px/1.45 system-ui, -apple-system, Segoe UI, Roboto, Helvetica, Arial, sans-serif; }
+  canvas { display:block; width:100vw; height:100vh; }
+  #hud {
+    position: fixed; top: 12px; left: 12px;
+    background: var(--panel-bg);
+    backdrop-filter: blur(6px);
+    border: 1px solid var(--panel-border);
+    border-radius: 10px; padding: 10px 12px; max-width: 360px;
+    user-select: none;
+  }
+  #hud h1 { font-size: 13px; font-weight: 600; margin: 0 0 6px 0; letter-spacing: .3px; color:#cfe8ff; }
+  #hud .row { display:flex; align-items:center; gap:8px; margin:6px 0; }
+  #hud .row label { flex: 0 0 135px; opacity: .9; }
+  #hud .row input[type=range] { flex: 1 1 auto; }
+  #hud .row input[type=checkbox] { transform: translateY(1px); }
+  #hud .row output { min-width: 62px; text-align: right; opacity: .9; }
+  #hud .buttons { display:flex; gap:8px; margin-top:8px; flex-wrap: wrap; }
+  button, .tiny {
+    appearance:none; background:#0e1a24; color:#d7efff;
+    border: 1px solid var(--panel-border); border-radius:8px;
+    padding: 7px 10px; cursor: pointer;
+  }
+  button:hover { background:#122131; }
+  .tiny { font-size:12px; padding:4px 8px; opacity:.85 }
+  #legend {
+    position: fixed; right: 12px; bottom: 12px;
+    background: var(--panel-bg);
+    border: 1px solid var(--panel-border);
+    border-radius: 8px; padding: 8px 10px; max-width: 340px; font-size: 12px;
+  }
+  kbd { background:#111722; border:1px solid #2b3952; border-bottom-color:#162032; border-radius:5px; padding:2px 5px; font-family: ui-monospace, SFMono-Regular, Menlo, Consolas, "Liberation Mono", monospace; font-size: 12px; }
+  a { color: var(--accent); text-decoration: none; }
+  a:hover { text-decoration: underline; }
+</style>
+</head>
+<body>
+<canvas id="gl"></canvas>
+
+<div id="hud">
+  <h1>Fluid Disk · Circular Gravity (3D)</h1>
+
+  <div class="row"><label>Particles</label><output id="oN">—</output></div>
+  <div class="row">
+    <label>Central mass</label>
+    <input id="centralMass" type="range" min="0.2" max="4.0" value="1.6" step="0.01">
+    <output id="oCentral">1.60</output>
+  </div>
+  <div class="row">
+    <label>Self‑gravity (G)</label>
+    <input id="gSelf" type="range" min="0.0" max="3.0" value="1.4" step="0.01">
+    <output id="oGSelf">1.40</output>
+  </div>
+  <div class="row">
+    <label>Softening ε</label>
+    <input id="soften" type="range" min="0.002" max="0.08" value="0.02" step="0.002">
+    <output id="oSoften">0.020</output>
+  </div>
+  <div class="row">
+    <label>Pressure</label>
+    <input id="press" type="range" min="0.0" max="0.08" value="0.020" step="0.001">
+    <output id="oPress">0.020</output>
+  </div>
+  <div class="row">
+    <label>Viscosity</label>
+    <input id="visc" type="range" min="0.0" max="0.15" value="0.035" step="0.001">
+    <output id="oVisc">0.035</output>
+  </div>
+  <div class="row">
+    <label>Time step</label>
+    <input id="dt" type="range" min="0.001" max="0.025" value="0.010" step="0.001">
+    <output id="oDt">0.010</output>
+  </div>
+  <div class="row">
+    <label>Thickness</label>
+    <input id="thick" type="range" min="0.0" max="0.15" value="0.035" step="0.001">
+    <output id="oThick">0.035</output>
+  </div>
+  <div class="row">
+    <label>Neighbors (gravity)</label>
+    <input id="gRad" type="range" min="0.08" max="0.35" value="0.20" step="0.01">
+    <output id="oGRad">0.20</output>
+  </div>
+
+  <div class="row">
+    <label>Self‑gravity on</label>
+    <input id="togSG" type="checkbox" checked>
+    <label style="flex:0 0 auto;">Pressure on</label>
+    <input id="togP" type="checkbox" checked>
+  </div>
+
+  <div class="buttons">
+    <button id="reset">Reset disk</button>
+    <button id="presetCold" class="tiny">Preset: Cold (spiral)</button>
+    <button id="presetWarm" class="tiny">Preset: Warm</button>
+    <button id="presetNoSG" class="tiny">Preset: No self‑G</button>
+    <button id="pause">Pause ⏸</button>
+    <button id="scrshot" title="Save image (PNG)">Save PNG</button>
+  </div>
+
+  <div style="margin-top:6px; font-size:12px; opacity:.8">
+    Tip: The sim starts as a rotating gas disk with circular gravity. Small noise + shear + self‑gravity can drive trailing spirals.
+  </div>
+</div>
+
+<div id="legend">
+  <div><b>Mouse</b>: drag to orbit · <b>Wheel</b>: zoom</div>
+  <div><kbd>Space</kbd> pause/resume · <kbd>R</kbd> reset</div>
+  <div>Colors: density & speed; additive blending for a luminous look.</div>
+  <div>Everything runs locally in this one HTML file.</div>
+</div>
+
+<script id="vs" type="x-shader/x-vertex">
+precision mediump float;
+attribute vec3 aPos;
+attribute float aSize;
+attribute float aDensity;
+attribute float aSpeed;
+uniform mat4 uProj, uView;
+uniform float uPointScale;
+uniform float uDensMin, uDensMax, uSpeedMax;
+varying float vDn;
+varying float vSn;
+void main() {
+  vec4 viewPos = uView * vec4(aPos, 1.0);
+  gl_Position = uProj * viewPos;
+  float dist = max(0.1, -viewPos.z);
+  gl_PointSize = max(1.0, uPointScale * aSize / dist);
+  float dn = (aDensity - uDensMin) / max(0.0001, (uDensMax - uDensMin));
+  float sn = aSpeed / max(0.0001, uSpeedMax);
+  vDn = clamp(dn, 0.0, 1.0);
+  vSn = clamp(sn, 0.0, 1.0);
+}
+</script>
+
+<script id="fs" type="x-shader/x-fragment">
+precision mediump float;
+varying float vDn;
+varying float vSn;
+void main() {
+  // soft circular splat
+  vec2 uv = gl_PointCoord * 2.0 - 1.0;
+  float r2 = dot(uv, uv);
+  if (r2 > 1.0) discard;
+  float edge = exp(-3.0 * r2);
+
+  // palette: density -> warm; speed -> cool tint
+  vec3 base = mix(vec3(0.18, 0.12, 0.28), vec3(1.0, 0.95, 0.90), vDn);
+  vec3 tinted = mix(base, vec3(0.60, 0.80, 1.00), vSn * 0.85);
+  float alpha = edge * (0.30 + 0.70 * vDn);
+  gl_FragColor = vec4(tinted * alpha, alpha);
+}
+</script>
+
+<script>
+(() => {
+  // ------------------ Quick math helpers ------------------
+  const rand = Math.random;
+  const TAU = Math.PI * 2.0;
+  const clamp = (x,a,b)=>x<a?a:x>b?b:x;
+  const lerp = (a,b,t)=>a + (b-a)*t;
+
+  function vec3() { return new Float32Array(3); }
+  function add3(a,b,out){ out[0]=a[0]+b[0]; out[1]=a[1]+b[1]; out[2]=a[2]+b[2]; return out; }
+  function sub3(a,b,out){ out[0]=a[0]-b[0]; out[1]=a[1]-b[1]; out[2]=a[2]-b[2]; return out; }
+  function mul3s(a,s,out){ out[0]=a[0]*s; out[1]=a[1]*s; out[2]=a[2]*s; return out; }
+  function len3(a){ return Math.hypot(a[0],a[1],a[2]); }
+
+  // Normal with Box–Muller
+  function randNorm() {
+    let u = 1 - rand(); let v = rand();
+    return Math.sqrt(-2 * Math.log(u)) * Math.cos(TAU * v);
+  }
+
+  // ------------------ Minimal mat4 (column-major) ------------------
+  function mat4Identity() {
+    const m = new Float32Array(16);
+    m[0]=1; m[5]=1; m[10]=1; m[15]=1; return m;
+  }
+  function mat4Perspective(fovy, aspect, near, far) {
+    const f = 1.0 / Math.tan(fovy/2), nf = 1/(near - far);
+    const m = new Float32Array(16);
+    m[0]=f/aspect; m[1]=0; m[2]=0; m[3]=0;
+    m[4]=0; m[5]=f; m[6]=0; m[7]=0;
+    m[8]=0; m[9]=0; m[10]=(far+near)*nf; m[11]=-1;
+    m[12]=0; m[13]=0; m[14]=(2*far*near)*nf; m[15]=0;
+    return m;
+  }
+  function mat4LookAt(eye, center, up) {
+    const [ex,ey,ez] = eye, [cx,cy,cz] = center, [ux,uy,uz] = up;
+    let zx = ex-cx, zy = ey-cy, zz = ez-cz;
+    const zl = Math.hypot(zx,zy,zz)||1; zx/=zl; zy/=zl; zz/=zl;
+    let xx = uy*zz - uz*zy, xy = uz*zx - ux*zz, xz = ux*zy - uy*zx;
+    const xl = Math.hypot(xx,xy,xz)||1; xx/=xl; xy/=xl; xz/=xl;
+    const yx = zy*xz - zz*xy, yy = zz*xx - zx*xz, yz = zx*xy - zy*xx;
+    const m = new Float32Array(16);
+    m[0]=xx; m[1]=yx; m[2]=zx; m[3]=0;
+    m[4]=xy; m[5]=yy; m[6]=zy; m[7]=0;
+    m[8]=xz; m[9]=yz; m[10]=zz; m[11]=0;
+    m[12]=-(xx*ex + xy*ey + xz*ez);
+    m[13]=-(yx*ex + yy*ey + yz*ez);
+    m[14]=-(zx*ex + zy*ey + zz*ez);
+    m[15]=1;
+    return m;
+  }
+
+  // ------------------ GL setup ------------------
+  const canvas = document.getElementById('gl');
+  /** @type {WebGLRenderingContext} */
+  const gl = canvas.getContext('webgl', { antialias:false, alpha:false, depth:false, stencil:false, preserveDrawingBuffer:false });
+
+  if (!gl) {
+    alert('WebGL not available in this browser.');
+    return;
+  }
+
+  function compile(gl, type, src) {
+    const sh = gl.createShader(type); gl.shaderSource(sh, src); gl.compileShader(sh);
+    if (!gl.getShaderParameter(sh, gl.COMPILE_STATUS)) {
+      throw new Error(gl.getShaderInfoLog(sh));
+    }
+    return sh;
+  }
+  function link(gl, vsSrc, fsSrc) {
+    const vs = compile(gl, gl.VERTEX_SHADER, vsSrc);
+    const fs = compile(gl, gl.FRAGMENT_SHADER, fsSrc);
+    const pr = gl.createProgram(); gl.attachShader(pr, vs); gl.attachShader(pr, fs);
+    gl.linkProgram(pr);
+    if (!gl.getProgramParameter(pr, gl.LINK_STATUS)) throw new Error(gl.getProgramInfoLog(pr));
+    return pr;
+  }
+
+  const program = link(gl, document.getElementById('vs').textContent, document.getElementById('fs').textContent);
+  gl.useProgram(program);
+  const loc = {
+    aPos: gl.getAttribLocation(program, 'aPos'),
+    aSize: gl.getAttribLocation(program, 'aSize'),
+    aDensity: gl.getAttribLocation(program, 'aDensity'),
+    aSpeed: gl.getAttribLocation(program, 'aSpeed'),
+    uProj: gl.getUniformLocation(program, 'uProj'),
+    uView: gl.getUniformLocation(program, 'uView'),
+    uPointScale: gl.getUniformLocation(program, 'uPointScale'),
+    uDensMin: gl.getUniformLocation(program, 'uDensMin'),
+    uDensMax: gl.getUniformLocation(program, 'uDensMax'),
+    uSpeedMax: gl.getUniformLocation(program, 'uSpeedMax'),
+  };
+
+  const posBuf = gl.createBuffer();
+  const sizeBuf = gl.createBuffer();
+  const densBuf = gl.createBuffer();
+  const speedBuf = gl.createBuffer();
+
+  gl.enable(gl.BLEND);
+  gl.blendFunc(gl.SRC_ALPHA, gl.ONE); // additive for a luminous look
+  gl.disable(gl.DEPTH_TEST);
+  gl.clearColor(0,0,0,1);
+
+  // ------------------ Simulation state ------------------
+  const ui = {
+    centralMass: document.getElementById('centralMass'),
+    gSelf: document.getElementById('gSelf'),
+    soften: document.getElementById('soften'),
+    press: document.getElementById('press'),
+    visc: document.getElementById('visc'),
+    dt: document.getElementById('dt'),
+    thick: document.getElementById('thick'),
+    gRad: document.getElementById('gRad'),
+    togSG: document.getElementById('togSG'),
+    togP: document.getElementById('togP'),
+    oN: document.getElementById('oN'),
+    oCentral: document.getElementById('oCentral'),
+    oGSelf: document.getElementById('oGSelf'),
+    oSoften: document.getElementById('oSoften'),
+    oPress: document.getElementById('oPress'),
+    oVisc: document.getElementById('oVisc'),
+    oDt: document.getElementById('oDt'),
+    oThick: document.getElementById('oThick'),
+    oGRad: document.getElementById('oGRad'),
+    reset: document.getElementById('reset'),
+    presetCold: document.getElementById('presetCold'),
+    presetWarm: document.getElementById('presetWarm'),
+    presetNoSG: document.getElementById('presetNoSG'),
+    pause: document.getElementById('pause'),
+    scrshot: document.getElementById('scrshot'),
+  };
+
+  function syncLabel(input, out, fmt = x => x.toFixed(3)) {
+    const v = parseFloat(input.value);
+    out.textContent = fmt(v);
+  }
+  function syncAll() {
+    syncLabel(ui.centralMass, ui.oCentral, v => v.toFixed(2));
+    syncLabel(ui.gSelf, ui.oGSelf, v => v.toFixed(2));
+    syncLabel(ui.soften, ui.oSoften);
+    syncLabel(ui.press, ui.oPress);
+    syncLabel(ui.visc, ui.oVisc);
+    syncLabel(ui.dt, ui.oDt);
+    syncLabel(ui.thick, ui.oThick);
+    syncLabel(ui.gRad, ui.oGRad, v => v.toFixed(2));
+    ui.oN.textContent = sim.N.toString();
+  }
+
+  const sim = {
+    N: 2600,                    // particle count (default tuned for performance)
+    Rmin: 0.10,                 // inner radius of disk
+    Router: 1.00,               // outer radius of disk (units)
+    boxR: 2.50,                 // grid half-extent (units)
+    cell: 0.05,                 // grid cell size (≈ pressure smoothing length)
+    gCut: 0.20,                 // gravity neighbor radius (units)
+    hPress: 0.05,               // pressure smoothing length (units)
+    eps: 0.02,                  // gravitational softening ε (units)
+    Mcenter: 1.6,               // central mass (units)
+    Gself: 1.4,                 // self-gravity constant (dimensionless scale)
+    massDisk: 1.2,              // total disk mass (units)
+    pressK: 0.020,              // "gas" pressure strength
+    viscK: 0.035,               // artificial viscosity strength
+    thickness: 0.035,           // vertical dispersion
+    dt: 0.010,                  // time step
+    drag: 0.000,                // global linear drag (0..)
+    useSelfG: true,
+    usePressure: true,
+    // dynamic arrays (typed):
+    pos: null, vel: null, acc: null, den: null, spd: null, size: null,
+    // grid:
+    gx: 0, gy: 0, cells: 0, head: null, next: null,
+    densTarget: 10.0,           // used for color auto-scale
+    densSmoothMax: 1.0,
+    speedSmoothMax: 1.0,
+    inited: false,
+  };
+
+  function buildGrid() {
+    sim.gx = Math.max(8, Math.ceil((2*sim.boxR) / sim.cell));
+    sim.gy = sim.gx;
+    sim.cells = sim.gx * sim.gy;
+    sim.head = new Int32Array(sim.cells);
+    sim.next = new Int32Array(sim.N);
+  }
+  function worldToCell(x, y) {
+    const ix = Math.floor((x + sim.boxR) / sim.cell);
+    const iy = Math.floor((y + sim.boxR) / sim.cell);
+    return [ clamp(ix,0,sim.gx-1), clamp(iy,0,sim.gy-1) ];
+  }
+  function idx(ix, iy) { return ix + iy * sim.gx; }
+
+  function seedDisk() {
+    // allocate arrays
+    sim.pos = new Float32Array(sim.N * 3);
+    sim.vel = new Float32Array(sim.N * 3);
+    sim.acc = new Float32Array(sim.N * 3);
+    sim.den = new Float32Array(sim.N);
+    sim.spd = new Float32Array(sim.N);
+    sim.size = new Float32Array(sim.N);
+
+    const mPart = sim.massDisk / sim.N;
+    const eps = sim.eps;
+    for (let i = 0; i < sim.N; i++) {
+      // radius sampled ~ uniform surface density
+      const r2 = lerp(sim.Rmin*sim.Rmin, sim.Router*sim.Router, rand());
+      const r = Math.sqrt(r2);
+      const a = rand() * TAU;
+
+      const z = randNorm() * sim.thickness;
+      const x = r * Math.cos(a), y = r * Math.sin(a);
+      sim.pos[3*i+0] = x;
+      sim.pos[3*i+1] = y;
+      sim.pos[3*i+2] = z;
+
+      // circular speed for combined central + approximate enclosed disk mass
+      const Menc = sim.massDisk * (r*r) / (sim.Router*sim.Router); // ~ mass inside r for uniform Σ
+      const vphi = Math.sqrt( (sim.Mcenter + 0.8 * Menc) / Math.max(1e-4, r + eps) );
+      // tangential direction
+      const vx = -vphi * Math.sin(a);
+      const vy =  vphi * Math.cos(a);
+      const vz = randNorm() * 0.02; // tiny vertical stir
+      // noise (triggers instabilities)
+      const sigma = 0.03 + 0.02 * rand();
+      sim.vel[3*i+0] = vx + randNorm() * sigma;
+      sim.vel[3*i+1] = vy + randNorm() * sigma;
+      sim.vel[3*i+2] = vz + randNorm() * sigma * 0.3;
+
+      sim.size[i] = 1.0 + Math.random()*0.7;
+      sim.den[i] = 0.0;
+      sim.spd[i] = 0.0;
+    }
+  }
+
+  function resetFromUI() {
+    sim.Mcenter = parseFloat(ui.centralMass.value);
+    sim.Gself   = parseFloat(ui.gSelf.value);
+    sim.eps     = parseFloat(ui.soften.value);
+    sim.pressK  = parseFloat(ui.press.value);
+    sim.viscK   = parseFloat(ui.visc.value);
+    sim.dt      = parseFloat(ui.dt.value);
+    sim.thickness = parseFloat(ui.thick.value);
+    sim.gCut    = parseFloat(ui.gRad.value);
+    sim.useSelfG = ui.togSG.checked;
+    sim.usePressure = ui.togP.checked;
+    sim.cell = Math.min(sim.hPress, 0.9*sim.gCut); // ensure gravity neighborhood reachable with small radius scans
+    buildGrid();
+    seedDisk();
+    sim.inited = true;
+    sim.densSmoothMax = 8.0;
+    sim.speedSmoothMax = 1.0;
+    syncAll();
+  }
+
+  // camera/orbit controls
+  const camera = {
+    yaw: 0.35, pitch: 0.18, dist: 3.1,
+    dragging: false, px:0, py:0,
+  };
+  canvas.addEventListener('mousedown', e => {
+    camera.dragging = true; camera.px = e.clientX; camera.py = e.clientY;
+  });
+  window.addEventListener('mouseup', ()=> camera.dragging = false);
+  window.addEventListener('mousemove', e => {
+    if (!camera.dragging) return;
+    const dx = e.clientX - camera.px, dy = e.clientY - camera.py;
+    camera.px = e.clientX; camera.py = e.clientY;
+    camera.yaw += dx * 0.003;
+    camera.pitch = clamp(camera.pitch + dy * 0.003, -1.2, 1.2);
+  });
+  canvas.addEventListener('wheel', e => {
+    camera.dist = clamp(camera.dist * (1 + Math.sign(e.deltaY)*0.06), 1.2, 8.0);
+    e.preventDefault();
+  }, { passive:false });
+
+  function resize() {
+    const dpr = Math.min(2.5, window.devicePixelRatio || 1);
+    const w = Math.floor(innerWidth * dpr), h = Math.floor(innerHeight * dpr);
+    if (canvas.width !== w || canvas.height !== h) {
+      canvas.width = w; canvas.height = h;
+    }
+    gl.viewport(0,0,canvas.width, canvas.height);
+  }
+  window.addEventListener('resize', resize);
+  resize();
+
+  // --------------- Physics passes (neighbor grid + interactions) ---------------
+  function clearGrid() {
+    sim.head.fill(-1);
+  }
+  function buildLinkedGrid() {
+    clearGrid();
+    const N = sim.N, gx = sim.gx, gy = sim.gy, boxR = sim.boxR, cell = sim.cell;
+    const head = sim.head, next = sim.next, pos = sim.pos;
+    for (let i=0;i<N;i++) {
+      const x = pos[3*i], y = pos[3*i+1];
+      let ix = Math.floor((x + boxR)/cell);
+      let iy = Math.floor((y + boxR)/cell);
+      if (ix<0) ix=0; else if (ix>=gx) ix=gx-1;
+      if (iy<0) iy=0; else if (iy>=gy) iy=gy-1;
+      const id = ix + iy * gx;
+      next[i] = head[id];
+      head[id] = i;
+    }
+  }
+
+  function forEachPair(radius, fnPair) {
+    // enumerate unique pairs within a given radius using the grid
+    const N = sim.N, gx = sim.gx, gy = sim.gy, head = sim.head, next = sim.next, pos = sim.pos;
+    const cell = sim.cell, boxR = sim.boxR;
+    const R = Math.max(1, Math.ceil(radius / cell));
+    for (let iy=0; iy<gy; iy++) {
+      for (let ix=0; ix<gx; ix++) {
+        const id0 = idx(ix,iy);
+        for (let dy=-R; dy<=R; dy++) {
+          const jy = iy + dy; if (jy<0 || jy>=gy) continue;
+          for (let dx=-R; dx<=R; dx++) {
+            const jx = ix + dx; if (jx<0 || jx>=gx) continue;
+            const idn = idx(jx, jy);
+            if (idn < id0) continue; // order cells to keep each pair once
+            for (let i=head[id0]; i!=-1; i = next[i]) {
+              // when same cell, skip j <= i to avoid duplicates
+              let j = head[idn];
+              for (; j!=-1; j = next[j]) {
+                if (idn === id0 && j <= i) continue;
+                const dx = pos[3*j]   - pos[3*i];
+                const dy = pos[3*j+1] - pos[3*i+1];
+                const dz = pos[3*j+2] - pos[3*i+2];
+                const r2 = dx*dx + dy*dy + dz*dz;
+                if (r2 <= radius*radius) fnPair(i,j,dx,dy,dz,r2);
+              }
+            }
+          }
+        }
+      }
+    }
+  }
+
+  // Two passes: density (within hPress) and forces (within gCut for gravity; within hPress for pressure/visc)
+  function computeDensities() {
+    const N = sim.N, den = sim.den;
+    den.fill(1.0); // base density (prevents zero)
+    const h = sim.hPress;
+    forEachPair(h, (i,j,dx,dy,dz,r2) => {
+      const r = Math.sqrt(r2);
+      const q = r / h;
+      const w = (1 - q); // linear kernel in 3D-ish
+      if (w > 0) {
+        // weight neighbors; using squared falloff for a smoother look
+        const add = w*w;
+        den[i] += add;
+        den[j] += add;
+      }
+    });
+
+    // track a soft max for coloring
+    let dmax = 0, dmin = 1e9;
+    for (let i=0;i<N;i++) { const d = den[i]; if (d > dmax) dmax = d; if (d < dmin) dmin = d; }
+    sim.densSmoothMax = 0.92*sim.densSmoothMax + 0.08*dmax;
+    // keep min near 1.0 (base)
+    sim.densTarget = 1.0;
+    return {dmin, dmax};
+  }
+
+  function computeForces() {
+    const N = sim.N, pos = sim.pos, vel = sim.vel, acc = sim.acc, den = sim.den, spd = sim.spd;
+    const eps2 = sim.eps * sim.eps;
+    const gCut = sim.gCut, h = sim.hPress;
+    const mPart = sim.massDisk / sim.N;
+
+    // zero accelerations first
+    acc.fill(0);
+
+    // central gravity (circular)
+    for (let i=0;i<N;i++) {
+      const x = pos[3*i], y = pos[3*i+1], z = pos[3*i+2];
+      const r2 = x*x + y*y + z*z + eps2;
+      const invR3 = 1.0 / Math.pow(r2, 1.5);
+      const s = - sim.Mcenter * invR3;
+      acc[3*i  ] += s * x;
+      acc[3*i+1] += s * y;
+      acc[3*i+2] += s * z * 0.6; // slightly weaker vertical, keeps a thin disk
+    }
+
+    // pairwise interactions (self-gravity + pressure + viscosity)
+    const useSG = sim.useSelfG && (sim.Gself > 0.0);
+    const useP = sim.usePressure && (sim.pressK > 0.0 || sim.viscK > 0.0);
+
+    // gravity uses gCut; pressure/visc uses h
+    const Rmax = Math.max(gCut, h);
+
+    forEachPair(Rmax, (i,j,dx,dy,dz,r2_raw) => {
+      const r2 = r2_raw + eps2;
+      const r = Math.sqrt(r2);
+      const invR = 1.0 / r;
+      const nx = dx * invR, ny = dy * invR, nz = dz * invR;
+
+      if (useSG && r <= gCut) {
+        // softened Newtonian gravity, symmetric
+        const invR3 = 1.0 / (r2 * r);
+        const g = sim.Gself * mPart * invR3; // acceleration magnitude per particle mass
+        const ax = g * dx, ay = g * dy, az = g * dz;
+        acc[3*i  ] += +ax; acc[3*j  ] += -ax;
+        acc[3*i+1] += +ay; acc[3*j+1] += -ay;
+        acc[3*i+2] += +az; acc[3*j+2] += -az;
+      }
+
+      if (useP && r <= h) {
+        // very light "gas" pressure & viscosity (not full SPH, but stable & fast)
+        const w = 1.0 - (r / h); // 0..1
+        // pressure push proportional to local density surplus
+        const Pi = Math.max(0.0, (den[i] - sim.densTarget));
+        const Pj = Math.max(0.0, (den[j] - sim.densTarget));
+        const pMag = sim.pressK * (Pi + Pj) * w * 0.5;
+        const px = pMag * nx, py = pMag * ny, pz = pMag * nz;
+        acc[3*i  ] += -px; acc[3*j  ] += +px;
+        acc[3*i+1] += -py; acc[3*j+1] += +py;
+        acc[3*i+2] += -pz; acc[3*j+2] += +pz;
+
+        // simple viscosity (artificial), damps shear a bit to form shocks
+        const dvx = vel[3*j]   - vel[3*i];
+        const dvy = vel[3*j+1] - vel[3*i+1];
+        const dvz = vel[3*j+2] - vel[3*i+2];
+        const vRel = (dvx*nx + dvy*ny + dvz*nz); // along the line
+        const visc = sim.viscK * w * vRel;
+        const vx = visc * nx, vy = visc * ny, vz = visc * nz;
+        acc[3*i  ] += +vx; acc[3*j  ] += -vx;
+        acc[3*i+1] += +vy; acc[3*j+1] += -vy;
+        acc[3*i+2] += +vz; acc[3*j+2] += -vz;
+      }
+    });
+
+    // integrate & measure speeds
+    const dt = sim.dt, drag = sim.drag;
+    let vmax = 0;
+    for (let i=0;i<N;i++) {
+      // semi-implicit Euler (good enough with small dt)
+      vel[3*i  ] = (1 - drag) * (vel[3*i  ] + acc[3*i  ] * dt);
+      vel[3*i+1] = (1 - drag) * (vel[3*i+1] + acc[3*i+1] * dt);
+      vel[3*i+2] = (1 - drag) * (vel[3*i+2] + acc[3*i+2] * dt);
+
+      pos[3*i  ] += vel[3*i  ] * dt;
+      pos[3*i+1] += vel[3*i+1] * dt;
+      pos[3*i+2] += vel[3*i+2] * dt;
+
+      const s = Math.hypot(vel[3*i], vel[3*i+1], vel[3*i+2]);
+      spd[i] = s;
+      if (s > vmax) vmax = s;
+
+      // gentle vertical restoring to keep a thin disk over long runs
+      pos[3*i+2] *= 0.999;
+      vel[3*i+2] *= 0.999;
+    }
+    sim.speedSmoothMax = 0.9*sim.speedSmoothMax + 0.1*vmax;
+  }
+
+  // --------------- Rendering ---------------
+  function draw() {
+    gl.clear(gl.COLOR_BUFFER_BIT);
+
+    // camera matrices
+    const aspect = canvas.width / canvas.height;
+    const proj = mat4Perspective(50 * Math.PI/180, aspect, 0.01, 50.0);
+    const cx = Math.cos(camera.pitch), sx = Math.sin(camera.pitch);
+    const cy = Math.cos(camera.yaw),   sy = Math.sin(camera.yaw);
+    const eye = [ camera.dist*cx*cy, camera.dist*cx*sy, camera.dist*sx ];
+    const view = mat4LookAt(eye, [0,0,0], [0,0,1]);
+
+    gl.uniformMatrix4fv(loc.uProj, false, proj);
+    gl.uniformMatrix4fv(loc.uView, false, view);
+
+    // the point size scale: tuned so that at dist≈3 the visible size is ~ 2–3px
+    const pointScale = 55.0;
+    gl.uniform1f(loc.uPointScale, pointScale);
+
+    // upload attributes
+    gl.bindBuffer(gl.ARRAY_BUFFER, posBuf);
+    gl.bufferData(gl.ARRAY_BUFFER, sim.pos, gl.DYNAMIC_DRAW);
+    gl.enableVertexAttribArray(loc.aPos);
+    gl.vertexAttribPointer(loc.aPos, 3, gl.FLOAT, false, 0, 0);
+
+    gl.bindBuffer(gl.ARRAY_BUFFER, sizeBuf);
+    gl.bufferData(gl.ARRAY_BUFFER, sim.size, gl.DYNAMIC_DRAW);
+    gl.enableVertexAttribArray(loc.aSize);
+    gl.vertexAttribPointer(loc.aSize, 1, gl.FLOAT, false, 0, 0);
+
+    gl.bindBuffer(gl.ARRAY_BUFFER, densBuf);
+    gl.bufferData(gl.ARRAY_BUFFER, sim.den, gl.DYNAMIC_DRAW);
+    gl.enableVertexAttribArray(loc.aDensity);
+    gl.vertexAttribPointer(loc.aDensity, 1, gl.FLOAT, false, 0, 0);
+
+    gl.bindBuffer(gl.ARRAY_BUFFER, speedBuf);
+    gl.bufferData(gl.ARRAY_BUFFER, sim.spd, gl.DYNAMIC_DRAW);
+    gl.enableVertexAttribArray(loc.aSpeed);
+    gl.vertexAttribPointer(loc.aSpeed, 1, gl.FLOAT, false, 0, 0);
+
+    // color normalization
+    gl.uniform1f(loc.uDensMin, 1.0);
+    gl.uniform1f(loc.uDensMax, sim.densSmoothMax);
+    gl.uniform1f(loc.uSpeedMax, Math.max(0.4, sim.speedSmoothMax));
+
+    gl.drawArrays(gl.POINTS, 0, sim.N);
+  }
+
+  // --------------- Main loop ---------------
+  let paused = false;
+  function tick() {
+    if (!paused) {
+      buildLinkedGrid();
+      computeDensities();
+      computeForces();
+    }
+    draw();
+    requestAnimationFrame(tick);
+  }
+
+  // --------------- UI bindings ---------------
+  ui.centralMass.addEventListener('input', ()=>{ sim.Mcenter=parseFloat(ui.centralMass.value); syncAll(); });
+  ui.gSelf.addEventListener('input', ()=>{ sim.Gself=parseFloat(ui.gSelf.value); syncAll(); });
+  ui.soften.addEventListener('input', ()=>{ sim.eps=parseFloat(ui.soften.value); syncAll(); });
+  ui.press.addEventListener('input', ()=>{ sim.pressK=parseFloat(ui.press.value); syncAll(); });
+  ui.visc.addEventListener('input', ()=>{ sim.viscK=parseFloat(ui.visc.value); syncAll(); });
+  ui.dt.addEventListener('input', ()=>{ sim.dt=parseFloat(ui.dt.value); syncAll(); });
+  ui.thick.addEventListener('input', ()=>{ sim.thickness=parseFloat(ui.thick.value); syncAll(); });
+  ui.gRad.addEventListener('input', ()=>{ sim.gCut=parseFloat(ui.gRad.value); syncAll(); });
+  ui.togSG.addEventListener('change', ()=>{ sim.useSelfG=ui.togSG.checked; });
+  ui.togP.addEventListener('change', ()=>{ sim.usePressure=ui.togP.checked; });
+
+  ui.reset.addEventListener('click', ()=> resetFromUI());
+  ui.presetCold.addEventListener('click', ()=> {
+    ui.centralMass.value = "1.6";
+    ui.gSelf.value = "1.5";
+    ui.soften.value = "0.018";
+    ui.press.value = "0.018";
+    ui.visc.value = "0.035";
+    ui.dt.value = "0.010";
+    ui.thick.value = "0.028";
+    ui.gRad.value = "0.22";
+    ui.togSG.checked = true;
+    ui.togP.checked = true;
+    resetFromUI();
+  });
+  ui.presetWarm.addEventListener('click', ()=> {
+    ui.centralMass.value = "1.9";
+    ui.gSelf.value = "1.0";
+    ui.soften.value = "0.024";
+    ui.press.value = "0.050";
+    ui.visc.value = "0.050";
+    ui.dt.value = "0.010";
+    ui.thick.value = "0.045";
+    ui.gRad.value = "0.18";
+    ui.togSG.checked = true;
+    ui.togP.checked = true;
+    resetFromUI();
+  });
+  ui.presetNoSG.addEventListener('click', ()=> {
+    ui.centralMass.value = "2.4";
+    ui.gSelf.value = "0.00";
+    ui.soften.value = "0.020";
+    ui.press.value = "0.020";
+    ui.visc.value = "0.030";
+    ui.dt.value = "0.010";
+    ui.thick.value = "0.030";
+    ui.gRad.value = "0.12";
+    ui.togSG.checked = false;
+    ui.togP.checked = true;
+    resetFromUI();
+  });
+
+  ui.pause.addEventListener('click', ()=> {
+    paused = !paused;
+    ui.pause.textContent = paused ? 'Resume ▶' : 'Pause ⏸';
+  });
+
+  ui.scrshot.addEventListener('click', ()=> {
+    // render a frame at 1x DPR to avoid enormous downloads
+    const link = document.createElement('a');
+    link.download = 'disk-fluid.png';
+    link.href = canvas.toDataURL('image/png');
+    link.click();
+  });
+
+  window.addEventListener('keydown', (e)=> {
+    if (e.code === 'Space') { e.preventDefault(); ui.pause.click(); }
+    else if (e.code === 'KeyR') { e.preventDefault(); ui.reset.click(); }
+  });
+
+  // --------------- Boot ---------------
+  // tune pressure neighborhood to grid
+  sim.hPress = 0.05;
+  sim.cell   = Math.min(sim.hPress, 0.9*sim.gCut);
+  buildGrid();
+  seedDisk();
+  sim.inited = true;
+  syncAll();
+  tick();
+})();
+</script>
+</body>
+</html>

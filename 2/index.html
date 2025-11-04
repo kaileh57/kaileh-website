@@ -1,0 +1,341 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Interactive Black Hole Visualization</title>
+    <style>
+        body { margin: 0; overflow: hidden; background-color: #000; color: white; font-family: Arial, sans-serif; }
+        #info { position: absolute; top: 10px; left: 10px; padding: 10px; background-color: rgba(0, 0, 0, 0.7); border-radius: 5px; max-width: 320px; }
+        a { color: #8af; }
+        .slider-container, .jump-container { margin-top: 12px; }
+        .slider-container label, .jump-container label { display: block; margin-bottom: 5px; }
+        input[type=range] { -webkit-appearance: none; appearance: none; width: 100%; height: 4px; background: #444; outline: none; border-radius: 2px; cursor: pointer; }
+        input[type=range]::-webkit-slider-thumb { -webkit-appearance: none; appearance: none; width: 16px; height: 16px; background: #eee; border-radius: 50%; border: 1px solid #555; }
+        input[type=range]::-moz-range-thumb { width: 15px; height: 15px; background: #eee; border-radius: 50%; border: 1px solid #555; }
+        .jump-buttons button { background-color: #333; color: white; border: 1px solid #555; padding: 5px 10px; margin-right: 5px; cursor: pointer; border-radius: 3px; }
+        .jump-buttons button:hover { background-color: #555; }
+        .jump-buttons button:disabled { background-color: #222; color: #777; cursor: not-allowed; }
+    </style>
+</head>
+<body>
+    <div id="info">
+        <strong>Interactive Black Hole</strong><br>
+        Visualizing an accretion disk, relativistic jets, and gravitational lensing.<br>
+        <b>Controls:</b> Drag to Rotate, Scroll to Zoom, Right-Click to Pan.<br>
+        <div class="slider-container">
+            <label for="lensing-slider">Lensing Strength: <span id="lensing-value">1.5</span></label>
+            <input type="range" min="0" max="5" value="1.5" step="0.1" id="lensing-slider">
+        </div>
+        <div class="slider-container">
+            <label for="speed-slider">Disk Animation Speed: <span id="speed-value">2x</span></label>
+            <input type="range" min="0" max="10" value="2" step="1" id="speed-slider">
+        </div>
+    </div>
+    
+    <canvas id="galaxy-canvas"></canvas>
+
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/three.js/r128/three.min.js"></script>
+    <script src="https://cdn.jsdelivr.net/npm/three@0.128.0/examples/js/controls/OrbitControls.js"></script>
+
+    <script>
+        // --- SCENE SETUP ---
+        const scene = new THREE.Scene();
+        const camera = new THREE.PerspectiveCamera(75, window.innerWidth / window.innerHeight, 0.1, 2000);
+        const renderer = new THREE.WebGLRenderer({ canvas: document.getElementById('galaxy-canvas'), antialias: true });
+        renderer.setSize(window.innerWidth, window.innerHeight);
+        const controls = new THREE.OrbitControls(camera, renderer.domElement);
+        camera.position.set(15, 8, 35);
+        controls.target.set(0, 0, 0);
+
+        // --- BLACK HOLE PARAMETERS ---
+        const G = 0.08;
+        const CENTRAL_MASS = 1000.0;
+        const EVENT_HORIZON_RADIUS = 1.0; 
+
+        // --- ACCRETION DISK PARAMETERS ---
+        const N_DISK_PARTICLES = 40000;
+        const DISK_INNER_RADIUS = EVENT_HORIZON_RADIUS + 0.5;
+        const DISK_OUTER_RADIUS = 25.0;
+        const DISK_THICKNESS = 0.8;
+        
+        // --- JET PARAMETERS ---
+        const N_JET_PARTICLES = 5000;
+        const JET_LENGTH = 60.0;
+        const JET_RADIUS = 0.3;
+        const JET_SPEED = 0.5;
+
+        // --- SIMULATION PARAMETERS ---
+        const DT = 0.01;
+        let subStepsPerFrame = 2;
+
+        // --- 1. EVENT HORIZON (The Black Hole itself) ---
+        const horizonGeometry = new THREE.SphereGeometry(EVENT_HORIZON_RADIUS, 64, 64);
+        const horizonMaterial = new THREE.MeshBasicMaterial({ color: 0x000000 });
+        const eventHorizon = new THREE.Mesh(horizonGeometry, horizonMaterial);
+        scene.add(eventHorizon);
+        
+        // --- 2. GRAVITATIONAL LENSING (Shader on a background sphere) ---
+        const textureLoader = new THREE.TextureLoader();
+        const backgroundTexture = textureLoader.load('https://www.eso.org/public/archives/images/large/eso0932a.jpg');
+        
+        const LENSING_STRENGTH_UNIFORM = { value: 1.5 };
+        const CAMERA_POSITION_UNIFORM = { value: new THREE.Vector3() };
+        
+        const lensingVertexShader = `
+            varying vec3 vWorldPosition;
+            varying vec2 vUv;
+            void main() {
+                vUv = uv;
+                vec4 worldPosition = modelMatrix * vec4(position, 1.0);
+                vWorldPosition = worldPosition.xyz;
+                gl_Position = projectionMatrix * viewMatrix * worldPosition;
+            }
+        `;
+
+        const lensingFragmentShader = `
+            uniform sampler2D backgroundTexture;
+            uniform float lensingStrength;
+            uniform vec3 cameraPosition_world;
+            
+            varying vec3 vWorldPosition;
+            varying vec2 vUv;
+
+            const float PI = 3.14159265359;
+
+            void main() {
+                // Ray direction from camera to the background sphere
+                vec3 D = normalize(vWorldPosition - cameraPosition_world);
+                
+                // Vector from the black hole (origin) to the camera
+                vec3 L = cameraPosition_world;
+                
+                // Find the impact parameter 'b' - the closest approach of the ray to the black hole
+                float t_ca = -dot(L, D);
+                if (t_ca < 0.0) { // If we are looking away, no lensing
+                    gl_FragColor = texture2D(backgroundTexture, vUv);
+                    return;
+                }
+                
+                float d2 = dot(L, L) - t_ca * t_ca;
+                float b = sqrt(abs(d2));
+                
+                // Simple deflection angle formula: theta = strength / b
+                if (b < 0.01) { // Avoid division by zero
+                     gl_FragColor = vec4(0.0, 0.0, 0.0, 1.0); // Black inside horizon
+                     return;
+                }
+                float theta = lensingStrength / b;
+
+                // The bending happens in the plane defined by D and L.
+                // The axis of bending is perpendicular to this plane.
+                vec3 axis = normalize(cross(D, L));
+
+                // Rotate the ray D by angle theta around the axis (Rodrigues' rotation formula)
+                vec3 original_D = D * cos(theta) + cross(axis, D) * sin(theta);
+
+                // Convert the bent world-space direction vector back into a UV coordinate
+                vec3 dir = normalize(original_D);
+                float u = 0.5 + atan(dir.z, dir.x) / (2.0 * PI);
+                float v = 0.5 - asin(dir.y) / PI;
+
+                gl_FragColor = texture2D(backgroundTexture, vec2(u, v));
+            }
+        `;
+        
+        const backgroundGeometry = new THREE.SphereGeometry(1000, 128, 128);
+        const backgroundMaterial = new THREE.ShaderMaterial({
+            vertexShader: lensingVertexShader,
+            fragmentShader: lensingFragmentShader,
+            uniforms: {
+                backgroundTexture: { value: backgroundTexture },
+                lensingStrength: LENSING_STRENGTH_UNIFORM,
+                cameraPosition_world: CAMERA_POSITION_UNIFORM
+            },
+            side: THREE.BackSide,
+            depthWrite: false
+        });
+        const backgroundSphere = new THREE.Mesh(backgroundGeometry, backgroundMaterial);
+        scene.add(backgroundSphere);
+
+
+        // --- 3. ACCRETION DISK ---
+        const diskPositions = new Float32Array(N_DISK_PARTICLES * 3);
+        const diskVelocities = new Float32Array(N_DISK_PARTICLES * 3);
+        const diskColors = new Float32Array(N_DISK_PARTICLES * 3);
+        const colorHot = new THREE.Color(0xfff5d6); // White-yellow
+        const colorWarm = new THREE.Color(0xffa500); // Orange
+        const colorCool = new THREE.Color(0xd95f32); // Reddish
+
+        function initializeAccretionDisk() {
+            for (let i = 0; i < N_DISK_PARTICLES; i++) {
+                const i3 = i * 3;
+
+                // Distribute particles in a disk, denser towards the center
+                const radius = DISK_INNER_RADIUS + Math.pow(Math.random(), 2.0) * (DISK_OUTER_RADIUS - DISK_INNER_RADIUS);
+                const angle = Math.random() * 2 * Math.PI;
+                
+                const px = radius * Math.cos(angle);
+                const py = radius * Math.sin(angle);
+                // Make the disk thicker in the middle
+                const pz = (Math.random() - 0.5) * DISK_THICKNESS * (1.0 - radius / DISK_OUTER_RADIUS);
+
+                diskPositions[i3] = px;
+                diskPositions[i3 + 1] = pz; // Use Y for up/down in 3D space
+                diskPositions[i3 + 2] = py;
+
+                // Calculate orbital velocity (Keplerian motion)
+                const dist_from_center = Math.sqrt(px * px + py * py);
+                const orbital_speed = Math.sqrt(G * CENTRAL_MASS / dist_from_center);
+                diskVelocities[i3] = -orbital_speed * py / dist_from_center;
+                diskVelocities[i3 + 1] = 0; // No initial vertical velocity
+                diskVelocities[i3 + 2] = orbital_speed * px / dist_from_center;
+
+                // Set color based on distance from the center (temperature)
+                const color = new THREE.Color();
+                const temp_ratio = (radius - DISK_INNER_RADIUS) / (DISK_OUTER_RADIUS - DISK_INNER_RADIUS);
+                if (temp_ratio < 0.2) {
+                    color.lerpColors(colorHot, colorWarm, temp_ratio / 0.2);
+                } else {
+                    color.lerpColors(colorWarm, colorCool, (temp_ratio - 0.2) / 0.8);
+                }
+                diskColors[i3] = color.r;
+                diskColors[i3 + 1] = color.g;
+                diskColors[i3 + 2] = color.b;
+            }
+        }
+
+        function updateDiskPhysics() {
+            const softening = 0.1;
+            for (let i = 0; i < N_DISK_PARTICLES; i++) {
+                const i3 = i * 3;
+                const px = diskPositions[i3], py = diskPositions[i3 + 1], pz = diskPositions[i3 + 2];
+                
+                const distSq = px * px + py*py + pz * pz;
+                // If particle is inside the event horizon, reset it to the outer edge
+                if (distSq < EVENT_HORIZON_RADIUS * EVENT_HORIZON_RADIUS) {
+                    const radius = DISK_OUTER_RADIUS;
+                    const angle = Math.random() * 2 * Math.PI;
+                    diskPositions[i3] = radius * Math.cos(angle);
+                    diskPositions[i3 + 1] = (Math.random() - 0.5) * DISK_THICKNESS * 0.1;
+                    diskPositions[i3 + 2] = radius * Math.sin(angle);
+                    // Recalculate velocity
+                    const dist_from_center = Math.sqrt(diskPositions[i3]**2 + diskPositions[i3 + 2]**2);
+                    const orbital_speed = Math.sqrt(G * CENTRAL_MASS / dist_from_center);
+                    diskVelocities[i3] = -orbital_speed * diskPositions[i3 + 2] / dist_from_center;
+                    diskVelocities[i3 + 1] = 0;
+                    diskVelocities[i3 + 2] = orbital_speed * diskPositions[i3] / dist_from_center;
+                    continue;
+                }
+                
+                const dist = Math.sqrt(distSq + softening);
+                const forceMag = -G * CENTRAL_MASS / (dist * dist);
+                const accelX = px * forceMag / dist;
+                const accelY = py * forceMag / dist;
+                const accelZ = pz * forceMag / dist;
+
+                diskVelocities[i3] += accelX * DT;
+                diskVelocities[i3 + 1] += accelY * DT;
+                diskVelocities[i3 + 2] += accelZ * DT;
+                diskPositions[i3] += diskVelocities[i3] * DT;
+                diskPositions[i3 + 1] += diskVelocities[i3 + 1] * DT;
+                diskPositions[i3 + 2] += diskVelocities[i3 + 2] * DT;
+            }
+        }
+
+        initializeAccretionDisk();
+        const diskGeometry = new THREE.BufferGeometry();
+        diskGeometry.setAttribute('position', new THREE.BufferAttribute(diskPositions, 3));
+        diskGeometry.setAttribute('color', new THREE.BufferAttribute(diskColors, 3));
+        const diskMaterial = new THREE.PointsMaterial({ size: 0.07, vertexColors: true, blending: THREE.AdditiveBlending, transparent: true, opacity: 0.8, depthWrite: false });
+        const accretionDisk = new THREE.Points(diskGeometry, diskMaterial);
+        scene.add(accretionDisk);
+
+        // --- 4. RELATIVISTIC JETS ---
+        const jetPositions = new Float32Array(N_JET_PARTICLES * 3);
+        const jetVelocities = new Float32Array(N_JET_PARTICLES * 3);
+
+        function initializeJets() {
+             for (let i = 0; i < N_JET_PARTICLES; i++) {
+                resetJetParticle(i);
+             }
+        }
+
+        function resetJetParticle(i) {
+            const i3 = i * 3;
+            const sign = Math.random() > 0.5 ? 1 : -1;
+            const radius = Math.random() * JET_RADIUS;
+            const angle = Math.random() * 2 * Math.PI;
+
+            jetPositions[i3] = radius * Math.cos(angle);
+            jetPositions[i3 + 1] = sign * EVENT_HORIZON_RADIUS; // Start just outside horizon
+            jetPositions[i3 + 2] = radius * Math.sin(angle);
+
+            jetVelocities[i3] = 0;
+            jetVelocities[i3 + 1] = sign * JET_SPEED * (1.0 + Math.random() * 0.2);
+            jetVelocities[i3 + 2] = 0;
+        }
+
+        function updateJets() {
+            for (let i = 0; i < N_JET_PARTICLES; i++) {
+                const i3 = i * 3;
+                jetPositions[i3 + 1] += jetVelocities[i3 + 1];
+
+                if (Math.abs(jetPositions[i3 + 1]) > JET_LENGTH) {
+                    resetJetParticle(i);
+                }
+            }
+        }
+        
+        initializeJets();
+        const jetGeometry = new THREE.BufferGeometry();
+        jetGeometry.setAttribute('position', new THREE.BufferAttribute(jetPositions, 3));
+        const jetMaterial = new THREE.PointsMaterial({ color: 0xadd8e6, size: 0.1, blending: THREE.AdditiveBlending, transparent: true, opacity: 0.5, depthWrite: false });
+        const jets = new THREE.Points(jetGeometry, jetMaterial);
+        scene.add(jets);
+
+        // --- UI CONTROLS ---
+        const speedSlider = document.getElementById('speed-slider');
+        const speedValueSpan = document.getElementById('speed-value');
+        speedSlider.addEventListener('input', (event) => {
+            subStepsPerFrame = parseInt(event.target.value, 10);
+            speedValueSpan.textContent = `${subStepsPerFrame}x`;
+        });
+        
+        const lensingSlider = document.getElementById('lensing-slider');
+        const lensingValueSpan = document.getElementById('lensing-value');
+        lensingSlider.addEventListener('input', (event) => {
+            const value = parseFloat(event.target.value);
+            LENSING_STRENGTH_UNIFORM.value = value;
+            lensingValueSpan.textContent = value.toFixed(1);
+        });
+
+        // --- ANIMATION LOOP ---
+        function animate() {
+            requestAnimationFrame(animate);
+
+            // Update physics for disk and jets
+            for (let i = 0; i < subStepsPerFrame; i++) {
+                updateDiskPhysics();
+                updateJets();
+            }
+            accretionDisk.geometry.attributes.position.needsUpdate = true;
+            jets.geometry.attributes.position.needsUpdate = true;
+            
+            // Update shader uniform with camera position for lensing calculation
+            camera.getWorldPosition(CAMERA_POSITION_UNIFORM.value);
+
+            controls.update();
+            renderer.render(scene, camera);
+        }
+        
+        window.addEventListener('resize', () => {
+            camera.aspect = window.innerWidth / window.innerHeight;
+            camera.updateProjectionMatrix();
+            renderer.setSize(window.innerWidth, window.innerHeight);
+        });
+
+        animate();
+    </script>
+</body>
+</html>

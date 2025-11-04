@@ -1,0 +1,569 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Gravitational Fluid Disk Simulation</title>
+    <style>
+        body {
+            margin: 0;
+            padding: 0;
+            overflow: hidden;
+            background: #000;
+            font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
+        }
+        
+        #info {
+            position: absolute;
+            top: 10px;
+            left: 10px;
+            color: #fff;
+            background: rgba(0, 0, 0, 0.7);
+            padding: 15px;
+            border-radius: 5px;
+            font-size: 14px;
+            z-index: 100;
+            max-width: 300px;
+        }
+        
+        #controls {
+            position: absolute;
+            top: 10px;
+            right: 10px;
+            color: #fff;
+            background: rgba(0, 0, 0, 0.7);
+            padding: 15px;
+            border-radius: 5px;
+            z-index: 100;
+        }
+        
+        .control-group {
+            margin: 10px 0;
+        }
+        
+        label {
+            display: inline-block;
+            width: 180px;
+            font-size: 12px;
+        }
+        
+        input[type="range"] {
+            width: 120px;
+        }
+        
+        button {
+            background: #4a90e2;
+            color: white;
+            border: none;
+            padding: 8px 15px;
+            border-radius: 3px;
+            cursor: pointer;
+            margin: 5px;
+        }
+        
+        button:hover {
+            background: #357abd;
+        }
+        
+        #stats {
+            position: absolute;
+            bottom: 10px;
+            left: 10px;
+            color: #fff;
+            background: rgba(0, 0, 0, 0.7);
+            padding: 10px;
+            border-radius: 5px;
+            font-size: 12px;
+            z-index: 100;
+        }
+        
+        .warning {
+            color: #ffa500;
+            font-size: 11px;
+            margin-top: 5px;
+        }
+    </style>
+</head>
+<body>
+    <div id="info">
+        <h3>Gravitational Disk Simulation</h3>
+        <p>Pure physics simulation of a rotating disk under self-gravity. Spiral structures emerge naturally from gravitational instabilities.</p>
+        <p><strong>Controls:</strong><br>
+        • Left Mouse: Rotate view<br>
+        • Right Mouse: Pan<br>
+        • Scroll: Zoom</p>
+    </div>
+    
+    <div id="controls">
+        <h3>Simulation Parameters</h3>
+        
+        <div class="control-group">
+            <label>Central Mass:</label>
+            <input type="range" id="centralMass" min="0" max="10" value="5" step="0.5">
+            <span id="centralMassValue">5.0</span>
+        </div>
+        
+        <div class="control-group">
+            <label>Initial Rotation:</label>
+            <input type="range" id="initialRotation" min="0" max="2" value="1" step="0.1">
+            <span id="initialRotationValue">1.0</span>
+        </div>
+        
+        <div class="control-group">
+            <label>Particle Mass:</label>
+            <input type="range" id="particleMass" min="0.0001" max="0.01" value="0.001" step="0.0001">
+            <span id="particleMassValue">0.001</span>
+        </div>
+        
+        <div class="control-group">
+            <label>Softening Length:</label>
+            <input type="range" id="softening" min="0.1" max="2" value="0.5" step="0.1">
+            <span id="softeningValue">0.5</span>
+        </div>
+        
+        <div class="control-group">
+            <label>Time Step:</label>
+            <input type="range" id="timeStep" min="0.001" max="0.05" value="0.01" step="0.001">
+            <span id="timeStepValue">0.010</span>
+        </div>
+        
+        <div class="control-group">
+            <label>Particle Count:</label>
+            <input type="range" id="particleCount" min="1000" max="10000" value="5000" step="500">
+            <span id="particleCountValue">5000</span>
+            <div class="warning">High values may impact performance</div>
+        </div>
+        
+        <div class="control-group">
+            <label>Initial Disk Radius:</label>
+            <input type="range" id="diskRadius" min="10" max="50" value="25" step="5">
+            <span id="diskRadiusValue">25</span>
+        </div>
+        
+        <div class="control-group">
+            <label>Random Perturbation:</label>
+            <input type="range" id="perturbation" min="0" max="0.5" value="0.1" step="0.05">
+            <span id="perturbationValue">0.10</span>
+        </div>
+        
+        <div class="control-group">
+            <button id="reset">Reset Simulation</button>
+            <button id="pausePlay">Pause</button>
+        </div>
+        
+        <div class="control-group">
+            <label>Particle Interactions:</label><br>
+            <input type="checkbox" id="selfGravity" checked>
+            <label for="selfGravity" style="width: auto;">Self-gravity</label>
+        </div>
+    </div>
+    
+    <div id="stats">
+        <span id="fps">FPS: 0</span> | 
+        <span id="particles">Particles: 0</span> | 
+        <span id="time">Time: 0</span> |
+        <span id="energy">Energy: 0</span>
+    </div>
+
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/three.js/r128/three.min.js"></script>
+    <script>
+        // Scene setup
+        const scene = new THREE.Scene();
+        const camera = new THREE.PerspectiveCamera(75, window.innerWidth / window.innerHeight, 0.1, 1000);
+        const renderer = new THREE.WebGLRenderer({ antialias: true });
+        renderer.setSize(window.innerWidth, window.innerHeight);
+        renderer.setPixelRatio(window.devicePixelRatio);
+        document.body.appendChild(renderer.domElement);
+
+        // Camera setup
+        camera.position.set(40, 30, 40);
+        camera.lookAt(0, 0, 0);
+        
+        // Mouse controls
+        let mouseX = 0, mouseY = 0;
+        let targetRotationX = 0, targetRotationY = 0;
+        let isMouseDown = false;
+        let isPanning = false;
+        let zoom = 1;
+        
+        // Lighting
+        const ambientLight = new THREE.AmbientLight(0x404040);
+        scene.add(ambientLight);
+        
+        // Add central mass visual
+        const centralSphere = new THREE.Mesh(
+            new THREE.SphereGeometry(1, 32, 32),
+            new THREE.MeshBasicMaterial({ color: 0xffff00 })
+        );
+        scene.add(centralSphere);
+
+        // Simulation parameters
+        let simParams = {
+            centralMass: 5.0,
+            particleMass: 0.001,
+            particleCount: 5000,
+            diskRadius: 25,
+            softening: 0.5,
+            initialRotation: 1.0,
+            perturbation: 0.1,
+            timeStep: 0.01,
+            selfGravity: true
+        };
+
+        let isPaused = false;
+        let simulationTime = 0;
+        let particleSystem = null;
+        let particles = [];
+
+        class Particle {
+            constructor(index) {
+                // Initialize in a disk distribution
+                const angle = Math.random() * Math.PI * 2;
+                const r = Math.sqrt(Math.random()) * simParams.diskRadius;
+                
+                // Position with small random perturbation
+                this.x = Math.cos(angle) * r + (Math.random() - 0.5) * simParams.perturbation;
+                this.y = (Math.random() - 0.5) * 0.5; // Thin disk
+                this.z = Math.sin(angle) * r + (Math.random() - 0.5) * simParams.perturbation;
+                
+                // Calculate orbital velocity for circular orbit
+                const radius = Math.sqrt(this.x * this.x + this.z * this.z);
+                if (radius > 0.1) {
+                    // Keplerian velocity for circular orbit
+                    const vOrbit = Math.sqrt(simParams.centralMass / radius) * simParams.initialRotation;
+                    
+                    // Perpendicular to radius vector
+                    this.vx = -this.z / radius * vOrbit;
+                    this.vy = 0;
+                    this.vz = this.x / radius * vOrbit;
+                    
+                    // Add small random velocity perturbation
+                    this.vx += (Math.random() - 0.5) * simParams.perturbation;
+                    this.vz += (Math.random() - 0.5) * simParams.perturbation;
+                } else {
+                    this.vx = 0;
+                    this.vy = 0;
+                    this.vz = 0;
+                }
+                
+                this.mass = simParams.particleMass;
+                
+                // Color based on initial radius
+                const colorFactor = r / simParams.diskRadius;
+                if (colorFactor < 0.2) {
+                    this.color = { r: 1, g: 0.9, b: 0.5 };
+                } else if (colorFactor < 0.5) {
+                    this.color = { r: 0.7, g: 0.85, b: 1 };
+                } else {
+                    this.color = { r: 0.9, g: 0.9, b: 1 };
+                }
+            }
+            
+            calculateForces(allParticles) {
+                let fx = 0, fy = 0, fz = 0;
+                
+                // Force from central mass
+                const r = Math.sqrt(this.x * this.x + this.y * this.y + this.z * this.z);
+                if (r > 0.1) {
+                    const f = simParams.centralMass / (r * r + simParams.softening * simParams.softening);
+                    fx -= this.x / r * f;
+                    fy -= this.y / r * f;
+                    fz -= this.z / r * f;
+                }
+                
+                // Self-gravity between particles
+                if (simParams.selfGravity) {
+                    for (let other of allParticles) {
+                        if (other === this) continue;
+                        
+                        const dx = other.x - this.x;
+                        const dy = other.y - this.y;
+                        const dz = other.z - this.z;
+                        const dist2 = dx * dx + dy * dy + dz * dz + simParams.softening * simParams.softening;
+                        const dist = Math.sqrt(dist2);
+                        
+                        if (dist > 0.01) {
+                            const f = other.mass / dist2;
+                            fx += dx / dist * f;
+                            fy += dy / dist * f;
+                            fz += dz / dist * f;
+                        }
+                    }
+                }
+                
+                return { fx, fy, fz };
+            }
+            
+            update(dt, allParticles) {
+                if (isPaused) return;
+                
+                // Calculate forces
+                const forces = this.calculateForces(allParticles);
+                
+                // Update velocities (Leapfrog integration)
+                this.vx += forces.fx * dt;
+                this.vy += forces.fy * dt;
+                this.vz += forces.fz * dt;
+                
+                // Velocity damping for numerical stability
+                const damping = 0.999;
+                this.vx *= damping;
+                this.vy *= damping;
+                this.vz *= damping;
+                
+                // Update positions
+                this.x += this.vx * dt;
+                this.y += this.vy * dt;
+                this.z += this.vz * dt;
+                
+                // Keep vertical motion bounded
+                if (Math.abs(this.y) > 5) {
+                    this.y *= 0.9;
+                    this.vy *= -0.5;
+                }
+                
+                // Update color based on density (simplified)
+                const r = Math.sqrt(this.x * this.x + this.z * this.z);
+                const speed = Math.sqrt(this.vx * this.vx + this.vz * this.vz);
+                
+                // Higher speed = bluer (hotter), lower speed = redder
+                const speedFactor = Math.min(speed / 3, 1);
+                this.color.r = 1 - speedFactor * 0.3;
+                this.color.g = 0.8 + speedFactor * 0.2;
+                this.color.b = 0.5 + speedFactor * 0.5;
+            }
+        }
+
+        function createDisk() {
+            // Remove old particle system
+            if (particleSystem) {
+                scene.remove(particleSystem);
+                particleSystem.geometry.dispose();
+                particleSystem.material.dispose();
+            }
+            
+            particles = [];
+            const positions = [];
+            const colors = [];
+            
+            // Create particles
+            for (let i = 0; i < simParams.particleCount; i++) {
+                const particle = new Particle(i);
+                particles.push(particle);
+                
+                positions.push(particle.x, particle.y, particle.z);
+                colors.push(particle.color.r, particle.color.g, particle.color.b);
+            }
+            
+            // Create geometry
+            const geometry = new THREE.BufferGeometry();
+            geometry.setAttribute('position', new THREE.Float32BufferAttribute(positions, 3));
+            geometry.setAttribute('color', new THREE.Float32BufferAttribute(colors, 3));
+            
+            // Create material
+            const material = new THREE.PointsMaterial({
+                size: 0.5,
+                vertexColors: true,
+                blending: THREE.AdditiveBlending,
+                transparent: true,
+                opacity: 0.9,
+                sizeAttenuation: true
+            });
+            
+            // Create particle system
+            particleSystem = new THREE.Points(geometry, material);
+            scene.add(particleSystem);
+            
+            simulationTime = 0;
+        }
+
+        function calculateTotalEnergy() {
+            let kinetic = 0;
+            let potential = 0;
+            
+            for (let p of particles) {
+                // Kinetic energy
+                kinetic += 0.5 * p.mass * (p.vx * p.vx + p.vy * p.vy + p.vz * p.vz);
+                
+                // Potential energy from central mass
+                const r = Math.sqrt(p.x * p.x + p.y * p.y + p.z * p.z);
+                if (r > 0.1) {
+                    potential -= simParams.centralMass * p.mass / r;
+                }
+            }
+            
+            return kinetic + potential;
+        }
+
+        // Mouse controls
+        document.addEventListener('mousedown', (e) => {
+            if (e.button === 0) {
+                isMouseDown = true;
+            } else if (e.button === 2) {
+                isPanning = true;
+            }
+            mouseX = e.clientX;
+            mouseY = e.clientY;
+        });
+
+        document.addEventListener('mouseup', () => {
+            isMouseDown = false;
+            isPanning = false;
+        });
+
+        document.addEventListener('mousemove', (e) => {
+            if (isMouseDown) {
+                targetRotationY += (e.clientX - mouseX) * 0.01;
+                targetRotationX += (e.clientY - mouseY) * 0.01;
+                targetRotationX = Math.max(-Math.PI/2, Math.min(Math.PI/2, targetRotationX));
+            }
+            if (isPanning) {
+                camera.position.x += (mouseX - e.clientX) * 0.1;
+                camera.position.z += (mouseY - e.clientY) * 0.1;
+            }
+            mouseX = e.clientX;
+            mouseY = e.clientY;
+        });
+
+        document.addEventListener('wheel', (e) => {
+            zoom += e.deltaY * 0.001;
+            zoom = Math.max(0.3, Math.min(3, zoom));
+        });
+
+        document.addEventListener('contextmenu', (e) => e.preventDefault());
+
+        // Control panel
+        document.getElementById('centralMass').addEventListener('input', (e) => {
+            simParams.centralMass = parseFloat(e.target.value);
+            document.getElementById('centralMassValue').textContent = e.target.value;
+            centralSphere.scale.setScalar(Math.pow(simParams.centralMass, 0.3));
+        });
+
+        document.getElementById('initialRotation').addEventListener('input', (e) => {
+            simParams.initialRotation = parseFloat(e.target.value);
+            document.getElementById('initialRotationValue').textContent = e.target.value;
+        });
+
+        document.getElementById('particleMass').addEventListener('input', (e) => {
+            simParams.particleMass = parseFloat(e.target.value);
+            document.getElementById('particleMassValue').textContent = e.target.value;
+            particles.forEach(p => p.mass = simParams.particleMass);
+        });
+
+        document.getElementById('softening').addEventListener('input', (e) => {
+            simParams.softening = parseFloat(e.target.value);
+            document.getElementById('softeningValue').textContent = e.target.value;
+        });
+
+        document.getElementById('timeStep').addEventListener('input', (e) => {
+            simParams.timeStep = parseFloat(e.target.value);
+            document.getElementById('timeStepValue').textContent = e.target.value.padEnd(5, '0');
+        });
+
+        document.getElementById('particleCount').addEventListener('input', (e) => {
+            simParams.particleCount = parseInt(e.target.value);
+            document.getElementById('particleCountValue').textContent = e.target.value;
+        });
+
+        document.getElementById('diskRadius').addEventListener('input', (e) => {
+            simParams.diskRadius = parseFloat(e.target.value);
+            document.getElementById('diskRadiusValue').textContent = e.target.value;
+        });
+
+        document.getElementById('perturbation').addEventListener('input', (e) => {
+            simParams.perturbation = parseFloat(e.target.value);
+            document.getElementById('perturbationValue').textContent = e.target.value.padEnd(4, '0');
+        });
+
+        document.getElementById('selfGravity').addEventListener('change', (e) => {
+            simParams.selfGravity = e.target.checked;
+        });
+
+        document.getElementById('reset').addEventListener('click', () => {
+            createDisk();
+        });
+
+        document.getElementById('pausePlay').addEventListener('click', (e) => {
+            isPaused = !isPaused;
+            e.target.textContent = isPaused ? 'Play' : 'Pause';
+        });
+
+        // Window resize
+        window.addEventListener('resize', () => {
+            camera.aspect = window.innerWidth / window.innerHeight;
+            camera.updateProjectionMatrix();
+            renderer.setSize(window.innerWidth, window.innerHeight);
+        });
+
+        // FPS counter
+        let frameCount = 0;
+        let lastTime = performance.now();
+        let lastEnergyUpdate = 0;
+        let totalEnergy = 0;
+        
+        // Animation loop
+        function animate() {
+            requestAnimationFrame(animate);
+            
+            // Update FPS
+            frameCount++;
+            const currentTime = performance.now();
+            if (currentTime - lastTime > 1000) {
+                document.getElementById('fps').textContent = `FPS: ${Math.round(frameCount * 1000 / (currentTime - lastTime))}`;
+                frameCount = 0;
+                lastTime = currentTime;
+            }
+            
+            // Update simulation
+            if (!isPaused && particles.length > 0) {
+                const dt = simParams.timeStep;
+                simulationTime += dt;
+                
+                // Update all particles
+                particles.forEach(p => p.update(dt, particles));
+                
+                // Update visual positions and colors
+                const positions = particleSystem.geometry.attributes.position.array;
+                const colors = particleSystem.geometry.attributes.color.array;
+                
+                for (let i = 0; i < particles.length; i++) {
+                    positions[i * 3] = particles[i].x;
+                    positions[i * 3 + 1] = particles[i].y;
+                    positions[i * 3 + 2] = particles[i].z;
+                    
+                    colors[i * 3] = particles[i].color.r;
+                    colors[i * 3 + 1] = particles[i].color.g;
+                    colors[i * 3 + 2] = particles[i].color.b;
+                }
+                
+                particleSystem.geometry.attributes.position.needsUpdate = true;
+                particleSystem.geometry.attributes.color.needsUpdate = true;
+                
+                // Calculate energy periodically
+                if (currentTime - lastEnergyUpdate > 500) {
+                    totalEnergy = calculateTotalEnergy();
+                    lastEnergyUpdate = currentTime;
+                }
+            }
+            
+            // Update camera
+            const cameraRadius = 60 * zoom;
+            camera.position.x = Math.sin(targetRotationY) * cameraRadius * Math.cos(targetRotationX);
+            camera.position.y = Math.sin(targetRotationX) * cameraRadius;
+            camera.position.z = Math.cos(targetRotationY) * cameraRadius * Math.cos(targetRotationX);
+            camera.lookAt(0, 0, 0);
+            
+            // Update stats
+            document.getElementById('particles').textContent = `Particles: ${simParams.particleCount}`;
+            document.getElementById('time').textContent = `Time: ${simulationTime.toFixed(1)}`;
+            document.getElementById('energy').textContent = `Energy: ${totalEnergy.toFixed(2)}`;
+            
+            renderer.render(scene, camera);
+        }
+
+        // Initialize
+        createDisk();
+        animate();
+    </script>
+</body>
+</html>
