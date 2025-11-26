@@ -271,21 +271,6 @@ body {
     padding: 1rem;
     font-family: 'JetBrains Mono', monospace;
     font-size: 0.875rem;
-    overflow-x: auto;
-    margin: 1rem 0;
-}
-
-/* Multiple Choice */
-.choices-container {
-    display: flex;
-    flex-direction: column;
-    gap: 0.75rem;
-    margin-bottom: 2rem;
-}
-
-.choice-item {
-    padding: 1rem 1.5rem;
-    border: 2px solid var(--border-primary);
     border-radius: 0.75rem;
     cursor: pointer;
     transition: all 0.3s cubic-bezier(0.4, 0, 0.2, 1);

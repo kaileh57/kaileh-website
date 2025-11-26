@@ -15,17 +15,16 @@ class BenchmarkInterface {
         this.viewRaw = false;
         this.filters = {
             category: 'all',
-            difficulty: 'all',
             searchId: ''
         };
-        
+
         this.init();
     }
 
     async init() {
         try {
             await this.loadQuestions();
-            this.setupUI();
+            await this.setupUI();
             this.loadQuestion();
             this.updateStats();
         } catch (error) {
@@ -39,7 +38,7 @@ class BenchmarkInterface {
             throw new Error(`Failed to load ${this.benchmarkName} data`);
         }
         this.questions = await response.json();
-        
+
         // Load metadata
         try {
             const metaResponse = await fetch(`../data/${this.benchmarkName}_metadata.json`);
@@ -51,7 +50,21 @@ class BenchmarkInterface {
         }
     }
 
-    setupUI() {
+    async setupUI() {
+        // Inject marked.js for better markdown rendering
+        if (!window.marked) {
+            await new Promise((resolve) => {
+                const script = document.createElement('script');
+                script.src = 'https://cdn.jsdelivr.net/npm/marked/marked.min.js';
+                script.onload = resolve;
+                script.onerror = () => {
+                    console.warn('Failed to load marked.js, falling back to basic formatting');
+                    resolve();
+                };
+                document.head.appendChild(script);
+            });
+        }
+
         document.body.innerHTML = `
             <nav class="benchmark-nav">
                 <div class="nav-container">
@@ -60,9 +73,6 @@ class BenchmarkInterface {
                         <div class="nav-title">${this.benchmarkName.toUpperCase()}</div>
                     </div>
                     <div class="nav-info">
-                        <div class="difficulty-badge difficulty-${this.metadata?.difficulty || 'medium'}">
-                            ${(this.metadata?.difficulty || 'medium').replace('_', ' ').toUpperCase()}
-                        </div>
                         <div class="category-badge category-${this.metadata?.category || 'general'}">
                             ${(this.metadata?.category || 'General').toUpperCase()}
                         </div>
@@ -90,12 +100,6 @@ class BenchmarkInterface {
                             </select>
                         </div>
                         <div class="filter-group">
-                            <label class="filter-label">Difficulty</label>
-                            <select id="difficulty-filter" class="filter-select">
-                                <option value="all">All Difficulties</option>
-                            </select>
-                        </div>
-                        <div class="filter-group">
                             <label class="filter-label">Question ID</label>
                             <input type="text" id="id-filter" class="filter-input" placeholder="Enter question ID...">
                         </div>
@@ -119,13 +123,13 @@ class BenchmarkInterface {
         faviconCanvas.width = 32;
         faviconCanvas.height = 32;
         const ctx = faviconCanvas.getContext('2d');
-        
+
         ctx.textAlign = 'center';
         ctx.textBaseline = 'middle';
         ctx.font = 'bold 24px Inter, sans-serif';
         ctx.fillStyle = '#ffffff';
         ctx.fillText('K', 16, 18);
-        
+
         const faviconLink = document.getElementById('favicon');
         if (faviconLink) {
             faviconLink.href = faviconCanvas.toDataURL('image/png');
@@ -136,11 +140,6 @@ class BenchmarkInterface {
         // Filter controls
         document.getElementById('category-filter').addEventListener('change', (e) => {
             this.filters.category = e.target.value;
-            this.applyFilters();
-        });
-
-        document.getElementById('difficulty-filter').addEventListener('change', (e) => {
-            this.filters.difficulty = e.target.value;
             this.applyFilters();
         });
 
@@ -173,7 +172,6 @@ class BenchmarkInterface {
 
     populateFilters() {
         const categories = [...new Set(this.questions.map(q => q.category))].sort();
-        const difficulties = [...new Set(this.questions.map(q => q.difficulty))].sort();
 
         const categorySelect = document.getElementById('category-filter');
         categories.forEach(cat => {
@@ -182,25 +180,19 @@ class BenchmarkInterface {
             option.textContent = cat;
             categorySelect.appendChild(option);
         });
-
-        const difficultySelect = document.getElementById('difficulty-filter');
-        difficulties.forEach(diff => {
-            const option = document.createElement('option');
-            option.value = diff;
-            option.textContent = diff.charAt(0).toUpperCase() + diff.slice(1).replace('_', ' ');
-            difficultySelect.appendChild(option);
-        });
     }
 
     applyFilters() {
+        this.loadRandomQuestion();
+    }
+
+    loadRandomQuestion() {
+        if (this.questions.length === 0) return;
+
         let filtered = this.questions;
 
         if (this.filters.category !== 'all') {
             filtered = filtered.filter(q => q.category === this.filters.category);
-        }
-
-        if (this.filters.difficulty !== 'all') {
-            filtered = filtered.filter(q => q.difficulty === this.filters.difficulty);
         }
 
         if (filtered.length === 0) {
@@ -208,18 +200,9 @@ class BenchmarkInterface {
             return;
         }
 
-        // Load random question from filtered set
         const randomIndex = Math.floor(Math.random() * filtered.length);
         this.currentQuestion = filtered[randomIndex];
-        this.loadQuestion();
-    }
-
-    loadRandomQuestion() {
-        if (this.questions.length === 0) return;
-        
-        const randomIndex = Math.floor(Math.random() * this.questions.length);
-        this.currentQuestion = this.questions[randomIndex];
-        this.currentIndex = randomIndex;
+        this.currentIndex = this.questions.indexOf(this.currentQuestion);
         this.loadQuestion();
     }
 
@@ -254,7 +237,7 @@ class BenchmarkInterface {
 
     renderQuestion() {
         const question = this.currentQuestion;
-        
+
         return `
             <div class="question-card animate-fade-in">
                 <div class="question-header">
@@ -262,9 +245,6 @@ class BenchmarkInterface {
                         <div class="question-id">${question.id}</div>
                         <div class="category-badge category-${this.getCategoryClass(question.category)}">
                             ${question.category}
-                        </div>
-                        <div class="difficulty-badge difficulty-${question.difficulty.replace('_', '-')}">
-                            ${question.difficulty.replace('_', ' ').toUpperCase()}
                         </div>
                     </div>
                     <div class="question-header-right">
@@ -296,7 +276,7 @@ class BenchmarkInterface {
             return `
                 <div class="choices-container">
                     ${question.choices.map((choice, index) => `
-                        <div class="choice-item" data-value="${this.extractChoiceValue(choice)}" data-index="${index}">
+                        <div class="choice-item" data-value="${this.extractChoiceValue(choice, index)}" data-index="${index}">
                             ${this.formatQuestionText(choice)}
                         </div>
                     `).join('')}
@@ -364,7 +344,7 @@ class BenchmarkInterface {
         this.viewRaw = !this.viewRaw;
         const btn = document.getElementById('view-raw-btn');
         const questionText = document.querySelector('.question-text');
-        
+
         if (this.viewRaw) {
             btn.classList.add('active');
             btn.innerHTML = '<span>View Formatted</span>';
@@ -395,7 +375,7 @@ class BenchmarkInterface {
 
         this.isAnswered = true;
         const isCorrect = this.checkAnswer();
-        
+
         this.recordAnswer(isCorrect);
         this.showFeedback(isCorrect);
         this.updateStats();
@@ -420,7 +400,7 @@ class BenchmarkInterface {
                     .replace(/\s+/g, ' ')         // Normalize whitespace
                     .trim();
             };
-            
+
             return normalizeAnswer(userAnswer) === normalizeAnswer(correctAnswer);
         }
     }
@@ -428,7 +408,7 @@ class BenchmarkInterface {
     showFeedback(isCorrect) {
         const question = this.currentQuestion;
         const container = document.getElementById('feedback-container');
-        
+
         container.innerHTML = `
             <div class="feedback-container">
                 <div class="result-message result-${isCorrect ? 'correct' : 'incorrect'}">
@@ -520,7 +500,7 @@ class BenchmarkInterface {
 
     updateStats() {
         document.getElementById('questions-answered').textContent = this.stats.totalAnswered;
-        const accuracy = this.stats.totalAnswered > 0 
+        const accuracy = this.stats.totalAnswered > 0
             ? Math.round((this.stats.totalCorrect / this.stats.totalAnswered) * 100)
             : 0;
         document.getElementById('accuracy').textContent = `${accuracy}%`;
@@ -561,14 +541,14 @@ class BenchmarkInterface {
                 if (question && ((question.answer_type === 'multipleChoice' || question.choices) && question.choices && question.choices.length > 0) && !this.isAnswered) {
                     const choices = document.querySelectorAll('.choice-item');
                     let index = -1;
-                    
+
                     if (['1', '2', '3', '4'].includes(e.key)) {
                         index = parseInt(e.key) - 1;
                     } else {
                         const letter = e.key.toUpperCase();
                         index = letter.charCodeAt(0) - 65; // A=0, B=1, etc.
                     }
-                    
+
                     if (index >= 0 && index < choices.length) {
                         choices[index].click();
                     }
@@ -578,21 +558,23 @@ class BenchmarkInterface {
     }
 
     // Utility methods
-    extractChoiceValue(choice) {
+    extractChoiceValue(choice, index) {
         const match = choice.match(/^([A-Z])\./);
-        return match ? match[1] : choice.charAt(0).toUpperCase();
+        if (match) return match[1];
+        // Fallback: use index to generate A, B, C...
+        return String.fromCharCode(65 + index);
     }
 
     getCategoryClass(category) {
         const categoryMap = {
             'math': 'math',
-            'code': 'code', 
+            'code': 'code',
             'knowledge': 'knowledge',
             'reasoning': 'reasoning',
             'science': 'reasoning',
             'advanced': 'advanced'
         };
-        
+
         const normalized = category.toLowerCase();
         for (const [key, value] of Object.entries(categoryMap)) {
             if (normalized.includes(key)) {
@@ -604,37 +586,79 @@ class BenchmarkInterface {
 
     formatQuestionText(text) {
         if (!text) return '';
-        
-        // Convert basic markdown
+
+        // If marked is available, use it
+        if (window.marked) {
+            // Configure marked to not sanitize (we trust our content) and handle breaks
+            // Note: MathJax needs to be handled before or after.
+            // Marked might escape LaTeX.
+            // Strategy: Protect LaTeX, run marked, unprotect.
+
+            // Simple protection for $...$ and $$...$$
+            // This is tricky. Let's try to just run marked and see if it breaks math.
+            // Usually marked escapes underscores which breaks math.
+
+            // Better approach: Use marked but customize renderer or pre-process.
+            // For now, let's try a simpler approach:
+            // 1. Replace LaTeX delimiters with placeholders
+            // 2. Run marked
+            // 3. Restore LaTeX
+
+            const placeholders = [];
+            const protectMath = (str) => {
+                return str.replace(/(\$\$[\s\S]*?\$\$)|(\$[^$\n]+\$)/g, (match) => {
+                    placeholders.push(match);
+                    return `MATHPLACEHOLDER${placeholders.length - 1}HTAM`;
+                });
+            };
+
+            const restoreMath = (str) => {
+                return str.replace(/MATHPLACEHOLDER(\d+)HTAM/g, (_, index) => {
+                    return placeholders[index];
+                });
+            };
+
+            let processed = protectMath(text);
+            processed = window.marked.parse(processed);
+            processed = restoreMath(processed);
+
+            // Convert LaTeX delimiters for MathJax
+            processed = processed.replace(/\$([^$]+)\$/g, '\\($1\\)');
+            processed = processed.replace(/\$\$([^$]+)\$\$/g, '\\[$1\\]');
+
+            return processed;
+        }
+
+        // Fallback to original regex-based formatting
         text = text.replace(/\*\*(.*?)\*\*/g, '<strong>$1</strong>');
         text = text.replace(/\*(.*?)\*/g, '<em>$1</em>');
-        
+
         // Handle LaTeX math expressions (preserve them for MathJax)
         // Inline math: $...$
         text = text.replace(/\$([^$]+)\$/g, '\\($1\\)');
         // Display math: $$...$$
         text = text.replace(/\$\$([^$]+)\$\$/g, '\\[$1\\]');
-        
+
         // Convert newlines to HTML
         text = text.replace(/\n\n/g, '</p><p>');
         text = text.replace(/\n/g, '<br>');
-        
+
         // Wrap in paragraphs if not already wrapped
         if (!text.startsWith('<p>')) {
             text = '<p>' + text + '</p>';
         }
-        
+
         return text;
     }
 
     renderQuestionImage(question) {
         if (!question.image) return '';
-        
+
         // For HLE, images are in the images/ subdirectory
-        const imagePath = this.benchmarkName === 'hle' 
+        const imagePath = this.benchmarkName === 'hle'
             ? `./images/${question.image}`
             : `../data/images/${question.image}`;
-            
+
         return `
             <div class="question-image" style="margin: 1rem 0; text-align: center;">
                 <img src="${imagePath}" 
@@ -666,7 +690,7 @@ class BenchmarkInterface {
                 ][Math.floor(Math.random() * 5)];
                 confetti.style.animationDelay = Math.random() * 3 + 's';
                 document.body.appendChild(confetti);
-                
+
                 setTimeout(() => {
                     confetti.remove();
                 }, 3000);
@@ -676,7 +700,7 @@ class BenchmarkInterface {
 
     showError(message, error = null) {
         console.error('Benchmark error:', message, error);
-        
+
         const container = document.getElementById('question-container') || document.getElementById('app');
         container.innerHTML = `
             <div class="loading-container">
