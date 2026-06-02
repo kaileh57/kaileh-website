@@ -30,7 +30,7 @@
 <body>
   <div class="stage">
     <div id="bubble"></div>
-    <img src="shoggoth1.webp" alt="shoggoth" />
+    <img src="shoggoth.png" alt="shoggoth" />
   </div>
   <form id="form">
     <input id="input" placeholder="loading model..." autocomplete="off" autofocus disabled />
@@ -46,8 +46,8 @@
     env.allowLocalModels = true;
     env.localModelPath = "./";
 
-    // q8 build (model/onnx/model_quantized.onnx, ~52 MB) runs on the visitor's GPU.
-    const DTYPE = "q8";
+    // fp16 build (model/onnx/model_fp16.onnx, ~102 MB) — runs on the GPU via WebGPU.
+    const DTYPE = "fp16";
 
     const form = document.querySelector("#form");
     const input = document.querySelector("#input");
@@ -79,9 +79,7 @@
     try {
       tokenizer = await AutoTokenizer.from_pretrained("model");
       model = await AutoModelForCausalLM.from_pretrained("model", {
-        // q8 runs correctly on the WASM (CPU) backend; ORT-Web's WebGPU path
-        // miscomputes int8 ops, so we pin WASM here. (fp16 would unlock WebGPU.)
-        device: "wasm",
+        device: navigator.gpu ? "webgpu" : "wasm",
         dtype: DTYPE,
       });
       bubble.classList.remove("show");
