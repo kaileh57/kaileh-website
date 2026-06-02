@@ -77,10 +77,11 @@
     let tokenizer, model;
     show("waking up...");
     try {
-      if (!navigator.gpu) show("(no WebGPU in this browser — falling back to CPU, slow)");
       tokenizer = await AutoTokenizer.from_pretrained("model");
       model = await AutoModelForCausalLM.from_pretrained("model", {
-        device: navigator.gpu ? "webgpu" : "wasm",
+        // q8 runs correctly on the WASM (CPU) backend; ORT-Web's WebGPU path
+        // miscomputes int8 ops, so we pin WASM here. (fp16 would unlock WebGPU.)
+        device: "wasm",
         dtype: DTYPE,
       });
       bubble.classList.remove("show");
