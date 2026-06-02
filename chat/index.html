@@ -43,6 +43,7 @@
 
     // Load the model from ./model/ next to this page (no backend).
     env.allowRemoteModels = false;
+    env.allowLocalModels = true;
     env.localModelPath = "./";
 
     // q8 build (model/onnx/model_quantized.onnx, ~52 MB) runs on the visitor's GPU.
