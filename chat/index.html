@@ -1,0 +1,128 @@
+<!doctype html>
+<html lang="en">
+<head>
+  <meta charset="utf-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1" />
+  <title>Orca</title>
+  <style>
+    * { box-sizing: border-box; }
+    body { margin: 0; min-height: 100vh; display: flex; flex-direction: column;
+      align-items: center; justify-content: center; gap: 20px; padding: 24px;
+      background: #fff; color: #111; font-family: ui-sans-serif, system-ui, "Segoe UI", sans-serif; }
+    .stage { position: relative; width: min(460px, 90vw); }
+    .stage img { width: 100%; display: block; position: relative; z-index: 1; }
+    #bubble { position: absolute; z-index: 2; left: -6%; bottom: 58%; max-width: 72%;
+      background: #fff; color: #111; border: 2px solid #111; border-radius: 14px;
+      padding: 11px 14px; font-size: 15px; line-height: 1.4; white-space: pre-wrap;
+      text-align: left; opacity: 0; transition: opacity .15s; }
+    #bubble.show { opacity: 1; }
+    #bubble::after { content: ""; position: absolute; left: 28%; bottom: -10px;
+      border: 8px solid transparent; border-top-color: #111; border-bottom: 0; }
+    form { display: flex; gap: 8px; width: min(460px, 90vw); }
+    input { flex: 1; border: 2px solid #111; border-radius: 10px; padding: 11px 14px;
+      font: inherit; outline: none; background: #fff; color: #111; }
+    input::placeholder { color: #888; }
+    button { border: 2px solid #111; border-radius: 10px; padding: 0 18px;
+      background: #fff; color: #111; font-weight: 700; cursor: pointer; }
+    button:disabled { opacity: .5; cursor: wait; }
+  </style>
+</head>
+<body>
+  <div class="stage">
+    <div id="bubble"></div>
+    <img src="shoggoth1.webp" alt="shoggoth" />
+  </div>
+  <form id="form">
+    <input id="input" placeholder="loading model..." autocomplete="off" autofocus disabled />
+    <button id="send" type="submit" disabled>Send</button>
+  </form>
+
+  <script type="module">
+    import { env, AutoTokenizer, AutoModelForCausalLM, TextStreamer }
+      from "https://cdn.jsdelivr.net/npm/@huggingface/transformers@3";
+
+    // Load the model from ./model/ next to this page (no backend).
+    env.allowRemoteModels = false;
+    env.localModelPath = "./";
+
+    // q8 build (model/onnx/model_quantized.onnx, ~52 MB) runs on the visitor's GPU.
+    const DTYPE = "q8";
+
+    const form = document.querySelector("#form");
+    const input = document.querySelector("#input");
+    const send = document.querySelector("#send");
+    const bubble = document.querySelector("#bubble");
+    const messages = [];
+    const show = (t) => { bubble.textContent = t; bubble.classList.add("show"); };
+
+    const SYSTEM = "You are Orca, an assistant trained by the team at Sculptor AI " +
+      "(SculptorAI.org), led by lead researcher Kellen Heraty. Be concise, honest, and useful.";
+
+    function renderPrompt(msgs) {
+      let s = `<|system|>\n${SYSTEM}\n`;
+      for (const m of msgs.slice(-6)) {
+        const role = m.role === "assistant" ? "assistant" : "user";
+        if (m.content.trim()) s += `<|${role}|>\n${m.content.trim()}\n`;
+      }
+      return s + "<|assistant|>\n";
+    }
+
+    // Cut the streamed reply at the first chat marker, mirroring server.py.
+    function clip(text) {
+      const i = text.indexOf("<|");
+      return (i >= 0 ? text.slice(0, i) : text).replace(/<$/, "");
+    }
+
+    let tokenizer, model;
+    show("waking up...");
+    try {
+      if (!navigator.gpu) show("(no WebGPU in this browser — falling back to CPU, slow)");
+      tokenizer = await AutoTokenizer.from_pretrained("model");
+      model = await AutoModelForCausalLM.from_pretrained("model", {
+        device: navigator.gpu ? "webgpu" : "wasm",
+        dtype: DTYPE,
+      });
+      bubble.classList.remove("show");
+      input.disabled = false; send.disabled = false;
+      input.placeholder = "say something to it...";
+      input.focus();
+    } catch (err) {
+      show("(failed to load model: " + err.message + ")");
+    }
+
+    form.addEventListener("submit", async (event) => {
+      event.preventDefault();
+      const text = input.value.trim();
+      if (!text || !model) return;
+      input.value = "";
+      messages.push({ role: "user", content: text });
+      send.disabled = true;
+      show("...");
+
+      const inputs = tokenizer(renderPrompt(messages));
+      let raw = "";
+      const streamer = new TextStreamer(tokenizer, {
+        skip_prompt: true,
+        skip_special_tokens: false,
+        callback_function: (chunk) => { raw += chunk; show(clip(raw) || "..."); },
+      });
+      try {
+        await model.generate({
+          ...inputs,
+          max_new_tokens: 100,
+          do_sample: false,        // greedy, matches the server (top_k=1)
+          streamer,
+        });
+        const reply = clip(raw).trim();
+        if (!reply) { show("(it stayed silent)"); }
+        else { show(reply); messages.push({ role: "assistant", content: reply }); }
+      } catch (err) {
+        show("(" + err.message + ")");
+      } finally {
+        send.disabled = false;
+        input.focus();
+      }
+    });
+  </script>
+</body>
+</html>
