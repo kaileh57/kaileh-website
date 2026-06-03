@@ -144,10 +144,15 @@
         await model.generate({
           ...inputs,
           max_new_tokens: 100,
-          do_sample: true,          // sample for variety (greedy collapses to one line)
-          temperature: 0.9,
-          top_k: 50,
-          repetition_penalty: 1.3,
+          // Gentle sampling: this is a small (350M) model, so high temperature +
+          // strong repetition_penalty pushes it into rare-token salad. Stay near
+          // the high-probability tokens for coherence, with light variety.
+          do_sample: true,
+          temperature: 0.7,
+          top_k: 40,
+          top_p: 0.9,
+          repetition_penalty: 1.15,
+          no_repeat_ngram_size: 3,
           streamer,
         });
         const reply = clip(raw).trim();
