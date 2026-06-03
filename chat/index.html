@@ -41,13 +41,13 @@
     import { env, AutoTokenizer, AutoModelForCausalLM, TextStreamer }
       from "https://cdn.jsdelivr.net/npm/@huggingface/transformers@3";
 
-    // Load the model from ./model/ next to this page (no backend).
-    env.allowRemoteModels = false;
-    env.allowLocalModels = true;
-    env.localModelPath = "./";
+    // Load the Orca model (GPT-2 medium, 350M) from the Hugging Face Hub.
+    env.allowRemoteModels = true;
+    env.allowLocalModels = false;
 
-    // fp16 build (model/onnx/model_fp16.onnx, ~102 MB) — runs on the GPU via WebGPU.
-    const DTYPE = "fp16";
+    const MODEL_ID = "Kaileh57/orca-gpt2-medium";
+    // int8 build (onnx/model_quantized.onnx, ~409 MB) — WebGPU when available, else wasm.
+    const DTYPE = "q8";
 
     const form = document.querySelector("#form");
     const input = document.querySelector("#input");
@@ -56,29 +56,31 @@
     const messages = [];
     const show = (t) => { bubble.textContent = t; bubble.classList.add("show"); };
 
-    const SYSTEM = "You are Orca, an assistant trained by the team at Sculptor AI " +
-      "(SculptorAI.org), led by lead researcher Kellen Heraty. Be concise, honest, and useful.";
-
+    // The model was SFT'd on a plain "User: ...\nAssistant: ..." chat format.
     function renderPrompt(msgs) {
-      let s = `<|system|>\n${SYSTEM}\n`;
+      let s = "";
       for (const m of msgs.slice(-6)) {
-        const role = m.role === "assistant" ? "assistant" : "user";
-        if (m.content.trim()) s += `<|${role}|>\n${m.content.trim()}\n`;
+        const role = m.role === "assistant" ? "Assistant" : "User";
+        if (m.content.trim()) s += `${role}: ${m.content.trim()}\n`;
       }
-      return s + "<|assistant|>\n";
+      return s + "Assistant:";
     }
 
-    // Cut the streamed reply at the first chat marker, mirroring server.py.
+    // Stop the reply at end-of-text or where it starts a new "User:" turn.
     function clip(text) {
-      const i = text.indexOf("<|");
-      return (i >= 0 ? text.slice(0, i) : text).replace(/<$/, "");
+      let out = text;
+      for (const marker of ["<|endoftext|>", "\nUser:", "\nUser :"]) {
+        const i = out.indexOf(marker);
+        if (i >= 0) out = out.slice(0, i);
+      }
+      return out.replace(/<\|?$/, "").trimEnd();
     }
 
     let tokenizer, model;
     show("waking up...");
     try {
-      tokenizer = await AutoTokenizer.from_pretrained("model");
-      model = await AutoModelForCausalLM.from_pretrained("model", {
+      tokenizer = await AutoTokenizer.from_pretrained(MODEL_ID);
+      model = await AutoModelForCausalLM.from_pretrained(MODEL_ID, {
         device: navigator.gpu ? "webgpu" : "wasm",
         dtype: DTYPE,
       });
