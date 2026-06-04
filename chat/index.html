@@ -118,6 +118,9 @@
       let backend = "webgpu/q4";
       try {
         if (!navigator.gpu) throw new Error("no WebGPU");
+        // Cheap pre-flight: a null adapter (blocklisted GPU etc.) means WebGPU
+        // can't work — find out before downloading 400 MB of q4 weights.
+        if (!(await navigator.gpu.requestAdapter())) throw new Error("no GPU adapter");
         model = await AutoModelForCausalLM.from_pretrained(MODEL_ID, {
           revision: REVISION,
           device: "webgpu",
