@@ -58,9 +58,7 @@
     const MODEL_ID = "Kaileh57/orca-gpt2-medium";
     // Pin to an exact commit: download URLs include the SHA, so browsers that cached
     // older (broken) files under /main/ fetch fresh copies automatically.
-    const REVISION = "8e6e1e51ca6982261fb07461274aa34ada2143b6";
-    // int8 build (onnx/model_quantized.onnx, ~409 MB) — WebGPU when available, else wasm.
-    const DTYPE = "q8";
+    const REVISION = "b4e6d2bb7d0032843abbbabbd6e9382388dea36c";
 
     const form = document.querySelector("#form");
     const input = document.querySelector("#input");
@@ -114,15 +112,30 @@
         revision: REVISION,
         progress_callback: onProgress,
       });
-      model = await AutoModelForCausalLM.from_pretrained(MODEL_ID, {
-        revision: REVISION,
-        // q8 models are numerically broken on the WebGPU backend (garbage tokens);
-        // wasm (CPU) is the backend this model is validated on. Slower but correct.
-        device: "wasm",
-        dtype: DTYPE,
-        progress_callback: onProgress,
-      });
-      console.log("orca chat build: wasm/q8 @", REVISION);
+      // Prefer WebGPU with the q4 build (4-bit MatMul weights, fp32 activations —
+      // validated bit-exact vs CPU; q8 is NOT WebGPU-safe). Fall back to wasm/q8
+      // when WebGPU is unavailable or device creation fails.
+      let backend = "webgpu/q4";
+      try {
+        if (!navigator.gpu) throw new Error("no WebGPU");
+        model = await AutoModelForCausalLM.from_pretrained(MODEL_ID, {
+          revision: REVISION,
+          device: "webgpu",
+          dtype: "q4",
+          progress_callback: onProgress,
+        });
+      } catch (gpuErr) {
+        console.warn("WebGPU unavailable, using wasm/q8:", gpuErr.message);
+        backend = "wasm/q8";
+        Object.keys(dl).forEach((k) => delete dl[k]);
+        model = await AutoModelForCausalLM.from_pretrained(MODEL_ID, {
+          revision: REVISION,
+          device: "wasm",
+          dtype: "q8",
+          progress_callback: onProgress,
+        });
+      }
+      console.log("orca chat build:", backend, "@", REVISION);
       bar.style.width = "100%";
       plabel.textContent = "ready";
       setTimeout(() => progwrap.classList.remove("show"), 500);
