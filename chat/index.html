@@ -58,7 +58,7 @@
     const MODEL_ID = "Kaileh57/orca-gpt2-medium";
     // Pin to an exact commit: download URLs include the SHA, so browsers that cached
     // older (broken) files under /main/ fetch fresh copies automatically.
-    const REVISION = "b4e6d2bb7d0032843abbbabbd6e9382388dea36c";
+    const REVISION = "e25ff7d797f8b23cbc4cec473b93cadc4e221e9c";
 
     const form = document.querySelector("#form");
     const input = document.querySelector("#input");
@@ -112,10 +112,10 @@
         revision: REVISION,
         progress_callback: onProgress,
       });
-      // Prefer WebGPU with the q4 build (4-bit MatMul weights, fp32 activations —
-      // validated bit-exact vs CPU; q8 is NOT WebGPU-safe). Fall back to wasm/q8
+      // Prefer WebGPU with the fp16 build (near-lossless: greedy decode matches the
+      // raw fp32 weights; q8/q4 measurably degrade this model). Fall back to wasm/q8
       // when WebGPU is unavailable or device creation fails.
-      let backend = "webgpu/q4";
+      let backend = "webgpu/fp16";
       try {
         if (!navigator.gpu) throw new Error("no WebGPU");
         // Cheap pre-flight: a null adapter (blocklisted GPU etc.) means WebGPU
@@ -124,7 +124,7 @@
         model = await AutoModelForCausalLM.from_pretrained(MODEL_ID, {
           revision: REVISION,
           device: "webgpu",
-          dtype: "q4",
+          dtype: "fp16",
           progress_callback: onProgress,
         });
       } catch (gpuErr) {
