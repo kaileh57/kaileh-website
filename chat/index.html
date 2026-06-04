@@ -68,13 +68,12 @@
     const show = (t) => { bubble.textContent = t; bubble.classList.add("show"); };
 
     // The model was SFT'd on a plain "User: ...\nAssistant: ..." chat format.
+    // Each question is answered statelessly: at 350M, carried history drags the
+    // model into continuing its previous answer instead of addressing the new
+    // question (verified live), so only the current user message is sent.
     function renderPrompt(msgs) {
-      let s = "";
-      for (const m of msgs.slice(-6)) {
-        const role = m.role === "assistant" ? "Assistant" : "User";
-        if (m.content.trim()) s += `${role}: ${m.content.trim()}\n`;
-      }
-      return s + "Assistant:";
+      const last = msgs.filter((m) => m.role === "user").at(-1);
+      return `User: ${last.content.trim()}\nAssistant:`;
     }
 
     // Stop the reply at end-of-text or where it starts a new "User:" turn.
