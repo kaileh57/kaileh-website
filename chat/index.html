@@ -116,10 +116,13 @@
       });
       model = await AutoModelForCausalLM.from_pretrained(MODEL_ID, {
         revision: REVISION,
-        device: navigator.gpu ? "webgpu" : "wasm",
+        // q8 models are numerically broken on the WebGPU backend (garbage tokens);
+        // wasm (CPU) is the backend this model is validated on. Slower but correct.
+        device: "wasm",
         dtype: DTYPE,
         progress_callback: onProgress,
       });
+      console.log("orca chat build: wasm/q8 @", REVISION);
       bar.style.width = "100%";
       plabel.textContent = "ready";
       setTimeout(() => progwrap.classList.remove("show"), 500);
