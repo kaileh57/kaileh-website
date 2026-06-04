@@ -56,6 +56,9 @@
     env.allowLocalModels = false;
 
     const MODEL_ID = "Kaileh57/orca-gpt2-medium";
+    // Pin to an exact commit: download URLs include the SHA, so browsers that cached
+    // older (broken) files under /main/ fetch fresh copies automatically.
+    const REVISION = "8e6e1e51ca6982261fb07461274aa34ada2143b6";
     // int8 build (onnx/model_quantized.onnx, ~409 MB) — WebGPU when available, else wasm.
     const DTYPE = "q8";
 
@@ -107,8 +110,12 @@
     let tokenizer, model;
     progwrap.classList.add("show");
     try {
-      tokenizer = await AutoTokenizer.from_pretrained(MODEL_ID, { progress_callback: onProgress });
+      tokenizer = await AutoTokenizer.from_pretrained(MODEL_ID, {
+        revision: REVISION,
+        progress_callback: onProgress,
+      });
       model = await AutoModelForCausalLM.from_pretrained(MODEL_ID, {
+        revision: REVISION,
         device: navigator.gpu ? "webgpu" : "wasm",
         dtype: DTYPE,
         progress_callback: onProgress,
