@@ -1,0 +1,195 @@
+<!doctype html>
+<html lang="en">
+<head>
+  <meta charset="utf-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1" />
+  <title>Orca</title>
+  <style>
+    * { box-sizing: border-box; }
+    body { margin: 0; min-height: 100vh; display: flex; flex-direction: column;
+      align-items: center; justify-content: center; gap: 20px; padding: 24px;
+      background: #fff; color: #111; font-family: ui-sans-serif, system-ui, "Segoe UI", sans-serif; }
+    .stage { position: relative; width: min(460px, 90vw); }
+    .stage img { width: 100%; display: block; position: relative; z-index: 1; }
+    #bubble { position: absolute; z-index: 2; left: -6%; bottom: 58%; max-width: 72%;
+      background: #fff; color: #111; border: 2px solid #111; border-radius: 14px;
+      padding: 11px 14px; font-size: 15px; line-height: 1.4; white-space: pre-wrap;
+      text-align: left; opacity: 0; transition: opacity .15s; }
+    #bubble.show { opacity: 1; }
+    #bubble::after { content: ""; position: absolute; left: 28%; bottom: -10px;
+      border: 8px solid transparent; border-top-color: #111; border-bottom: 0; }
+    form { display: flex; gap: 8px; width: min(460px, 90vw); }
+    input { flex: 1; border: 2px solid #111; border-radius: 10px; padding: 11px 14px;
+      font: inherit; outline: none; background: #fff; color: #111; }
+    input::placeholder { color: #888; }
+    button { border: 2px solid #111; border-radius: 10px; padding: 0 18px;
+      background: #fff; color: #111; font-weight: 700; cursor: pointer; }
+    button:disabled { opacity: .5; cursor: wait; }
+    #progwrap { width: min(460px, 90vw); display: none; flex-direction: column; gap: 6px; }
+    #progwrap.show { display: flex; }
+    #plabel { font-size: 13px; color: #555; text-align: center; }
+    #progress { width: 100%; height: 16px; border: 2px solid #111; border-radius: 10px;
+      background: #fff; overflow: hidden; }
+    #bar { height: 100%; width: 0%; background: #111; transition: width .2s ease; }
+  </style>
+</head>
+<body>
+  <div class="stage">
+    <div id="bubble"></div>
+    <img src="shoggoth.png" alt="shoggoth" />
+  </div>
+  <form id="form">
+    <input id="input" placeholder="loading model..." autocomplete="off" autofocus disabled />
+    <button id="send" type="submit" disabled>Send</button>
+  </form>
+  <div id="progwrap">
+    <div id="plabel">loading model…</div>
+    <div id="progress"><div id="bar"></div></div>
+  </div>
+
+  <script type="module">
+    import { env, AutoTokenizer, AutoModelForCausalLM, TextStreamer }
+      from "https://cdn.jsdelivr.net/npm/@huggingface/transformers@3";
+
+    // Load the Orca model (GPT-2 medium, 350M) from the Hugging Face Hub.
+    env.allowRemoteModels = true;
+    env.allowLocalModels = false;
+
+    const MODEL_ID = "Kaileh57/orca-gpt2-medium";
+    // Pin to an exact commit: download URLs include the SHA, so browsers that cached
+    // older (broken) files under /main/ fetch fresh copies automatically.
+    const REVISION = "31c632c0aea62881fd27b6bbe52122e1a06feb71";
+
+    const form = document.querySelector("#form");
+    const input = document.querySelector("#input");
+    const send = document.querySelector("#send");
+    const bubble = document.querySelector("#bubble");
+    const messages = [];
+    const show = (t) => { bubble.textContent = t; bubble.classList.add("show"); };
+
+    // The model was SFT'd on a plain "User: ...\nAssistant: ..." chat format.
+    // Each question is answered statelessly: at 350M, carried history drags the
+    // model into continuing its previous answer instead of addressing the new
+    // question (verified live), so only the current user message is sent.
+    function renderPrompt(msgs) {
+      const last = msgs.filter((m) => m.role === "user").at(-1);
+      return `User: ${last.content.trim()}\nAssistant:`;
+    }
+
+    // Stop the reply at end-of-text or where it starts a new "User:" turn.
+    function clip(text) {
+      let out = text;
+      for (const marker of ["<|endoftext|>", "\nUser:", "\nUser :"]) {
+        const i = out.indexOf(marker);
+        if (i >= 0) out = out.slice(0, i);
+      }
+      return out.replace(/<\|?$/, "").trimEnd();
+    }
+
+    const progwrap = document.querySelector("#progwrap");
+    const bar = document.querySelector("#bar");
+    const plabel = document.querySelector("#plabel");
+
+    // Aggregate byte progress across the downloaded files (the onnx dominates).
+    const dl = {};
+    function onProgress(p) {
+      if (p.status === "progress" && p.total) {
+        dl[p.file] = { loaded: p.loaded, total: p.total };
+        let loaded = 0, total = 0;
+        for (const k in dl) { loaded += dl[k].loaded; total += dl[k].total; }
+        const pct = total ? Math.min(100, Math.round((loaded / total) * 100)) : 0;
+        progwrap.classList.add("show");
+        bar.style.width = pct + "%";
+        plabel.textContent = `downloading model… ${pct}% (${(loaded / 1048576).toFixed(0)}/${(total / 1048576).toFixed(0)} MB)`;
+      }
+    }
+
+    let tokenizer, model;
+    progwrap.classList.add("show");
+    try {
+      tokenizer = await AutoTokenizer.from_pretrained(MODEL_ID, {
+        revision: REVISION,
+        progress_callback: onProgress,
+      });
+      // Prefer WebGPU with the fp16 build (near-lossless: greedy decode matches the
+      // raw fp32 weights; q8/q4 measurably degrade this model). Fall back to wasm/q8
+      // when WebGPU is unavailable or device creation fails.
+      let backend = "webgpu/fp16";
+      try {
+        if (!navigator.gpu) throw new Error("no WebGPU");
+        // Cheap pre-flight: a null adapter (blocklisted GPU etc.) means WebGPU
+        // can't work — find out before downloading 400 MB of q4 weights.
+        if (!(await navigator.gpu.requestAdapter())) throw new Error("no GPU adapter");
+        model = await AutoModelForCausalLM.from_pretrained(MODEL_ID, {
+          revision: REVISION,
+          device: "webgpu",
+          dtype: "fp16",
+          progress_callback: onProgress,
+        });
+      } catch (gpuErr) {
+        console.warn("WebGPU unavailable, using wasm/q8:", gpuErr.message);
+        backend = "wasm/q8";
+        Object.keys(dl).forEach((k) => delete dl[k]);
+        model = await AutoModelForCausalLM.from_pretrained(MODEL_ID, {
+          revision: REVISION,
+          device: "wasm",
+          dtype: "q8",
+          progress_callback: onProgress,
+        });
+      }
+      console.log("orca chat build:", backend, "@", REVISION);
+      bar.style.width = "100%";
+      plabel.textContent = "ready";
+      setTimeout(() => progwrap.classList.remove("show"), 500);
+      input.disabled = false; send.disabled = false;
+      input.placeholder = "say something to it...";
+      input.focus();
+    } catch (err) {
+      progwrap.classList.remove("show");
+      show("(failed to load model: " + err.message + ")");
+    }
+
+    form.addEventListener("submit", async (event) => {
+      event.preventDefault();
+      const text = input.value.trim();
+      if (!text || !model) return;
+      input.value = "";
+      messages.push({ role: "user", content: text });
+      send.disabled = true;
+      show("...");
+
+      const inputs = tokenizer(renderPrompt(messages));
+      let raw = "";
+      const streamer = new TextStreamer(tokenizer, {
+        skip_prompt: true,
+        skip_special_tokens: false,
+        callback_function: (chunk) => { raw += chunk; show(clip(raw) || "..."); },
+      });
+      try {
+        await model.generate({
+          ...inputs,
+          max_new_tokens: 100,
+          // Gentle sampling: this is a small (350M) model, so high temperature +
+          // strong repetition_penalty pushes it into rare-token salad. Stay near
+          // the high-probability tokens for coherence, with light variety.
+          do_sample: true,
+          temperature: 0.7,
+          top_k: 40,
+          top_p: 0.9,
+          repetition_penalty: 1.15,
+          no_repeat_ngram_size: 3,
+          streamer,
+        });
+        const reply = clip(raw).trim();
+        if (!reply) { show("(it stayed silent)"); }
+        else { show(reply); messages.push({ role: "assistant", content: reply }); }
+      } catch (err) {
+        show("(" + err.message + ")");
+      } finally {
+        send.disabled = false;
+        input.focus();
+      }
+    });
+  </script>
+</body>
+</html>
