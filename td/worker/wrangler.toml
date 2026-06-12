@@ -1,0 +1,13 @@
+name = "rushtd-relay"
+account_id = "753b21fe397a34c71f0ece222273a15d"
+main = "src/index.js"
+compatibility_date = "2026-01-01"
+
+[[durable_objects.bindings]]
+name = "ROOM"
+class_name = "Room"
+
+[[migrations]]
+tag = "v1"
+new_sqlite_classes = ["Room"]
+

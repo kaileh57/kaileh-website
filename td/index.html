@@ -1,0 +1,131 @@
+<!doctype html>
+<html lang="en">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1, maximum-scale=1, user-scalable=no, viewport-fit=cover">
+<meta name="mobile-web-app-capable" content="yes">
+<meta name="apple-mobile-web-app-capable" content="yes">
+<meta name="apple-mobile-web-app-status-bar-style" content="black-translucent">
+<meta name="theme-color" content="#16181c">
+<title>RUSH TD</title>
+<link rel="stylesheet" href="style.css">
+</head>
+<body>
+
+<!-- TITLE -->
+<div id="screen-title" class="screen hidden">
+  <div class="title-box">
+    <h1 class="game-title">RUSH TD</h1>
+    <div class="title-form">
+      <label class="label" for="title-name">NAME</label>
+      <input id="title-name" type="text" maxlength="12" autocomplete="off" spellcheck="false" placeholder="PLAYER">
+      <button id="btn-host" class="btn btn-accent">HOST</button>
+      <div class="title-join-row">
+        <input id="title-code" type="text" maxlength="4" autocomplete="off" spellcheck="false" placeholder="CODE">
+        <button id="btn-join" class="btn">JOIN</button>
+      </div>
+      <div id="title-msg" class="title-msg"></div>
+    </div>
+    <div class="title-footer">
+      multiplayer tower defense. defend your board, send units at theirs.<br>
+      cat photo: Von.grzanka CC BY-SA, Mona Lisa: public domain
+    </div>
+  </div>
+</div>
+
+<!-- LOBBY -->
+<div id="screen-lobby" class="screen hidden">
+  <div class="lobby-box">
+    <div class="lobby-head">
+      <div>
+        <div class="label">ROOM CODE (CLICK TO COPY)</div>
+        <div id="lobby-code" class="lobby-code" title="Click to copy">----</div>
+      </div>
+      <div class="lobby-players-wrap">
+        <div class="label">PLAYERS</div>
+        <div id="lobby-players" class="lobby-players"></div>
+      </div>
+    </div>
+    <div class="lobby-maps-wrap">
+      <div class="label" id="lobby-maps-label">MAP</div>
+      <div id="lobby-maps" class="lobby-maps"></div>
+    </div>
+    <div class="lobby-powers-wrap">
+      <div class="label">PICK EXACTLY 3 POWERS (<span id="lobby-pick-count">0</span>/3)</div>
+      <div id="lobby-powers" class="lobby-powers"></div>
+    </div>
+    <div class="lobby-settings-wrap">
+      <div class="label settings-toggle" id="lobby-settings-label">MATCH SETTINGS <span id="lobby-settings-arrow">[SHOW]</span></div>
+      <div id="lobby-settings" class="lobby-settings hidden"></div>
+    </div>
+    <div class="lobby-actions">
+      <button id="btn-ready" class="btn btn-wide" disabled>READY</button>
+      <button id="btn-start" class="btn btn-accent btn-wide hidden" disabled>START</button>
+      <span id="lobby-wait" class="lobby-wait hidden">WAITING FOR HOST TO START</span>
+    </div>
+  </div>
+</div>
+
+<!-- GAME -->
+<div id="screen-game" class="screen hidden">
+  <div id="hud-top" class="hud-top">
+    <div class="stat"><span class="label">LIVES</span><span id="hud-lives" class="stat-val val-bad">150</span></div>
+    <div class="stat"><span class="label">CASH</span><span id="hud-cash" class="stat-val val-accent">$650</span></div>
+    <div class="stat"><span class="label">ECO</span><span id="hud-eco" class="stat-val val-good">200</span></div>
+    <div class="stat"><span class="label">ROUND</span><span id="hud-round" class="stat-val">0/45</span></div>
+    <div class="stat"><span class="label">NEXT</span><span id="hud-timer" class="stat-val">--</span></div>
+    <div class="hud-top-spacer"></div>
+    <div class="emote-wrap">
+      <button id="btn-emote" class="btn btn-sm">EMOTE</button>
+      <div id="hud-emotes" class="emote-grid hidden"></div>
+    </div>
+  </div>
+
+  <div id="canvas-wrap" class="canvas-wrap">
+    <canvas id="game" width="1280" height="720"></canvas>
+  </div>
+
+  <div id="hud-side" class="hud-side">
+    <div class="label side-label">PLAYERS (CLICK TO TARGET)</div>
+    <div id="hud-players" class="hud-players"></div>
+    <div id="hud-towercard" class="towercard hidden"></div>
+  </div>
+
+  <div id="hud-sendstrip" class="hud-sendstrip">
+    <span class="label strip-label">SEND</span>
+    <div class="send-count-toggle">
+      <button id="send-x1" class="btn btn-sm toggle-on">X1</button>
+      <button id="send-x10" class="btn btn-sm">X10</button>
+    </div>
+    <div id="hud-sends" class="hud-sends"></div>
+  </div>
+
+  <div id="hud-bottom" class="hud-bottom">
+    <div id="hud-towers" class="hud-towers"></div>
+    <div class="hud-bottom-div"></div>
+    <div id="hud-abilities" class="hud-abilities"></div>
+    <div class="hud-bottom-div"></div>
+    <div id="hud-powers" class="hud-powers"></div>
+  </div>
+
+</div>
+
+<div id="hud-toast" class="hud-toast hidden"></div>
+
+<!-- GAME OVER -->
+<div id="screen-gameover" class="screen hidden">
+  <div class="over-box">
+    <h2 id="over-result" class="over-result">GAME OVER</h2>
+    <div id="over-winner" class="over-winner"></div>
+    <table class="over-table">
+      <thead><tr><th>NAME</th><th>ROUNDS</th><th>POPPED</th></tr></thead>
+      <tbody id="over-stats"></tbody>
+    </table>
+    <button id="btn-back" class="btn btn-wide">BACK TO TITLE</button>
+  </div>
+</div>
+
+<script src="https://unpkg.com/peerjs@1.5.4/dist/peerjs.min.js"></script>
+<script type="module" src="js/main.js"></script>
+</body>
+</html>

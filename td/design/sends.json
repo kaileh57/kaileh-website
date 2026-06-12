@@ -1,0 +1,132 @@
+[
+  {
+    "id": "s_mites",
+    "enemy": "mite",
+    "name": "Mite Pack",
+    "count": 6,
+    "cost": 30,
+    "ecoDelta": 4,
+    "unlockRound": 1,
+    "desc": "Six Mites. Cheap chip damage and the best eco per dollar."
+  },
+  {
+    "id": "s_drones",
+    "enemy": "drone",
+    "name": "Drone Pair Pack",
+    "count": 4,
+    "cost": 60,
+    "ecoDelta": 6,
+    "unlockRound": 3,
+    "desc": "Four Drones. Solid early eco with a little more bite."
+  },
+  {
+    "id": "s_runners",
+    "enemy": "runner",
+    "name": "Runner Squad",
+    "count": 4,
+    "cost": 100,
+    "ecoDelta": 8,
+    "unlockRound": 6,
+    "desc": "Four Runners. Quick pressure that still pays you back."
+  },
+  {
+    "id": "s_bolts",
+    "enemy": "bolt",
+    "name": "Bolt Trio",
+    "count": 3,
+    "cost": 150,
+    "ecoDelta": 10,
+    "unlockRound": 8,
+    "desc": "Three Bolts. Fast enough to slip past sleepy defenses."
+  },
+  {
+    "id": "s_swarm",
+    "enemy": "swarmling",
+    "name": "Swarm Burst",
+    "count": 8,
+    "cost": 220,
+    "ecoDelta": 12,
+    "unlockRound": 11,
+    "desc": "Eight Swarmlings at full sprint. Punishes thin coverage."
+  },
+  {
+    "id": "s_ingots",
+    "enemy": "ingot",
+    "name": "Ingot Convoy",
+    "count": 3,
+    "cost": 350,
+    "ecoDelta": 14,
+    "unlockRound": 13,
+    "desc": "Three Ingots. Sharp-only defenses cannot touch them."
+  },
+  {
+    "id": "s_leeches",
+    "enemy": "leech",
+    "name": "Leech Cluster",
+    "count": 3,
+    "cost": 450,
+    "ecoDelta": 16,
+    "unlockRound": 15,
+    "desc": "Three Leeches. They heal through weak scattered fire."
+  },
+  {
+    "id": "s_aegis",
+    "enemy": "aegis",
+    "name": "Aegis Line",
+    "count": 3,
+    "cost": 500,
+    "ecoDelta": 16,
+    "unlockRound": 17,
+    "desc": "Three Aegis. Shields eat single big hits for breakfast."
+  },
+  {
+    "id": "s_phantoms",
+    "enemy": "phantom",
+    "name": "Phantom Cell",
+    "count": 3,
+    "cost": 600,
+    "ecoDelta": 18,
+    "unlockRound": 16,
+    "desc": "Three Phantoms. Invisible to anyone who skipped camo."
+  },
+  {
+    "id": "s_husks",
+    "enemy": "husk",
+    "name": "Husk Drop",
+    "count": 2,
+    "cost": 1200,
+    "ecoDelta": 20,
+    "unlockRound": 24,
+    "desc": "Two Husks. Heavy shells that burst into Bolts."
+  },
+  {
+    "id": "s_onyx",
+    "enemy": "onyx",
+    "name": "Onyx Hammer",
+    "count": 2,
+    "cost": 1800,
+    "ecoDelta": 15,
+    "unlockRound": 27,
+    "desc": "Two Onyx. Raw mass, mediocre eco, real pain."
+  },
+  {
+    "id": "s_colossus",
+    "enemy": "colossus",
+    "name": "Colossus Strike",
+    "count": 1,
+    "cost": 2500,
+    "ecoDelta": -30,
+    "unlockRound": 30,
+    "desc": "One Colossus. Costs you eco. Meant to end someone."
+  },
+  {
+    "id": "s_brood",
+    "enemy": "mb_splitter",
+    "name": "Unleash The Brood",
+    "count": 1,
+    "cost": 4000,
+    "ecoDelta": -100,
+    "unlockRound": 38,
+    "desc": "The Brood itself. A huge eco sacrifice for a finishing blow."
+  }
+]

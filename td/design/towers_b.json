@@ -1,0 +1,501 @@
+[
+  {
+    "id": "tesla",
+    "name": "Tesla Coil",
+    "cost": 350,
+    "desc": "Arcs of lightning chain between nearby enemies.",
+    "mode": "projectile",
+    "damageType": "energy",
+    "base": {
+      "range": 120,
+      "fireRate": 1.2,
+      "damage": 2,
+      "pierce": 1,
+      "projSpeed": 12,
+      "chain": { "jumps": 2, "range": 70 }
+    },
+    "visual": { "base": "circle", "color": "#6e8db3" },
+    "paths": [
+      {
+        "name": "High Voltage",
+        "upgrades": [
+          {
+            "name": "Copper Windings",
+            "cost": 180,
+            "desc": "Thicker windings: +2 damage per arc.",
+            "effects": { "dmgAdd": 2 },
+            "visualAdd": "coil"
+          },
+          {
+            "name": "Capacitor Bank",
+            "cost": 320,
+            "desc": "Capacitors cycle 50% faster between shots.",
+            "effects": { "rateMult": 1.5 },
+            "visualAdd": "drum"
+          },
+          {
+            "name": "Superconductor",
+            "cost": 900,
+            "desc": "+8 damage and arcs instantly blow out enemy shields.",
+            "effects": { "dmgAdd": 8, "stripShield": true },
+            "visualAdd": "core"
+          },
+          {
+            "name": "Tesla Prime",
+            "cost": 1700,
+            "desc": "+12 damage. Ability: Overdrive, this tower fires 3x faster for 20s.",
+            "effects": {
+              "dmgAdd": 12,
+              "abilitySet": {
+                "id": "overdrive",
+                "name": "Overdrive",
+                "desc": "This tower fires 3x faster for 20s",
+                "cooldown": 45
+              }
+            },
+            "visualAdd": "crown"
+          }
+        ]
+      },
+      {
+        "name": "Storm Grid",
+        "upgrades": [
+          {
+            "name": "Long Arcs",
+            "cost": 200,
+            "desc": "Arcs now jump to 4 targets within 90px.",
+            "effects": { "chainSet": { "jumps": 4, "range": 90 } },
+            "visualAdd": "fins"
+          },
+          {
+            "name": "Static Cling",
+            "cost": 340,
+            "desc": "Zapped enemies are slowed 25% for 0.8s.",
+            "effects": { "slowSet": { "mult": 0.75, "dur": 0.8 } },
+            "visualAdd": "ring"
+          },
+          {
+            "name": "Storm Lattice",
+            "cost": 950,
+            "desc": "7 arc jumps over 120px, +2 dmg; ionized air reveals camo.",
+            "effects": {
+              "chainSet": { "jumps": 7, "range": 120 },
+              "dmgAdd": 2,
+              "camoDetect": true
+            },
+            "visualAdd": "spikes"
+          },
+          {
+            "name": "Thunderhead",
+            "cost": 1500,
+            "desc": "10 jumps over 140px; every arc slows 45% for 1.5s, +4 dmg.",
+            "effects": {
+              "chainSet": { "jumps": 10, "range": 140 },
+              "slowSet": { "mult": 0.55, "dur": 1.5 },
+              "dmgAdd": 4
+            },
+            "visualAdd": "twin"
+          }
+        ]
+      }
+    ]
+  },
+  {
+    "id": "pyro",
+    "name": "Pyro",
+    "cost": 300,
+    "desc": "Sprays a cone of flame that roasts everything inside.",
+    "mode": "spray",
+    "damageType": "energy",
+    "base": {
+      "range": 90,
+      "fireRate": 6,
+      "damage": 0.35,
+      "pierce": 0
+    },
+    "visual": { "base": "square", "color": "#c0703f" },
+    "paths": [
+      {
+        "name": "Inferno",
+        "upgrades": [
+          {
+            "name": "Hotter Fuel",
+            "cost": 160,
+            "desc": "Refined fuel burns hotter: +0.25 damage per flame tick.",
+            "effects": { "dmgAdd": 0.25 },
+            "visualAdd": "tank"
+          },
+          {
+            "name": "Sticky Fire",
+            "cost": 300,
+            "desc": "Flames cling: enemies keep burning for 2 dps over 2s.",
+            "effects": { "burnSet": { "dps": 2, "dur": 2 } },
+            "visualAdd": "barrelWide"
+          },
+          {
+            "name": "Blue Flame",
+            "cost": 800,
+            "desc": "Blue heat: +0.6 dmg, burn rises to 5 dps for 3s, +15% range.",
+            "effects": {
+              "dmgAdd": 0.6,
+              "burnSet": { "dps": 5, "dur": 3 },
+              "rangeMult": 1.15
+            },
+            "visualAdd": "core"
+          },
+          {
+            "name": "Firestorm",
+            "cost": 1600,
+            "desc": "Ability: Meltdown, every enemy burns 30 dps for 10s. +0.8 dmg.",
+            "effects": {
+              "dmgAdd": 0.8,
+              "rateMult": 1.3,
+              "abilitySet": {
+                "id": "meltdown",
+                "name": "Meltdown",
+                "desc": "All enemies on screen burn for 30 dps over 10s",
+                "cooldown": 60
+              }
+            },
+            "visualAdd": "crown"
+          }
+        ]
+      },
+      {
+        "name": "Flash Burner",
+        "upgrades": [
+          {
+            "name": "Pressure Tank",
+            "cost": 180,
+            "desc": "Compressed propellant throws the cone 35% farther.",
+            "effects": { "rangeMult": 1.35 },
+            "visualAdd": "barrel2"
+          },
+          {
+            "name": "Flare Mix",
+            "cost": 320,
+            "desc": "Flare compound lights up camo; this tower can target camo.",
+            "effects": { "camoDetect": true, "dmgAdd": 0.15 },
+            "visualAdd": "fins"
+          },
+          {
+            "name": "Scouring Jet",
+            "cost": 850,
+            "desc": "Burns camo coating off enemies for good; sprays 40% faster.",
+            "effects": { "stripCamo": true, "rateMult": 1.4 },
+            "visualAdd": "blades"
+          },
+          {
+            "name": "Choke Smoke",
+            "cost": 1300,
+            "desc": "Thick smoke slows enemies 30% for 0.8s; +0.4 dmg, 3 dps burn.",
+            "effects": {
+              "slowSet": { "mult": 0.7, "dur": 0.8 },
+              "burnSet": { "dps": 3, "dur": 2 },
+              "dmgAdd": 0.4
+            },
+            "visualAdd": "spikes"
+          }
+        ]
+      }
+    ]
+  },
+  {
+    "id": "mortar",
+    "name": "Mortar",
+    "cost": 425,
+    "desc": "Slow long range shells that blast a wide area.",
+    "mode": "projectile",
+    "damageType": "blast",
+    "base": {
+      "range": 300,
+      "fireRate": 0.4,
+      "damage": 8,
+      "pierce": 1,
+      "projSpeed": 7,
+      "splash": 40
+    },
+    "visual": { "base": "hex", "color": "#8b8e79" },
+    "paths": [
+      {
+        "name": "Siege Battery",
+        "upgrades": [
+          {
+            "name": "Heavy Shells",
+            "cost": 240,
+            "desc": "Dense 14 damage shells for hardened targets.",
+            "effects": { "dmgAdd": 6 },
+            "visualAdd": "barrelWide"
+          },
+          {
+            "name": "Reinforced Charge",
+            "cost": 420,
+            "desc": "Bigger powder charge: shells now hit for 24.",
+            "effects": { "dmgAdd": 10 },
+            "visualAdd": "drum"
+          },
+          {
+            "name": "Shell Shock",
+            "cost": 1100,
+            "desc": "44 dmg concussion shells; survivors stagger at half speed for 1s.",
+            "effects": { "dmgAdd": 20, "slowSet": { "mult": 0.5, "dur": 1 } },
+            "visualAdd": "barrelLong"
+          },
+          {
+            "name": "Fire Mission",
+            "cost": 2000,
+            "desc": "Ability: Air Strike, 900 blast dmg split over all enemies. +30 dmg.",
+            "effects": {
+              "dmgAdd": 30,
+              "rateMult": 1.25,
+              "abilitySet": {
+                "id": "airstrike",
+                "name": "Air Strike",
+                "desc": "900 blast damage split across every enemy on screen",
+                "cooldown": 75
+              }
+            },
+            "visualAdd": "crown"
+          }
+        ]
+      },
+      {
+        "name": "Carpet Bomber",
+        "upgrades": [
+          {
+            "name": "Bigger Blast",
+            "cost": 220,
+            "desc": "Blast radius grows 50% to 60px.",
+            "effects": { "splashMult": 1.5 },
+            "visualAdd": "twin"
+          },
+          {
+            "name": "Rapid Reload",
+            "cost": 400,
+            "desc": "Autoloader drops shells 50% faster.",
+            "effects": { "rateMult": 1.5 },
+            "visualAdd": "drum"
+          },
+          {
+            "name": "Napalm Shells",
+            "cost": 1000,
+            "desc": "Shells ignite everything hit: 4 dps burn for 3s; +25% radius.",
+            "effects": {
+              "burnSet": { "dps": 4, "dur": 3 },
+              "splashMult": 1.25
+            },
+            "visualAdd": "tank"
+          },
+          {
+            "name": "Cluster Barrage",
+            "cost": 1900,
+            "desc": "Each volley lobs 3 shells in a 12 degree spread; +4 dmg.",
+            "effects": {
+              "multishotSet": { "count": 3, "spreadDeg": 12 },
+              "dmgAdd": 4
+            },
+            "visualAdd": "barrel2"
+          }
+        ]
+      }
+    ]
+  },
+  {
+    "id": "beacon",
+    "name": "Beacon",
+    "cost": 400,
+    "desc": "Buffs nearby towers; never attacks on its own.",
+    "mode": "support",
+    "damageType": "energy",
+    "base": {
+      "range": 130,
+      "fireRate": 0,
+      "damage": 0,
+      "pierce": 0,
+      "aura": { "rateMult": 1.15 }
+    },
+    "visual": { "base": "diamond", "color": "#c9a85c" },
+    "paths": [
+      {
+        "name": "War Banner",
+        "upgrades": [
+          {
+            "name": "Drill Sergeant",
+            "cost": 250,
+            "desc": "Aura now grants +20% fire rate and +10% range.",
+            "effects": { "auraSet": { "rateMult": 1.2, "rangeMult": 1.1 } },
+            "visualAdd": "dish"
+          },
+          {
+            "name": "Targeting Array",
+            "cost": 450,
+            "desc": "Dish relays target data: aura gives +25% rate, +20% range.",
+            "effects": { "auraSet": { "rateMult": 1.25, "rangeMult": 1.2 } },
+            "visualAdd": "scope"
+          },
+          {
+            "name": "Arsenal",
+            "cost": 1000,
+            "desc": "Armory issues hot loads: towers in range gain +2 damage per shot.",
+            "effects": {
+              "auraSet": { "rateMult": 1.3, "rangeMult": 1.2, "dmgAdd": 2 }
+            },
+            "visualAdd": "ring"
+          },
+          {
+            "name": "Battle Standard",
+            "cost": 1800,
+            "desc": "Ability: Battle Cry, every tower fires 5x for 8s. Aura +40% rate.",
+            "effects": {
+              "auraSet": { "rateMult": 1.4, "rangeMult": 1.25, "dmgAdd": 3 },
+              "abilitySet": {
+                "id": "barrage",
+                "name": "Battle Cry",
+                "desc": "Every tower on the board fires 5x for 8s",
+                "cooldown": 70
+              }
+            },
+            "visualAdd": "crown"
+          }
+        ]
+      },
+      {
+        "name": "Trade Post",
+        "upgrades": [
+          {
+            "name": "Supply Crates",
+            "cost": 300,
+            "desc": "Sells surplus supplies: +$20 every 6s.",
+            "effects": { "incomeSet": { "amount": 20, "interval": 6 } },
+            "visualAdd": "tank"
+          },
+          {
+            "name": "Marketplace",
+            "cost": 550,
+            "desc": "A small bazaar forms: income rises to $45 every 6s.",
+            "effects": { "incomeSet": { "amount": 45, "interval": 6 } },
+            "visualAdd": "core"
+          },
+          {
+            "name": "Mint",
+            "cost": 1200,
+            "desc": "Stamps coin on site: income rises to $110 every 6s.",
+            "effects": { "incomeSet": { "amount": 110, "interval": 6 } },
+            "visualAdd": "drum"
+          },
+          {
+            "name": "Royal Treasury",
+            "cost": 2200,
+            "desc": "$230 per 6s. Ability: Jackpot, income towers pay 5 ticks at once.",
+            "effects": {
+              "incomeSet": { "amount": 230, "interval": 6 },
+              "abilitySet": {
+                "id": "jackpot",
+                "name": "Jackpot",
+                "desc": "All income towers instantly pay 5 ticks of income",
+                "cooldown": 60
+              }
+            },
+            "visualAdd": "crown"
+          }
+        ]
+      }
+    ]
+  },
+  {
+    "id": "alchemist",
+    "name": "Alchemist",
+    "cost": 320,
+    "desc": "Toxic pulses that can strip shields and camo.",
+    "mode": "pulse",
+    "damageType": "toxic",
+    "base": {
+      "range": 100,
+      "fireRate": 1,
+      "damage": 2,
+      "pierce": 0
+    },
+    "visual": { "base": "circle", "color": "#7fa05f" },
+    "paths": [
+      {
+        "name": "Plague Doctor",
+        "upgrades": [
+          {
+            "name": "Strong Acid",
+            "cost": 180,
+            "desc": "Concentrated acid: pulse damage rises to 4.",
+            "effects": { "dmgAdd": 2 },
+            "visualAdd": "tank"
+          },
+          {
+            "name": "Lingering Rot",
+            "cost": 350,
+            "desc": "Pulsed enemies keep rotting for 3 dps over 2s.",
+            "effects": { "burnSet": { "dps": 3, "dur": 2 } },
+            "visualAdd": "ring"
+          },
+          {
+            "name": "Nerve Agent",
+            "cost": 850,
+            "desc": "Numbing toxin: +3 dmg, enemies move 25% slower for 1.5s.",
+            "effects": { "dmgAdd": 3, "slowSet": { "mult": 0.75, "dur": 1.5 } },
+            "visualAdd": "spikes"
+          },
+          {
+            "name": "Plague Engine",
+            "cost": 1700,
+            "desc": "Endless plague: 10 dps rot for 4s, +5 dmg, pulses 30% faster.",
+            "effects": {
+              "dmgAdd": 5,
+              "burnSet": { "dps": 10, "dur": 4 },
+              "rateMult": 1.3
+            },
+            "visualAdd": "core"
+          }
+        ]
+      },
+      {
+        "name": "Transmuter",
+        "upgrades": [
+          {
+            "name": "Solvent Spray",
+            "cost": 200,
+            "desc": "Solvent dissolves camo coating; reveals them for every tower.",
+            "effects": { "stripCamo": true, "camoDetect": true },
+            "visualAdd": "dish"
+          },
+          {
+            "name": "Shield Breaker",
+            "cost": 420,
+            "desc": "Acid pulse shatters whole shields instead of chipping them.",
+            "effects": { "stripShield": true },
+            "visualAdd": "blades"
+          },
+          {
+            "name": "Transmute",
+            "cost": 900,
+            "desc": "Lead into gold: +$2 for each enemy this tower pops; +2 dmg.",
+            "effects": { "moneyPerPop": 2, "dmgAdd": 2 },
+            "visualAdd": "drum"
+          },
+          {
+            "name": "Midas Vat",
+            "cost": 1600,
+            "desc": "$5 per pop. Ability: Transmute Gold, conjure $1500 instantly.",
+            "effects": {
+              "moneyPerPop": 5,
+              "rangeMult": 1.25,
+              "abilitySet": {
+                "id": "cashdrop",
+                "name": "Transmute Gold",
+                "desc": "Conjure $1500 instantly",
+                "cooldown": 90
+              }
+            },
+            "visualAdd": "crown"
+          }
+        ]
+      }
+    ]
+  }
+]
