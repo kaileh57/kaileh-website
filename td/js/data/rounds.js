@@ -395,12 +395,14 @@ export function scaleRound(n) {
   }
   const k = n - 45;
   const template = templates[(n - 46) % templates.length];
-  const hpMult = Math.pow(1.18, k);
+  // Brutal overtime: hp ~1.5x per round compounding, so the swarm becomes
+  // unkillable within a handful of rounds past the handcrafted content.
+  const hpMult = Math.pow(1.5, k);
 
-  // Count growth: steady through 46-55, runaway after 55. Capped per group so a
-  // single round can never spawn an absurd number of entities and stall the sim.
-  let countMult = 1 + k * 0.08;
-  if (n > 55) countMult += (n - 55) * 0.2;
+  // Count growth ramps hard too. Capped per group so a single round can never
+  // spawn an absurd number of entities and stall the sim.
+  let countMult = 1 + k * 0.25;
+  if (n > 50) countMult += (n - 50) * 0.4;
 
   const groups = template.groups.map((g) => ({
     enemy: g.enemy,

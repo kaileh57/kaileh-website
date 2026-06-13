@@ -18,16 +18,24 @@ const BOARD_H = 720;
 const PLACE_MARGIN = 16;
 const TOWER_FOOTPRINT = 28;
 const PATH_CLEARANCE = 14;
-const START_CASH = 650;
+const START_CASH = 600;
 const START_LIVES = 150;
-const START_ECO = 200;
+const START_ECO = 150;
 const SELL_RATIO = 0.7;
+// Passive eco pays eco/ECO_DIVISOR dollars per second. Higher = slower money.
+const ECO_DIVISOR = 13;
+// Handcrafted rounds get a compounding hp ramp so the mid-late game has teeth:
+// hp *= 1 + ROUND_HP_RAMP * max(0, round - ROUND_HP_RAMP_FROM).
+const ROUND_HP_RAMP = 0.06;
+const ROUND_HP_RAMP_FROM = 8;
+// Towers can only see/shoot this far while their owner is blacked out.
+const BLACKOUT_VISION = 105;
 
 // Host-tweakable match settings (lobby), all optional.
 const DEFAULT_SETTINGS = {
   startCash: START_CASH, startLives: START_LIVES, startEco: START_ECO,
   ecoMult: 1, enemyHpMult: 1, enemySpeedMult: 1,
-  towerCostMult: 1, sendCostMult: 1, bountyMult: 1, roundBonusMult: 1,
+  towerCostMult: 1, upgradeCostMult: 0.85, sendCostMult: 1, bountyMult: 1, roundBonusMult: 1,
   powerCdMult: 1, powerUsesMult: 1, abilityCdMult: 1,
   startRound: 1, roundCap: 75, sellRefundPct: 70,
 };
@@ -260,7 +268,9 @@ export class Sim {
     const path = tower.def.paths[pathIdx];
     const up = (path.upgrades || path)[tier];
     if (!up) return false;
-    const cost = Math.round(up.cost * this.cfg.towerCostMult);
+    // upgrades use a separate (cheaper) multiplier so upgrading beats spamming
+    // new towers
+    const cost = Math.round(up.cost * this.cfg.towerCostMult * this.cfg.upgradeCostMult);
     if (this.state.cash < cost) return false;
     this.state.cash -= cost;
     tower.spent += cost;
@@ -414,6 +424,7 @@ export class Sim {
       visualTokens: [],
       spent: def.cost,
       targeting: 'first',
+      aim: -Math.PI / 2,
       nextShot: 0,
       incomeTimer: 0,
       pops: 0,
@@ -458,7 +469,11 @@ export class Sim {
   }
 
   _effRange(t) {
-    return t.range * t.buff.rangeMult;
+    const r = t.range * t.buff.rangeMult;
+    // while blacked out a tower can only see/shoot what is close to it, so even
+    // an unlimited-range sniper is blinded
+    if (this.state.time < this.state.blackoutUntil) return Math.min(r, BLACKOUT_VISION);
+    return r;
   }
 
   _effRate(t) {
@@ -587,6 +602,7 @@ export class Sim {
     const target = this._pickTarget(t, this._enemiesInRange(t, this._effRange(t)));
     if (!target) return false;
     const baseAngle = Math.atan2(target.y - t.y, target.x - t.x);
+    t.aim = baseAngle;
     const shots = [];
     if (t.multishot && t.multishot.count > 1) {
       const n = t.multishot.count;
@@ -619,6 +635,7 @@ export class Sim {
   _fireBeam(t) {
     const target = this._pickTarget(t, this._enemiesInRange(t, this._effRange(t)));
     if (!target) return false;
+    t.aim = Math.atan2(target.y - t.y, target.x - t.x);
     this._hitEnemy(t, target, this._effDmg(t));
     this._pushEffect('beam', t.x, t.y, { x2: target.x, y2: target.y }, 0.08);
     return true;
@@ -638,6 +655,7 @@ export class Sim {
     const target = this._pickTarget(t, this._enemiesInRange(t, range));
     if (!target) return false;
     const aim = Math.atan2(target.y - t.y, target.x - t.x);
+    t.aim = aim;
     const half = ((t.coneDeg / 2) * Math.PI) / 180;
     const dmg = this._effDmg(t);
     for (const e of this._enemiesInRange(t, range)) {
@@ -806,13 +824,13 @@ export class Sim {
     if (e.def.child && ENEMY_BY_ID[e.def.child]) {
       const n = e.def.childCount != null ? e.def.childCount : 1;
       for (let i = 0; i < n; i++) {
-        this._spawnEnemy(e.def.child, Math.max(0, e.dist - i * 8), { camo: e.camo });
+        this._spawnEnemy(e.def.child, Math.max(0, e.dist - i * 8), { camo: e.camo, sent: e.sent });
       }
     }
     const split = e.def.traits && e.def.traits.split;
     if (split && split.id && ENEMY_BY_ID[split.id]) {
       for (let i = 0; i < (split.count || 1); i++) {
-        this._spawnEnemy(split.id, Math.max(0, e.dist - i * 8));
+        this._spawnEnemy(split.id, Math.max(0, e.dist - i * 8), { sent: e.sent });
       }
     }
   }
@@ -826,7 +844,9 @@ export class Sim {
     if (!def) return null;
     const traits = def.traits || {};
     const pos = this.path.posAt(dist);
-    const hpMult = (this._roundHpMult || 1) * this.cfg.enemyHpMult;
+    // compounding per-round ramp gives mid-late handcrafted rounds real threat
+    const ramp = overrides.sent ? 1 : (1 + ROUND_HP_RAMP * Math.max(0, this.state.round - ROUND_HP_RAMP_FROM));
+    const hpMult = (this._roundHpMult || 1) * this.cfg.enemyHpMult * ramp;
     const hp = Math.max(1, Math.round((def.hp != null ? def.hp : 1) * hpMult));
     const e = {
       uid: this._nextUid++,
@@ -847,6 +867,7 @@ export class Sim {
       shape: def.shape,
       tier: def.tier,
       camo: overrides.camo != null ? overrides.camo : !!traits.camo,
+      sent: !!overrides.sent, // enemy sent by an opponent (does not gate round end)
       shield: traits.shield || 0,
       regen: traits.regen || 0,
       immune: traits.immune || [],
@@ -971,7 +992,7 @@ export class Sim {
     }
     if (this._schedule.length === 0) this._scheduleDone = true;
     while (s.incoming.length > 0 && s.incoming[0].at <= s.time) {
-      this._spawnEnemy(s.incoming.shift().enemyId, 0);
+      this._spawnEnemy(s.incoming.shift().enemyId, 0, { sent: true });
     }
   }
 
@@ -980,7 +1001,7 @@ export class Sim {
     this._ecoTimer += dt;
     while (this._ecoTimer >= 1) {
       this._ecoTimer -= 1;
-      let gain = (s.eco / 6) * this.cfg.ecoMult;
+      let gain = (s.eco / ECO_DIVISOR) * this.cfg.ecoMult;
       if (s.time < s.surplusUntil) gain *= s.surplusMult;
       if (s.time < s.ecoLeechUntil) gain *= 1 - s.ecoLeechPct;
       this._addCash(gain);
@@ -991,10 +1012,13 @@ export class Sim {
     const s = this.state;
     if (!s.roundActive) return;
     if (!this._scheduleDone) return;
-    if (s.incoming.length > 0) return;
-    if (s.enemies.length > 0) return;
+    // a round ends once the NATURAL (round-spawned) enemies are cleared. Units
+    // sent by opponents, and any still queued to arrive, do not hold it open.
+    for (let i = 0; i < s.enemies.length; i++) {
+      if (!s.enemies[i].dead && !s.enemies[i].sent) return;
+    }
     s.roundActive = false;
-    this._addCash(Math.round((80 + 12 * s.round) * this.cfg.roundBonusMult));
+    this._addCash(Math.round((35 + 5 * s.round) * this.cfg.roundBonusMult));
     this.onRoundEnd(s.round);
   }
 

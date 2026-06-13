@@ -378,8 +378,8 @@ export default [
     "damageType": "sharp",
     "base": {
       "range": 9000,
-      "fireRate": 0.4,
-      "damage": 6,
+      "fireRate": 0.35,
+      "damage": 4,
       "pierce": 1
     },
     "visual": {
@@ -393,18 +393,18 @@ export default [
           {
             "name": ".50 Caliber",
             "cost": 340,
-            "desc": "Heavy rounds deal 14 damage per shot",
+            "desc": "Heavy rounds deal 9 damage per shot",
             "effects": {
-              "dmgAdd": 8
+              "dmgAdd": 5
             },
             "visualAdd": "barrelLong"
           },
           {
             "name": "Full Metal Jacket",
             "cost": 300,
-            "desc": "+4 dmg (18 total) and shots punch through lead",
+            "desc": "+3 dmg (12 total) and shots punch through lead",
             "effects": {
-              "dmgAdd": 4,
+              "dmgAdd": 3,
               "leadPop": true
             },
             "visualAdd": "core"
@@ -412,9 +412,9 @@ export default [
           {
             "name": "Penetrator Rounds",
             "cost": 700,
-            "desc": "+8 dmg; each bullet drills through 3 enemies in a line",
+            "desc": "+5 dmg; each bullet drills through 3 enemies in a line",
             "effects": {
-              "dmgAdd": 8,
+              "dmgAdd": 5,
               "pierceAdd": 2
             },
             "visualAdd": "fins"
@@ -422,9 +422,9 @@ export default [
           {
             "name": "One Shot Protocol",
             "cost": 2200,
-            "desc": "50 dmg. Ability: execute strongest enemy, bosses take 500",
+            "desc": "26 dmg. Ability: execute strongest enemy, bosses take 500",
             "effects": {
-              "dmgAdd": 24,
+              "dmgAdd": 14,
               "abilitySet": {
                 "id": "headshot",
                 "name": "Headshot",
@@ -451,9 +451,9 @@ export default [
           {
             "name": "Rapid Cycling",
             "cost": 380,
-            "desc": "Practiced bolt work fires 60% faster",
+            "desc": "Practiced bolt work fires 40% faster",
             "effects": {
-              "rateMult": 1.6
+              "rateMult": 1.4
             },
             "visualAdd": "drum"
           },
@@ -470,10 +470,10 @@ export default [
           {
             "name": "Overwatch Protocol",
             "cost": 1400,
-            "desc": "70% faster, +6 dmg, every hit tears a shield layer off",
+            "desc": "40% faster, +4 dmg, every hit tears a shield layer off",
             "effects": {
-              "rateMult": 1.7,
-              "dmgAdd": 6,
+              "rateMult": 1.4,
+              "dmgAdd": 4,
               "stripShield": true
             },
             "visualAdd": "dish"

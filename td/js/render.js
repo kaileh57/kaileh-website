@@ -622,6 +622,18 @@ export class Renderer {
       }
     }
 
+    // all tower ranges (faint) ----------------------------------------------
+    for (let i = 0; i < towers.length; i++) {
+      const t = towers[i];
+      if (t === (ui && ui.selected)) continue; // selected drawn brighter below
+      const range = t.range || (t.def && t.def.range) || 0;
+      if (range > 0 && range < 9000) {
+        ctx.strokeStyle = 'rgba(230,232,235,0.10)';
+        ctx.lineWidth = 1;
+        ctx.beginPath(); ctx.arc(t.x, t.y, range, 0, TAU); ctx.stroke();
+      }
+    }
+
     // selected tower range --------------------------------------------------
     if (ui && ui.selected) {
       const t = ui.selected;
@@ -664,7 +676,7 @@ export class Renderer {
       octx.fillStyle = '#fff';
       for (let i = 0; i < towers.length; i++) {
         octx.beginPath();
-        octx.arc(towers[i].x, towers[i].y, 90, 0, TAU);
+        octx.arc(towers[i].x, towers[i].y, 105, 0, TAU);
         octx.fill();
       }
       octx.globalCompositeOperation = 'source-over';

@@ -491,7 +491,16 @@ function buildPathCol(tw, def, tiers, i, cash) {
   col.className = 'tc-path';
   const other = 1 - i;
   const myTier = tiers[i];
-  const ups = (def.paths && def.paths[i]) || [];
+  const path = (def.paths && def.paths[i]) || {};
+  const ups = path.upgrades || path || [];
+
+  // path column header so players can tell the two paths apart
+  if (path.name) {
+    const hd = document.createElement('div');
+    hd.className = 'up-path-name';
+    hd.textContent = path.name;
+    col.appendChild(hd);
+  }
 
   if (myTier >= ups.length || myTier >= 4) {
     const done = document.createElement('div');

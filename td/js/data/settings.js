@@ -1,12 +1,13 @@
 // Host-tweakable match settings. Ranges go to absurd values on purpose.
 const SETTINGS = [
-  { key: 'startCash', label: 'START CASH', def: 650, min: 0, max: 10000000, step: 50 },
+  { key: 'startCash', label: 'START CASH', def: 600, min: 0, max: 10000000, step: 50 },
   { key: 'startLives', label: 'START LIVES', def: 150, min: 1, max: 10000000, step: 10 },
-  { key: 'startEco', label: 'START ECO', def: 200, min: 0, max: 1000000, step: 25 },
+  { key: 'startEco', label: 'START ECO', def: 150, min: 0, max: 1000000, step: 25 },
   { key: 'ecoMult', label: 'ECO PAYOUT X', def: 1, min: 0, max: 1000, step: 0.1 },
   { key: 'enemyHpMult', label: 'ENEMY HP X', def: 1, min: 0.1, max: 1000, step: 0.1 },
   { key: 'enemySpeedMult', label: 'ENEMY SPEED X', def: 1, min: 0.1, max: 50, step: 0.1 },
   { key: 'towerCostMult', label: 'TOWER COST X', def: 1, min: 0, max: 100, step: 0.1 },
+  { key: 'upgradeCostMult', label: 'UPGRADE COST X', def: 0.85, min: 0, max: 100, step: 0.05 },
   { key: 'sendCostMult', label: 'SEND COST X', def: 1, min: 0, max: 100, step: 0.1 },
   { key: 'bountyMult', label: 'POP BOUNTY X', def: 1, min: 0, max: 1000, step: 0.1 },
   { key: 'roundBonusMult', label: 'ROUND BONUS X', def: 1, min: 0, max: 1000, step: 0.1 },
