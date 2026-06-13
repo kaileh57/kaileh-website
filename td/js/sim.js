@@ -1012,11 +1012,10 @@ export class Sim {
     const s = this.state;
     if (!s.roundActive) return;
     if (!this._scheduleDone) return;
-    // a round ends once the NATURAL (round-spawned) enemies are cleared. Units
-    // sent by opponents, and any still queued to arrive, do not hold it open.
-    for (let i = 0; i < s.enemies.length; i++) {
-      if (!s.enemies[i].dead && !s.enemies[i].sent) return;
-    }
+    // BTD-Battles cadence: a round is "done" the moment it FINISHES SPAWNING.
+    // Enemies are not waited on; they keep walking and pile up across rounds if
+    // the player cannot clear them. The caller schedules the next round a few
+    // seconds later.
     s.roundActive = false;
     this._addCash(Math.round((35 + 5 * s.round) * this.cfg.roundBonusMult));
     this.onRoundEnd(s.round);

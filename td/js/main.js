@@ -15,8 +15,8 @@ import { initHud, updateHud, setSelected, flashMsg, showEmote } from './ui/hud.j
 import { initGameOver, showGameOver } from './ui/gameover.js';
 
 const PLAYER_COLORS = ['#e2b714', '#60a5fa', '#4ade80', '#ef4444', '#c084fc', '#fb923c', '#2dd4bf', '#f472b6', '#a3e635', '#94a3b8', '#f87171', '#38bdf8'];
-const ROUND_GAP = 4;            // s between all-done and next round
-const ROUND_CAP = 75;           // s max round duration before forced advance
+const ROUND_GAP = 3;            // s after a round finishes spawning before the next begins
+const ROUND_CAP = 75;           // s safety cap on a single round's spawn window
 const TICK = 1 / 30;
 
 const screens = {};
@@ -198,9 +198,6 @@ function handleCommon(msg, fromId) {
         startGame(msg.mapId, msg.players, msg.settings);
       }
       break;
-    case 'roundStart':
-      if (game && !game.over) beginRound(msg.n);
-      break;
     case 'sendUnits': {
       if (!game) break;
       const from = game.roster.find(r => r.id === fromId);
@@ -224,17 +221,6 @@ function handleCommon(msg, fromId) {
       if (!game) break;
       const r = game.roster.find(x => x.id === fromId);
       if (r) { r.lives = msg.lives; r.cash = msg.cash; r.eco = msg.eco; r.round = msg.round; if (msg.popped != null) r.popped = msg.popped; }
-      break;
-    }
-    case 'roundDone': {
-      if (game) {
-        game.roundDone.add(fromId);
-        maybeScheduleNextRound();
-      }
-      break;
-    }
-    case 'nextRound': {
-      if (game) game.nextRoundAt = performance.now() + (msg.inMs || 4000);
       break;
     }
     case 'busy': {
@@ -288,11 +274,13 @@ function startGame(mapId, players, settings) {
     onLeak: () => {},
     onPop: () => {},
     onCash: () => {},
-    onRoundEnd: (n) => {
+    onRoundEnd: () => {
+      // independent rounds: my own board advances a set time after MY natural
+      // enemies clear, regardless of what other players are doing
       game.roundActive = false;
-      game.roundDone.add(myId());
-      net.broadcast({ t: 'roundDone', n });
-      maybeScheduleNextRound();
+      if (!game.dead && !game.over && !game.nextRoundAt) {
+        game.nextRoundAt = performance.now() + ROUND_GAP * 1000;
+      }
     },
     onDefeat: () => {
       game.dead = true;
@@ -308,8 +296,7 @@ function startGame(mapId, players, settings) {
     sim, mapDef, cfg,
     renderer: new Renderer(canvas, mapDef),
     roster: players.map(p => ({ ...p, me: p.id === myId(), lives: cfg.startLives, cash: cfg.startCash, eco: cfg.startEco, round: 0, popped: 0, dead: false })),
-    clockOwner: lobby.hostId,
-    round: 0, roundActive: false, roundDone: new Set(), nextRoundAt: 0, roundStartedAt: 0,
+    round: 0, roundActive: false, nextRoundAt: 0, roundStartedAt: 0,
     target: null,          // peer id I am sending to
     placing: null,         // towerDef being placed
     selected: null,        // selected tower
@@ -357,12 +344,9 @@ function startGame(mapId, players, settings) {
   const firstRound = Math.max(1, Math.round(cfg.startRound));
   flashMsg('Round ' + firstRound + ' in 3s');
 
-  // countdown then clock owner starts the first round
+  // countdown, then every player starts their own first round locally
   setTimeout(() => {
-    if (game && game.clockOwner === myId() && !game.over) {
-      net.broadcast({ t: 'roundStart', n: firstRound });
-      beginRound(firstRound);
-    }
+    if (game && !game.over) beginRound(firstRound);
   }, 3000);
 
   requestAnimationFrame(loop);
@@ -404,21 +388,10 @@ function usePower(powerId) {
   ps.readyAt = performance.now() + ps.def.cooldown * 1000 * game.cfg.powerCdMult;
 }
 
-// round clock (runs on clock owner only)
-function maybeScheduleNextRound() {
-  if (game.clockOwner !== myId() || game.over) return;
-  const alive = game.roster.filter(r => !r.dead).map(r => r.id);
-  const allDone = alive.every(id => game.roundDone.has(id));
-  if (allDone && !game.nextRoundAt) {
-    game.nextRoundAt = performance.now() + ROUND_GAP * 1000;
-    net.broadcast({ t: 'nextRound', inMs: ROUND_GAP * 1000 });
-  }
-}
-
+// each player runs their own round clock; rounds are independent per board
 function beginRound(n) {
   game.round = n;
   game.roundActive = true;
-  game.roundDone = new Set();
   game.nextRoundAt = 0;
   game.roundStartedAt = performance.now();
   if (!game.dead) game.sim.startRound(n);
@@ -427,21 +400,11 @@ function beginRound(n) {
 function checkGameOver() {
   const alive = game.roster.filter(r => !r.dead);
   if (alive.length === 1 && game.roster.length > 1) {
-    if (game.clockOwner === myId() || (game.dead && alive[0].id === myId())) {
-      net.broadcast({ t: 'gameOver', winnerId: alive[0].id });
-    }
+    // whoever notices first announces it; everyone converges on the same winner
+    net.broadcast({ t: 'gameOver', winnerId: alive[0].id });
     endGame(alive[0].id);
   } else if (alive.length === 0) {
     endGame(null);
-  }
-  // clock owner died or left: migrate clock to oldest alive peer
-  if (game.roster.find(r => r.id === game.clockOwner && r.dead)) {
-    const order = net.peers();
-    const next = order.find(id => { const r = game.roster.find(x => x.id === id); return r && !r.dead; });
-    if (next && next !== game.clockOwner) {
-      game.clockOwner = next;
-      if (next === myId()) maybeScheduleNextRound();
-    }
   }
 }
 
@@ -472,16 +435,13 @@ function loop(t) {
     game.acc -= TICK;
   }
 
-  // clock owner: forced round advance + scheduled next round
-  if (game.clockOwner === myId() && !game.over) {
+  // my own round clock: advance after the gap once my board cleared, with a
+  // safety cap so a single unkillable straggler cannot freeze my run forever
+  if (!game.dead && !game.over) {
     if (game.nextRoundAt && now >= game.nextRoundAt) {
-      const n = game.round + 1;
-      net.broadcast({ t: 'roundStart', n });
-      beginRound(n);
+      beginRound(game.round + 1);
     } else if (game.roundActive && now - game.roundStartedAt > game.cfg.roundCap * 1000) {
-      const n = game.round + 1;
-      net.broadcast({ t: 'roundStart', n });
-      beginRound(n);
+      beginRound(game.round + 1);
     }
   }
 

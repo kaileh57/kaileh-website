@@ -122,13 +122,19 @@ function runGame({ build, throughRound }) {
     for (const pi of b.ups || []) sim.upgrade(t, pi);
   }
   sim.state.cash = 650;
+  const GAP = 3; // seconds between a round finishing spawning and the next
   for (let n = 1; n <= throughRound && !defeated; n++) {
     ended = -1;
     sim.startRound(n);
     let ticks = 0;
-    while (ended !== n && !defeated && ticks < 30 * 180) { sim.tick(1 / 30); ticks++; }
-    if (ended !== n && !defeated) { console.error('FAIL: round ' + n + ' never ended (stuck sim)'); fails++; break; }
+    // run until the round finishes SPAWNING (BTD cadence), then a gap during
+    // which enemies keep walking and may leak
+    while (ended !== n && !defeated && ticks < 30 * 120) { sim.tick(1 / 30); ticks++; }
+    if (ended !== n && !defeated) { console.error('FAIL: round ' + n + ' never finished spawning'); fails++; break; }
+    for (let i = 0; i < GAP * 30 && !defeated; i++) sim.tick(1 / 30);
   }
+  // let the board resolve: stragglers either die or leak
+  for (let i = 0; i < 30 * 40 && !defeated; i++) sim.tick(1 / 30);
   return { defeated, lives: sim.state.lives };
 }
 
