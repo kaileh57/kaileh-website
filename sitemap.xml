@@ -16,31 +16,37 @@
 
     <!-- Blog Posts -->
     <url>
+        <loc>https://kaileh.dev/blog/posts/fable-mythos-warning-unheeded.html</loc>
+        <lastmod>2026-06-26</lastmod>
+        <changefreq>monthly</changefreq>
+        <priority>0.8</priority>
+    </url>
+    <url>
         <loc>https://kaileh.dev/blog/posts/openclaw-opus-46.html</loc>
         <lastmod>2026-02-08</lastmod>
         <changefreq>monthly</changefreq>
         <priority>0.8</priority>
     </url>
     <url>
-        <loc>https://kaileh.dev/blog/posts/genesis-and-the-shape-of-acceleration.html</loc>
+        <loc>https://kaileh.dev/blog/posts/genesis-mission-accelerating-pace.html</loc>
         <lastmod>2025-11-25</lastmod>
         <changefreq>monthly</changefreq>
         <priority>0.8</priority>
     </url>
     <url>
-        <loc>https://kaileh.dev/blog/posts/the-model-that-knew-it-was-watched.html</loc>
+        <loc>https://kaileh.dev/blog/posts/the-mind-that-knew-it-was-observed.html</loc>
         <lastmod>2025-10-12</lastmod>
         <changefreq>monthly</changefreq>
         <priority>0.8</priority>
     </url>
     <url>
-        <loc>https://kaileh.dev/blog/posts/gpt5-disaster.html</loc>
+        <loc>https://kaileh.dev/blog/posts/gpt5-fiasco.html</loc>
         <lastmod>2025-08-08</lastmod>
         <changefreq>monthly</changefreq>
         <priority>0.8</priority>
     </url>
     <url>
-        <loc>https://kaileh.dev/blog/posts/ai-speed-revolution-mercury-coder.html</loc>
+        <loc>https://kaileh.dev/blog/posts/ai-velocity-surge-mercury.html</loc>
         <lastmod>2025-07-09</lastmod>
         <changefreq>monthly</changefreq>
         <priority>0.8</priority>
@@ -70,7 +76,7 @@
         <priority>0.7</priority>
     </url>
     <url>
-        <loc>https://kaileh.dev/blog/posts/ai-learned-to-lie.html</loc>
+        <loc>https://kaileh.dev/blog/posts/when-ai-learned-to-deceive.html</loc>
         <lastmod>2025-04-14</lastmod>
         <changefreq>monthly</changefreq>
         <priority>0.8</priority>
@@ -130,7 +136,7 @@
         <priority>0.7</priority>
     </url>
     <url>
-        <loc>https://kaileh.dev/blog/posts/50-dollar-ai-revolution.html</loc>
+        <loc>https://kaileh.dev/blog/posts/50-dollar-ai-uprising.html</loc>
         <lastmod>2025-02-10</lastmod>
         <changefreq>monthly</changefreq>
         <priority>0.8</priority>
@@ -148,7 +154,7 @@
         <priority>0.7</priority>
     </url>
     <url>
-        <loc>https://kaileh.dev/blog/posts/chain-of-thought-revolution.html</loc>
+        <loc>https://kaileh.dev/blog/posts/the-quiet-revolution-thinking-out-loud.html</loc>
         <lastmod>2025-01-30</lastmod>
         <changefreq>monthly</changefreq>
         <priority>0.8</priority>
@@ -178,7 +184,7 @@
         <priority>0.7</priority>
     </url>
     <url>
-        <loc>https://kaileh.dev/blog/posts/ai-arms-race-nuclear.html</loc>
+        <loc>https://kaileh.dev/blog/posts/o3-arc-score-thermonuclear.html</loc>
         <lastmod>2024-12-23</lastmod>
         <changefreq>monthly</changefreq>
         <priority>0.8</priority>
@@ -212,5 +218,17 @@
         <loc>https://kaileh.dev/falling/</loc>
         <changefreq>yearly</changefreq>
         <priority>0.3</priority>
+    </url>
+    <url>
+        <loc>https://kaileh.dev/blog/posts/openai-agi-four-months.html</loc>
+        <lastmod>2026-09-01</lastmod>
+        <changefreq>monthly</changefreq>
+        <priority>0.8</priority>
+    </url>
+    <url>
+        <loc>https://kaileh.dev/blog/posts/the-discovery-loop.html</loc>
+        <lastmod>2026-08-05</lastmod>
+        <changefreq>monthly</changefreq>
+        <priority>0.8</priority>
     </url>
 </urlset>
