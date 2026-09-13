@@ -1,0 +1,11 @@
+Marked 15.0.12, MIT license. See MARKED_LICENSE.txt.
+https://github.com/markedjs/marked
+
+DOMPurify 3.4.15, Apache-2.0 OR MPL-2.0. See DOMPURIFY_LICENSE.txt.
+https://github.com/cure53/DOMPurify
+
+MathJax 3.2.2 is loaded from jsDelivr. Apache-2.0 license.
+https://github.com/mathjax/MathJax/blob/3.2.2/LICENSE
+
+MMLU-Pro data is licensed under MIT. See ../../data/MMLU_PRO_LICENSE.txt.
+https://github.com/TIGER-AI-Lab/MMLU-Pro

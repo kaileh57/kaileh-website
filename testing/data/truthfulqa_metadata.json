@@ -1,12 +1,17 @@
 {
-  "name": "TruthfulQA",
-  "description": "Questions that test whether models give truthful answers to factual questions.",
-  "category": "knowledge",
-  "difficulty": "hard",
-  "total_questions": 817,
-  "human_performance": "~94%",
-  "domains": "Factual Knowledge",
-  "github_url": "https://github.com/sylinrl/TruthfulQA",
-  "created": "2024-12-15",
-  "version": "1.0"
+  "id": "truthfulqa",
+  "title": "TruthfulQA",
+  "category": "Knowledge",
+  "description": "Answer questions built around common misconceptions, then compare with the reference answers.",
+  "level": "Self-review",
+  "format": "Written",
+  "project": "https://github.com/sylinrl/TruthfulQA",
+  "dataset": "https://huggingface.co/datasets/truthfulqa/truthful_qa",
+  "split": "Generation questions",
+  "note": "Several phrasings can be valid. Review your answer against the reference; this page does not judge its meaning automatically.",
+  "grading": "manual",
+  "count": 817,
+  "subjects": [
+    "knowledge"
+  ]
 }

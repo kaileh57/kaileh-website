@@ -1,0 +1,30 @@
+{
+  "id": "mmlu-pro",
+  "title": "MMLU-Pro",
+  "category": "Knowledge",
+  "description": "Reason through academic questions with up to ten answer choices. Filter by subject to stay in your field.",
+  "level": "Challenging",
+  "format": "Choice",
+  "project": "https://github.com/TIGER-AI-Lab/MMLU-Pro",
+  "dataset": "https://huggingface.co/datasets/TIGER-Lab/MMLU-Pro",
+  "split": "Test split",
+  "note": "The bundled test split includes the upstream January 2026 option-format corrections.",
+  "grading": "choice",
+  "count": 12032,
+  "subjects": [
+    "biology",
+    "business",
+    "chemistry",
+    "computer science",
+    "economics",
+    "engineering",
+    "health",
+    "history",
+    "law",
+    "math",
+    "other",
+    "philosophy",
+    "physics",
+    "psychology"
+  ]
+}

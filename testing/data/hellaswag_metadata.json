@@ -1,12 +1,17 @@
 {
-  "name": "HellaSwag",
-  "description": "Commonsense reasoning about everyday situations and activities.",
-  "category": "reasoning",
-  "difficulty": "medium",
-  "total_questions": 10042,
-  "human_performance": "~95%",
-  "domains": "Commonsense",
-  "github_url": "https://github.com/rowanz/hellaswag",
-  "created": "2024-12-15",
-  "version": "1.0"
+  "id": "hellaswag",
+  "title": "HellaSwag",
+  "category": "Reasoning",
+  "description": "Read a short description of an activity and choose the most plausible continuation.",
+  "level": "Everyday reasoning",
+  "format": "Choice",
+  "project": "https://github.com/rowanz/hellaswag",
+  "dataset": "https://huggingface.co/datasets/Rowan/hellaswag",
+  "split": "First 1,000 validation questions",
+  "note": "This collection is a subset of the validation split. Some source passages contain awkward phrasing.",
+  "grading": "choice",
+  "count": 1000,
+  "subjects": [
+    "commonsense"
+  ]
 }

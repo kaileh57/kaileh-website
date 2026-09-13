@@ -1,12 +1,17 @@
 {
-  "name": "BoolQ",
-  "description": "Yes/no questions about Wikipedia passages requiring reasoning.",
-  "category": "reasoning",
-  "difficulty": "easy",
-  "total_questions": 3270,
-  "human_performance": "~91%",
-  "domains": "Boolean QA",
-  "github_url": "https://github.com/google-research-datasets/boolean-questions",
-  "created": "2024-12-15",
-  "version": "1.0"
+  "id": "boolq",
+  "title": "BoolQ",
+  "category": "Reading",
+  "description": "Use a short passage to answer a yes-or-no question. The evidence is in the text.",
+  "level": "Start here",
+  "format": "Choice",
+  "project": "https://github.com/google-research-datasets/boolean-questions",
+  "dataset": "https://huggingface.co/datasets/google/boolq",
+  "split": "Validation split",
+  "note": "Choose yes or no based on the passage.",
+  "grading": "choice",
+  "count": 3270,
+  "subjects": [
+    "reasoning"
+  ]
 }

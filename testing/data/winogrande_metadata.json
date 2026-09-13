@@ -1,12 +1,17 @@
 {
-  "name": "WinoGrande",
-  "description": "Pronoun resolution problems requiring commonsense reasoning.",
-  "category": "reasoning",
-  "difficulty": "medium",
-  "total_questions": 1767,
-  "human_performance": "~94%",
-  "domains": "Language Reasoning",
-  "github_url": "https://github.com/allenai/winogrande",
-  "created": "2024-12-15",
-  "version": "1.0"
+  "id": "winogrande",
+  "title": "WinoGrande",
+  "category": "Reasoning",
+  "description": "Resolve an ambiguous sentence by choosing which person or object belongs in the blank.",
+  "level": "Short questions",
+  "format": "Choice",
+  "project": "https://github.com/allenai/winogrande",
+  "dataset": "https://huggingface.co/datasets/allenai/winogrande",
+  "split": "Validation split",
+  "note": "Two choices per question. Read the full sentence before choosing.",
+  "grading": "choice",
+  "count": 1267,
+  "subjects": [
+    "reasoning"
+  ]
 }
