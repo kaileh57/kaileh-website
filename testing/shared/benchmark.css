@@ -157,7 +157,7 @@ small,.small {
 .intro {
   padding:36px 0 28px;
   display:grid;
-  grid-template-columns:minmax(0,1fr) 260px;
+  grid-template-columns:1fr;
   gap:32px;
   align-items:start;
 }
@@ -171,19 +171,7 @@ small,.small {
   color:var(--muted);
 }
 
-.intro-note {
-  border-left:1px solid var(--line);
-  padding-left:22px;
-  font-size:.85rem;
-  margin-top:4px;
-}
 
-.intro-note strong {
-  display:block;
-  color:var(--text);
-  font-weight:500;
-  margin-bottom:8px;
-}
 
 .catalog-summary {
   font:12px var(--mono);
@@ -848,15 +836,8 @@ mjx-container {
     gap:18px;
     padding-top:25px;
   }
-  .intro-note {
-    border-left:0;
-    border-top:1px solid var(--line);
-    padding:14px 0 0;
-  }
-  .intro-note strong {
-    display:inline;
-    margin-right:6px;
-  }
+
+
   .catalog {
     grid-template-columns:1fr;
   }

@@ -58,7 +58,7 @@
     constructor(id) { this.id=id; this.main=$('main'); this.session=null; this.storageAvailable=true; this.mathQueue=Promise.resolve(); this.init(); }
     async init() {
       try {
-        const [catalogResponse,dataResponse]=await Promise.all([fetch('/testing/data/index.json?v=20260913b'),fetch(`/testing/data/${this.id}.json?v=20260913b`)]);
+        const [catalogResponse,dataResponse]=await Promise.all([fetch('/testing/data/index.json?v=20260913c'),fetch(`/testing/data/${this.id}.json?v=20260913c`)]);
         if (!catalogResponse.ok || !dataResponse.ok) throw new Error('Data unavailable');
         const catalog=await catalogResponse.json();
         this.meta=catalog.benchmarks.find(b=>b.id===this.id);

@@ -16,7 +16,7 @@ DEFINITIONS=[
  ('truthfulqa','TruthfulQA','Knowledge','Answer questions built around common misconceptions, then compare with the reference answers.','Self-review','Written','https://github.com/sylinrl/TruthfulQA','https://huggingface.co/datasets/truthfulqa/truthful_qa','Generation questions','Several phrasings can be valid. Review your answer against the reference; this page does not judge its meaning automatically.','manual'),
  ('humaneval','HumanEval','Code','Write a Python function from its specification. Review a reference implementation and the supplied tests.','Self-review','Code','https://github.com/openai/human-eval','https://huggingface.co/datasets/openai/openai_humaneval','Test split','Code stays in this browser and is not executed. Use the reference and tests to assess your solution.','manual'),
 ]
-VERSION='20260913b'
+VERSION='20260913c'
 def shell(title,description,slug=None,content=''):
  scripts='' if slug is None else f'''<script defer src="/testing/shared/vendor/marked.umd.js"></script>
 <script defer src="/testing/shared/vendor/purify.min.js"></script>
@@ -48,7 +48,7 @@ def main():
  (ROOT/'data/index.json').write_text(json.dumps(dict(version=2,updated='2026-09-13',benchmarks=benchmarks,total_questions=sum(x['count'] for x in benchmarks)),indent=2)+'\n')
  body='''<main id="main" class="wrap">
 <section class="intro"><div><p class="eyebrow">AI benchmarks, answered by you</p><h1>Try the questions behind the scores.</h1><p>Pick a subject, work through a short session, and review the answers. No account or timer. Your place is saved in this browser.</p><div id="catalog-summary" class="catalog-summary" role="status">Loading the collection...</div></div>
-<aside class="intro-note"><strong>A place to practice.</strong><p>These sessions use public benchmark questions. Your practice results depend on the questions you choose and are not directly comparable with model leaderboard scores.</p></aside></section>
+</section>
 <form class="toolbar" role="search" onsubmit="return false"><div class="field grow"><label for="search">Find a benchmark</label><input id="search" type="search" placeholder="Search names, subjects, or skills" autocomplete="off"></div><div class="field"><label for="domain">Subject</label><select id="domain"><option value="all">All subjects</option></select></div><div class="field"><label for="format">Answer format</label><select id="format"><option value="all">All formats</option><option>Choice</option><option>Number</option><option>Written</option><option>Code</option><option>Mixed</option></select></div></form>
 <p class="catalog-status" id="catalog-status" role="status"></p><section id="catalog" class="catalog" aria-label="Benchmark collection"></section>
 <section class="method"><h2>How practice works</h2><p>Multiple-choice questions use the published answer key. Math questions in GSM8K accept equivalent numbers, including fractions. For written and code answers, reveal the reference and assess your own work. Self-assessments are kept separate from automatic scores.</p><p>Counts describe the questions included here. Open a benchmark for its split and source details, or browse <a href="/testing/sources.html">all sources and scoring notes</a>.</p></section>

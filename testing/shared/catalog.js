@@ -3,7 +3,7 @@
   const escape = value => String(value).replace(/[&<>"']/g, c => ({'&':'&amp;','<':'&lt;','>':'&gt;','"':'&quot;',"'":'&#39;'}[c]));
   const catalog = document.getElementById('catalog');
   try {
-    const response = await fetch('/testing/data/index.json?v=20260913b');
+    const response = await fetch('/testing/data/index.json?v=20260913c');
     if (!response.ok) throw new Error('Catalog request failed');
     const {benchmarks, total_questions} = await response.json();
     document.getElementById('catalog-summary').textContent = `${benchmarks.length} benchmarks / ${total_questions.toLocaleString()} questions`;
@@ -19,7 +19,7 @@
       catalog.innerHTML = items.length ? items.map(b => {
         let resume = false;
         try { const s = JSON.parse(localStorage.getItem(`benchmark-lab:v2:${b.id}`)); resume = s?.version === 2 && s.ids?.length > 0 && s.cursor < s.ids.length; } catch (_) { /* Storage is optional. */ }
-        return `<article class="benchmark-card"><div class="card-top"><h2><a href="/testing/${b.id}/">${escape(b.title)}</a></h2><span class="tag ${b.id === 'mmlu-pro' ? 'featured' : ''}">${escape(b.level)}</span></div><p class="card-description">${escape(b.description)}</p><div class="card-meta"><span>${b.count.toLocaleString()} questions</span><span>${escape(b.category)}</span><span>${escape(b.format)}</span></div><div class="card-actions"><a class="btn ${b.id === 'mmlu-pro' ? 'primary' : ''}" href="/testing/${b.id}/">${resume ? 'Resume practice' : 'Start practice'}</a><a href="${b.dataset}">${escape(b.title)} dataset</a></div></article>`;
+        return `<article class="benchmark-card"><div class="card-top"><h2><a href="/testing/${b.id}/">${escape(b.title)}</a></h2><span class="tag ${b.id === 'mmlu-pro' ? 'featured' : ''}">${escape(b.level)}</span></div><p class="card-description">${escape(b.description)}</p><div class="card-meta"><span>${b.count.toLocaleString()} questions</span><span>${escape(b.category)}</span><span>${escape(b.format)}</span></div><div class="card-actions"><a class="btn" href="/testing/${b.id}/">${resume ? 'Resume practice' : 'Start practice'}</a><a href="${b.dataset}">${escape(b.title)} dataset</a></div></article>`;
       }).join('') : '<p class="empty">No benchmarks match these filters. Try another subject or clear your search.</p>';
     }
     [search,domain,format].forEach(el => el.addEventListener('input',render));
