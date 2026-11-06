@@ -9,8 +9,11 @@
     <link rel="canonical" href="https://kaileh.dev/">
 
     <!-- Open Graph -->
-    <meta property="og:type" content="website">
-    <meta property="og:title" content="Kellen Heraty (Kaileh57)">
+    <meta property="og:type" content="profile">
+    <meta property="profile:first_name" content="Kellen">
+    <meta property="profile:last_name" content="Heraty">
+    <meta property="profile:username" content="kaileh57">
+    <meta property="og:title" content="Kellen Heraty">
     <meta property="og:description" content="Machine learning researcher. Co-founder and Chief Scientist at Sculptor AI, a Seattle nonprofit doing open-source AI research. Computer science student at the UW Paul G. Allen School.">
     <meta property="og:url" content="https://kaileh.dev/">
     <meta property="og:site_name" content="Kellen Heraty">
@@ -20,14 +23,18 @@
 
     <!-- Twitter Card -->
     <meta name="twitter:card" content="summary_large_image">
-    <meta name="twitter:title" content="Kellen Heraty (Kaileh57)">
+    <meta name="twitter:title" content="Kellen Heraty">
     <meta name="twitter:description" content="Machine learning researcher. Co-founder and Chief Scientist at Sculptor AI, a Seattle nonprofit doing open-source AI research. Computer science student at the UW Paul G. Allen School.">
     <meta name="twitter:image" content="https://kaileh.dev/og.png">
 
     <!-- Structured Data -->
     <script type="application/ld+json">
-    {
-        "@context": "https://schema.org",
+{
+    "@context": "https://schema.org",
+    "@type": "ProfilePage",
+    "url": "https://kaileh.dev/",
+    "dateModified": "2026-11-06",
+    "mainEntity": {
         "@type": "Person",
         "name": "Kellen Heraty",
         "alternateName": "Kaileh57",
@@ -38,13 +45,15 @@
             "name": "Sculptor AI",
             "url": "https://sculptorai.org"
         },
-        "alumniOf": {
-            "@type": "CollegeOrUniversity",
-            "name": "University of Washington"
-        },
+        "alumniOf": [
+            {
+                "@type": "HighSchool",
+                "name": "Lakeside School"
+            }
+        ],
         "sameAs": [
-            "https://github.com/kaileh57",
             "https://www.linkedin.com/in/kellenheraty/",
+            "https://github.com/kaileh57",
             "https://huggingface.co/Kaileh57",
             "https://huggingface.co/Sculptor-AI",
             "https://orcid.org/0009-0007-1662-9937",
@@ -52,8 +61,34 @@
             "https://modrinth.com/user/kaileh57",
             "https://www.instagram.com/kaileh57/"
         ],
-        "knowsAbout": ["Machine Learning", "Simulation-based Inference", "Uncertainty Calibration", "Language Models", "Autonomous Vehicles"]
+        "knowsAbout": [
+            "Machine Learning",
+            "Simulation-based Inference",
+            "Uncertainty Calibration",
+            "Language Models",
+            "Autonomous Vehicles"
+        ],
+        "@id": "https://kaileh.dev/#person",
+        "description": "Co-founder and Chief Scientist at Sculptor AI, a Seattle nonprofit doing open-source AI research. Computer science student at the University of Washington Paul G. Allen School.",
+        "affiliation": [
+            {
+                "@type": "Organization",
+                "name": "Sculptor AI",
+                "url": "https://sculptorai.org"
+            },
+            {
+                "@type": "CollegeOrUniversity",
+                "name": "University of Washington Paul G. Allen School of Computer Science & Engineering",
+                "url": "https://www.cs.washington.edu/"
+            }
+        ],
+        "homeLocation": {
+            "@type": "Place",
+            "name": "Seattle, Washington"
+        },
+        "email": "mailto:kellenhe@hotmail.com"
     }
+}
     </script>
 
     <style>
