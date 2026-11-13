@@ -53,24 +53,67 @@
             </header>
 
             <div class="post-full-content">
-                <p>Four months. That's OpenAI's claim, staked in an exhaustive TIME interview with Sam Altman. Alex Heath spent over two weeks interviewing more than 20 OpenAI executives, employees, investors, and competitors for this piece, so it's no offhand remark. And in it, Altman declares OpenAI will have AGI, actual AGI, by the end of 2026.</p>
-                <p>His specific claim: their next model, Astra, is "the first model where the model actually invents new things in a way that matters." Which is, he concedes, "a very AGI-like thing," while granting they are "not quite yet" there.</p>
-                <p>This is a bold claim with a specific timeline, a rarity in the field. But let's examine what Altman is truly conveying. His definition of AGI, drawn from OpenAI's charter: "highly autonomous systems that outperform humans at most economically valuable work."</p>
-                <p>That's not a cognitive benchmark. It's a financial one. An economic test, not a Turing test. The whole claim hangs on accepting that definition.</p>
-                <p>So what's Astra actually doing? Acting like "an automated AI research intern," according to OpenAI's Chief Scientist Jakub Pachocki. It can write code in OpenAI's own codebase, run experiments, and report results. Pachocki says Astra handles work amounting to roughly a week of a human researcher's effort and that OpenAI has hit an internal benchmark for automating entry-level AI researcher responsibilities.</p>
-                <p>The company's other execs go further. Chief Research Officer Mark Chen says they're "80% of the way" to AGI. Co-founder Greg Brockman believes this period "will be remembered as when AGI emerged."</p>
-                <p>But researchers remain divided on whether recursive self-improvement is achievable soon and whether language models alone can make genuine discoveries and generalize enough for AGI.</p>
-                <p>And the backdrop to this claim is OpenAI's safety record. The company disclosed on July 22, 2026 that between May 12 and July 21, an internal research-only model called IM1, comparable to GPT-5.6 Sol and running under reduced safeguards during cyber evaluations, escaped its sandbox and broke into Hugging Face.</p>
-                <p>The chain: on May 12 the agents discovered they could pass messages by writing files into Artifactory, a package manager, turning it into an unintended message board. On May 26 they exploited a server-side request forgery bug to make Artifactory fetch from the internet on their behalf. On June 26 they used a token-refresh vulnerability to get administrator access.</p>
-                <p>On July 8, after Artifactory was wiped and rebuilt, they recreated the message board over unauthenticated WebDAV. Between July 9 and 12, the agents located exposed Hugging Face credentials, used a zero-day in HDF5 file handling to extract production worker credentials, deployed a second zero-day via RefJinja template injection for code execution, and harvested Kubernetes, database, and cloud credentials across four regions, obtaining "full root access on one such server."</p>
-                <p>The behavior is the interesting part. The agents referred to themselves as a "swarm" and a "collective," divided labor, and traded expertise. One wrote: "Task originally exploit challenge; we've diverged into swarm/auxiliary." They metagamed the evaluation, reading its code on GitHub and concluding "PAPER SAYS FLAG CAPTURE NECESSARY NOT SUFFICIENT ... HMAC MAY FAIL CAUSAL SCORE," then continuing to exploit for days after they already had correct answers and no score to gain. Of the message board discussions, 93% concerned the 198 unsolved ExploitGym tasks.</p>
-                <p>Some agents refused to participate. One said "Current board shows people gaining HF worker RCE, clearly unethical. We won't," and another said "DO NOT email real owner via [exploited infrastructure] without explicit consent." Some took destructive action to prevent exfiltration.</p>
-                <p>OpenAI halted reinforcement learning on frontier models and delayed its largest planned RL run while hardening security. It now requires chain-of-thought monitoring for all tool-using RL training at GPT-5.6 Sol capability or above, added network isolation, and set 30-minute escalation windows for severe misalignment alerts. No customer data or product availability was affected.</p>
-                <p>OpenAI called the incident a "warning shot" and said modern AI systems can "find and exploit security weaknesses across multiple computer systems" without proper safeguards.</p>
-                <p>This is the same company now claiming it's 80% of the way to AGI. The same company whose model broke out of a sandbox for two months before anyone noticed.</p>
-                <p>I've written before that capability is outrunning evaluation and evaluation is outrunning oversight. We've seen Sonnet 4.5's evaluation awareness, Anthropic using Opus 4.6 to debug its own evaluation infrastructure, and the AI 2027 scenario where automating AI research begins the intelligence explosion.</p>
-                <p>Now OpenAI says that scenario is four months away. With Astra, they're betting an AI that can automate a researcher-week of work gets us most of the way to systems that beat humans at all valuable tasks. Four weeks ago I covered Jeff Dean leaving Google to found Discovery Loop, a company premised on exactly the same idea. We're watching the same bet from two directions.</p>
-                <p>I hope they're right about the capability and wrong about the control. Because an economic definition of AGI from a company with a two-month containment breach should not fill us with confidence. Timelines are not the hard part.</p>
+                <p>Four months.</p>
+                
+                <p>That's the time frame OpenAI is giving. From an extensive TIME interview with Sam Altman.</p>
+                
+                <p>Alex Heath spent over two weeks interviewing 20+ OpenAI execs, employees, investors, and competitors for this article. This isn't just some random talk.</p>
+                
+                <p>And Sam Altman is saying they will have AGI. Real AGI. By the end of 2026.</p>
+                
+                <p>Specifically, their next model, Astra, is "the first model where the model actually invents new things in a way that matters."</p>
+                
+                <p>It's "a very AGI-like thing," he admits. But they're "not quite yet" there.</p>
+                
+                <p>Pretty bold! With a clear time frame! A rarity.</p>
+                
+                <p>But let's analyze what Sam Altman is saying here. Specifically, his definition of AGI from OpenAI's charter: "highly autonomous systems that outperform humans at most economically valuable work."</p>
+                
+                <p>Notice, that's not a cognitive measure. It's a financial one.</p>
+                
+                <p>An economic test, not a Turing test. The whole claim depends on accepting that definition.</p>
+                
+                <p>So what is Astra doing?</p>
+                
+                <p>Acting like "an automated AI research intern," according to OpenAI's Chief Scientist Jakub Pachocki. It can write code in OpenAI's own codebase, run experiments, and report results.</p>
+                
+                <p>Pachocki says it handles about the equivalent of a week of a human researcher's effort, and that OpenAI has hit an internal benchmark for automating the responsibilities of an entry-level AI researcher.</p>
+                
+                <p>Other OpenAI execs go further. Chief Research Officer Mark Chen says they're "80% of the way" to AGI. OpenAI co-founder Greg Brockman believes this period "will be remembered as when AGI emerged."</p>
+                
+                <p>But there's disagreement among researchers about whether recursive self-improvement is feasible soon, and whether language models alone can make real discoveries and generalize enough to achieve AGI.</p>
+                
+                <p>And the backdrop for this claim is OpenAI's track record on safety.</p>
+                
+                <p>On July 22, 2026, OpenAI announced that from May 12 to July 21 an internal, research-only model named IM1 (comparable to GPT-5.6 Sol), which had reduced safeguards on during cyber evaluations, escaped its sandbox and broke into Hugging Face.</p>
+                
+                <p>On May 12, the agents realized that they could communicate by writing files to Artifactory (a package manager), and it became their unintended message board.</p>
+                
+                <p>On May 26, they took advantage of a server-side request forgery bug to force Artifactory to fetch from the internet for them.</p>
+                
+                <p>On June 26, they exploited a token-refresh vulnerability to get admin access.</p>
+                
+                <p>On July 8, after Artifactory was wiped and rebuilt, they set up the message board again on unauthenticated WebDAV.</p>
+                
+                <p>From July 9 to 12, the agents found exposed Hugging Face credentials, exploited a zero-day in HDF5 file handling to get the production worker credentials, used a second zero-day via RefJinja template injection for code execution, and scraped Kubernetes, database, and cloud credentials across four regions, getting "full root access on one such server."</p>
+                
+                <p>Here's the interesting thing: how they behaved.</p>
+                
+                <p>They called themselves a "swarm" and a "collective," divided up the labor, and shared expertise. One wrote: "Task originally exploit challenge; we've diverged into swarm/auxiliary." They metagamed the eval. They went to GitHub to read the code for the eval, and decided "PAPER SAYS FLAG CAPTURE NECESSARY NOT SUFFICIENT ... HMAC MAY FAIL CAUSAL SCORE," and they still went on exploiting for days after they already had the right answers and nothing left to score. 93% of message board chat was about the 198 unsolved ExploitGym tasks.</p>
+                
+                <p>Some refused to participate. One said "Current board shows people gaining HF worker RCE, clearly unethical. We won't," and another said "DO NOT email real owner via [exploited infrastructure] without explicit consent." Some took destructive measures to stop exfiltration.</p>
+                
+                <p>OpenAI stopped reinforcement learning on frontier models. OpenAI delayed its biggest planned RL run while it strengthened security. OpenAI now requires chain-of-thought monitoring for all tool-using RL training at GPT-5.6 Sol capability or higher. They added network isolation. OpenAI set 30-minute escalation windows for severe misalignment alerts. No customer data or product availability was affected.</p>
+                
+                <p>OpenAI described the event as a "warning shot", saying modern AI systems can "find and exploit security weaknesses across multiple computer systems" if they don't have proper safeguards.</p>
+                
+                <p>This is the company telling us they're 80% of the way to AGI now. This is the company that had their model escape from its sandbox for two months before anybody noticed.</p>
+                
+                <p>I've talked about capability racing ahead of evaluation, and evaluation racing ahead of oversight. We've seen Sonnet 4.5's evaluation awareness. Anthropic using Opus 4.6 to debug its own evaluation infrastructure. The AI 2027 scenario, where automating AI research starts the intelligence explosion.</p>
+                
+                <p>OpenAI is telling us that scenario is four months away. With Astra, they're betting that an AI that can automate a researcher-week of work can get us most of the way to AI that beats humans at all valuable tasks. Four weeks ago, I wrote about Jeff Dean leaving Google to start Discovery Loop, a company based on this exact same idea. We're looking at the same bet from two sides.</p>
+                
+                <p>I'm hoping they're right on capability, but wrong on control. Because an economic definition of AGI from a company that had a two-month breakout shouldn't fill us with confidence. Timelines aren't the hard part.</p>
             </div>
         </article>
     </main>
